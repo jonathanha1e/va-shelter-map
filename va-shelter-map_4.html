@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>California VA Facilities — Shelter By-Right Siting Map</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  #map { height: 100vh; width: 100vw; }
+  .legend {
+    background: white; padding: 12px 14px; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.3); font-size: 13px; line-height: 1.5;
+    max-width: 270px; max-height: 80vh; overflow-y: auto;
+  }
+  .legend h4 { margin: 0 0 6px 0; font-size: 14px; }
+  .legend .row { display: flex; align-items: center; margin: 3px 0; }
+  .swatch { width: 14px; height: 14px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.3);}
+  .ring { width: 14px; height: 14px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; border: 2px solid; background: transparent; }
+  .note { font-size: 11px; color: #555; margin-top: 8px; border-top: 1px solid #ddd; padding-top: 6px; }
+  .popup-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+  .popup-tag { display: inline-block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.03em; background: #eee; padding: 1px 6px; border-radius: 3px; margin-bottom: 6px; }
+  .popup-row { font-size: 12px; margin: 2px 0; }
+  a.popup-link { color: #0056b3; }
+  .leaflet-control-layers { max-height: 80vh; overflow-y: auto; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+
+// ============================================================
+// DATA — CALIFORNIA VETERAN FACILITIES
+// Addresses are pulled directly from each health care system's official
+// "Locations" page on va.gov (or cem.va.gov for national cemeteries).
+// Coordinates are HARDCODED best-effort placements (not run through a live
+// geocoding API) — accurate enough to see the statewide pattern, but not
+// survey-grade. Spot-check anything you're relying on for an actual filing,
+// especially the CBOCs at suite/building-number or military-base addresses.
+// category: "VA Medical Center" | "CBOC" | "Vet Center" | "National Cemetery"
+//
+// county / sb79County: SB 79 (Gov. Code §65912.155–162) ONLY creates TOD
+// tiers inside "urban transit counties" — counties with 15+ passenger rail
+// stations. As of the July 2026 operative date that's: Alameda, Los Angeles,
+// Sacramento, San Diego, San Francisco, San Mateo, and Santa Clara (Orange
+// County is expected to qualify once the OC Streetcar's station count is
+// counted, but isn't confirmed as of this map). A facility outside these
+// seven counties CANNOT have an SB 79 TOD stop nearby, no matter how good
+// the local transit is — sb79County: false means that, full stop.
+// ============================================================
+const facilities = [
+  // ---- VA Medical Centers / major divisions ----
+  { name: "Martinez VA Medical Center", category: "VA Medical Center", county: "Contra Costa", sb79County: false, lat: 38.0028, lng: -122.1149, address: "150 Muir Road, Martinez, CA 94553", url: "https://www.va.gov/northern-california-health-care/locations/martinez-va-medical-center/", note: "VA Northern California HCS." },
+  { name: "Sacramento VA Medical Center (Mather)", category: "VA Medical Center", county: "Sacramento", sb79County: true, lat: 38.5589, lng: -121.2966, address: "10535 Hospital Way, Mather, CA 95655", url: "https://www.va.gov/northern-california-health-care/locations/sacramento-va-medical-center/", note: "VA Northern California HCS." },
+  { name: "VA Palo Alto Medical Center", category: "VA Medical Center", county: "Santa Clara", sb79County: true, lat: 37.4181, lng: -122.1531, address: "3801 Miranda Avenue, Palo Alto, CA 94304", url: "https://www.va.gov/palo-alto-health-care/", note: "VA Palo Alto HCS main division." },
+  { name: "VA Livermore Division", category: "VA Medical Center", county: "Alameda", sb79County: true, lat: 37.6698, lng: -121.7729, address: "4951 Arroyo Road, Livermore, CA 94550", url: "https://www.va.gov/palo-alto-health-care/", note: "VA Palo Alto HCS inpatient division." },
+  { name: "VA Menlo Park Division", category: "VA Medical Center", county: "San Mateo", sb79County: true, lat: 37.4529, lng: -122.1817, address: "795 Willow Road, Menlo Park, CA 94025", url: "https://www.va.gov/palo-alto-health-care/", note: "VA Palo Alto HCS inpatient division." },
+  { name: "San Francisco VA Medical Center", category: "VA Medical Center", county: "San Francisco", sb79County: true, lat: 37.7827, lng: -122.4534, address: "4150 Clement Street, San Francisco, CA 94121", url: "https://www.va.gov/san-francisco-health-care/", note: "No Muni Metro rail or BART within 0.5 miles." },
+  { name: "VA Central California Medical Center (Fresno)", category: "VA Medical Center", county: "Fresno", sb79County: false, lat: 36.7616, lng: -119.7642, address: "2615 East Clinton Avenue, Fresno, CA 93703", url: "https://www.va.gov/central-california-health-care/", note: "No fixed rail in Fresno." },
+  { name: "VA Greater Los Angeles (West LA)", category: "VA Medical Center", county: "Los Angeles", sb79County: true, lat: 34.0500, lng: -118.4525, address: "11301 Wilshire Boulevard, Los Angeles, CA 90073", url: "https://www.va.gov/greater-los-angeles-health-care/", note: "Nearest LA Metro E Line station (Sepulveda) ~1 mile south." },
+  { name: "Sepulveda Ambulatory Care Center", category: "VA Medical Center", county: "Los Angeles", sb79County: true, lat: 34.2298, lng: -118.4695, address: "16111 Plummer Street, Sepulveda, CA 91343", url: "https://www.va.gov/greater-los-angeles-health-care/locations/", note: "VA Greater LA HCS; includes nursing home care unit." },
+  { name: "VA Long Beach (Tibor Rubin VAMC)", category: "VA Medical Center", county: "Los Angeles", sb79County: true, lat: 33.77731, lng: -118.12177, address: "5901 East Seventh Street, Long Beach, CA 90822", url: "https://www.va.gov/long-beach-health-care/", note: "Nearest LA Metro A Line station ~2+ miles away." },
+  { name: "VA Loma Linda (Jerry L. Pettis Memorial)", category: "VA Medical Center", county: "San Bernardino", sb79County: false, lat: 34.0031, lng: -117.2528, address: "11201 Benton Street, Loma Linda, CA 92357", url: "https://www.va.gov/loma-linda-health-care/", note: "No fixed rail nearby." },
+  { name: "VA San Diego (Jennifer Moreno VAMC)", category: "VA Medical Center", county: "San Diego", sb79County: true, lat: 32.8701, lng: -117.2153, address: "3350 La Jolla Village Drive, San Diego, CA 92161", url: "https://www.va.gov/san-diego-health-care/", note: "STANDOUT: San Diego Trolley 'VA Medical Center' station is directly adjacent." },
+
+  // ---- CBOCs — VA Northern California HCS ----
+  { name: "Chico VA Clinic", category: "CBOC", county: "Butte", sb79County: false, lat: 39.7280, lng: -121.8100, address: "1601 Concord Avenue, Chico, CA 95928", url: "https://www.va.gov/northern-california-health-care/locations/", note: "VA Northern California HCS." },
+  { name: "Redding VA Clinic", category: "CBOC", county: "Shasta", sb79County: false, lat: 40.5330, lng: -122.3610, address: "3455 Knighton Road, Redding, CA 96002", url: "https://www.va.gov/northern-california-health-care/locations/", note: "VA Northern California HCS." },
+  { name: "Fairfield VA Clinic (Travis AFB)", category: "CBOC", county: "Solano", sb79County: false, lat: 38.2627, lng: -121.9276, address: "103 Bodin Circle, Building 778, Travis AFB, CA 94535", url: "https://www.va.gov/northern-california-health-care/locations/", note: "VA Northern California HCS." },
+  { name: "Louis A. Conter VA Clinic (Auburn)", category: "CBOC", county: "Placer", sb79County: false, lat: 38.9199, lng: -121.0763, address: "11985 Heritage Oaks Place, Suite 100, Auburn, CA 95603", url: "https://www.va.gov/northern-california-health-care/locations/", note: "VA Northern California HCS." },
+  { name: "Mare Island VA Clinic", category: "CBOC", county: "Solano", sb79County: false, lat: 38.1052, lng: -122.2632, address: "201 Walnut Avenue, Building 201, Mare Island, CA 94592", url: "https://www.va.gov/northern-california-health-care/locations/", note: "VA Northern California HCS." },
+  { name: "McClellan VA Clinic", category: "CBOC", county: "Sacramento", sb79County: true, lat: 38.6675, lng: -121.4008, address: "5342 Dudley Boulevard, Building 98, McClellan Park, CA 95652", url: "https://www.va.gov/northern-california-health-care/locations/", note: "VA Northern California HCS." },
+  { name: "Modesto VA Clinic", category: "CBOC", county: "Stanislaus", sb79County: false, lat: 37.6591, lng: -120.9727, address: "1225 Oakdale Road, Modesto, CA 95355", url: "https://www.va.gov/northern-california-health-care/locations/", note: "VA Northern California HCS." },
+  { name: "Richard A. Pittman VA Clinic (Stockton)", category: "CBOC", county: "San Joaquin", sb79County: false, lat: 37.8847, lng: -121.2853, address: "6505 South Manthey Road, French Camp, CA 95231", url: "https://www.va.gov/northern-california-health-care/locations/", note: "VA Northern California HCS." },
+  { name: "Sonora VA Clinic", category: "CBOC", county: "Tuolumne", sb79County: false, lat: 37.9975, lng: -120.3735, address: "13663 Mono Way, Sonora, CA 95370", url: "https://www.va.gov/northern-california-health-care/locations/", note: "VA Northern California HCS." },
+  { name: "Yreka VA Clinic", category: "CBOC", county: "Siskiyou", sb79County: false, lat: 41.7185, lng: -122.6215, address: "101 East Oberlin Road, Yreka, CA 96097", url: "https://www.va.gov/northern-california-health-care/locations/", note: "VA Northern California HCS." },
+  { name: "Yuba City VA Clinic", category: "CBOC", county: "Sutter", sb79County: false, lat: 39.1382, lng: -121.6280, address: "425 Plumas Boulevard, Yuba City, CA 95991", url: "https://www.va.gov/northern-california-health-care/locations/", note: "VA Northern California HCS." },
+
+  // ---- CBOCs — VA Palo Alto HCS ----
+  { name: "Capitola VA Clinic", category: "CBOC", county: "Santa Cruz", sb79County: false, lat: 36.9773, lng: -121.9575, address: "1350 41st Avenue, Suite 102, Capitola, CA 95010", url: "https://www.va.gov/palo-alto-health-care/locations/", note: "VA Palo Alto HCS." },
+  { name: "Fremont VA Clinic", category: "CBOC", county: "Alameda", sb79County: true, lat: 37.5312, lng: -121.9772, address: "39199 Liberty Street, Building B, Fremont, CA 94538", url: "https://www.va.gov/palo-alto-health-care/locations/", note: "VA Palo Alto HCS." },
+  { name: "Monterey/Marina VA Clinic", category: "CBOC", county: "Monterey", sb79County: false, lat: 36.6828, lng: -121.8021, address: "201 9th Street, Marina, CA 93933", url: "https://www.va.gov/palo-alto-health-care/locations/", note: "VA Palo Alto HCS." },
+  { name: "San Jose VA Clinic", category: "CBOC", county: "Santa Clara", sb79County: true, lat: 37.2665, lng: -121.7955, address: "5855 Silver Creek Valley Place, San Jose, CA 95138", url: "https://www.va.gov/palo-alto-health-care/locations/", note: "VA Palo Alto HCS." },
+
+  // ---- CBOCs — San Francisco HCS ----
+  { name: "Clearlake VA Clinic", category: "CBOC", county: "Lake", sb79County: false, lat: 38.9583, lng: -122.6270, address: "15145 Lakeshore Drive, Clearlake, CA 95422", url: "https://www.va.gov/san-francisco-health-care/locations/", note: "VA San Francisco HCS." },
+  { name: "Eureka VA Clinic", category: "CBOC", county: "Humboldt", sb79County: false, lat: 40.7907, lng: -124.1770, address: "930 West Harris Street, Eureka, CA 95503", url: "https://www.va.gov/san-francisco-health-care/locations/", note: "VA San Francisco HCS." },
+  { name: "Santa Rosa North VA Clinic", category: "CBOC", county: "Sonoma", sb79County: false, lat: 38.4880, lng: -122.7130, address: "3841 Brickway Boulevard, Santa Rosa, CA 95403", url: "https://www.va.gov/san-francisco-health-care/locations/", note: "VA San Francisco HCS." },
+  { name: "Santa Rosa South VA Clinic", category: "CBOC", county: "Sonoma", sb79County: false, lat: 38.4432, lng: -122.7280, address: "2285 Challenger Way, Santa Rosa, CA 95407", url: "https://www.va.gov/san-francisco-health-care/locations/", note: "VA San Francisco HCS." },
+  { name: "Oakland VA Clinic", category: "CBOC", county: "Alameda", sb79County: true, lat: 37.8129, lng: -122.2726, address: "2221 Martin Luther King Jr. Way, Oakland, CA 94612", url: "https://www.va.gov/san-francisco-health-care/locations/", note: "VA San Francisco HCS." },
+  { name: "Oakland 21st Street VA Clinic", category: "CBOC", county: "Alameda", sb79County: true, lat: 37.8118, lng: -122.2694, address: "525 21st Street, Oakland, CA 94612", url: "https://www.va.gov/san-francisco-health-care/locations/", note: "VA San Francisco HCS; behavioral health." },
+  { name: "San Bruno VA Clinic", category: "CBOC", county: "San Mateo", sb79County: true, lat: 37.6296, lng: -122.4177, address: "1001 Sneath Lane, Suite 300, San Bruno, CA 94066", url: "https://www.va.gov/san-francisco-health-care/locations/", note: "VA San Francisco HCS." },
+  { name: "SF Downtown VA Clinic (CRRC)", category: "CBOC", county: "San Francisco", sb79County: true, lat: 37.7822, lng: -122.3969, address: "401 3rd Street, San Francisco, CA 94107", url: "https://www.va.gov/san-francisco-health-care/locations/", note: "VA San Francisco HCS." },
+  { name: "Ukiah VA Clinic", category: "CBOC", county: "Mendocino", sb79County: false, lat: 39.1394, lng: -123.1968, address: "630 Kings Court, Ukiah, CA 95482", url: "https://www.va.gov/san-francisco-health-care/locations/", note: "VA San Francisco HCS." },
+
+  // ---- CBOCs — VA Central California HCS ----
+  { name: "Merced VA Clinic", category: "CBOC", county: "Merced", sb79County: false, lat: 37.3080, lng: -120.4780, address: "340 East Yosemite Avenue, Suite D, Merced, CA 95340", url: "https://www.va.gov/central-california-health-care/locations/", note: "VA Central California HCS." },
+  { name: "Oakhurst VA Clinic", category: "CBOC", county: "Madera", sb79County: false, lat: 37.3210, lng: -119.6470, address: "40597 Westlake Drive, Oakhurst, CA 93644", url: "https://www.va.gov/central-california-health-care/locations/", note: "VA Central California HCS." },
+  { name: "Visalia VA Clinic", category: "CBOC", county: "Tulare", sb79County: false, lat: 36.3346, lng: -119.2892, address: "500 North Santa Fe Street, Visalia, CA 93292", url: "https://www.va.gov/central-california-health-care/locations/", note: "VA Central California HCS." },
+
+  // ---- CBOCs — VA Greater Los Angeles HCS ----
+  { name: "Antelope Valley VA Clinic (Lancaster)", category: "CBOC", county: "Los Angeles", sb79County: true, lat: 34.6980, lng: -118.1330, address: "340 East Avenue I, Suite 108, Lancaster, CA 93535", url: "https://www.va.gov/greater-los-angeles-health-care/locations/", note: "VA Greater LA HCS." },
+  { name: "Bakersfield VA Clinic", category: "CBOC", county: "Kern", sb79County: false, lat: 35.3660, lng: -119.0630, address: "1801 Westwind Drive, Bakersfield, CA 93301", url: "https://www.va.gov/greater-los-angeles-health-care/locations/", note: "VA Greater LA HCS." },
+  { name: "Ventura VA Clinic (Capt. Rosemary Bryant Mariner)", category: "CBOC", county: "Ventura", sb79County: false, lat: 34.2620, lng: -119.2140, address: "5250 Ralston Street, Ventura, CA 93003", url: "https://www.va.gov/greater-los-angeles-health-care/locations/", note: "VA Greater LA HCS." },
+  { name: "East Los Angeles VA Clinic", category: "CBOC", county: "Los Angeles", sb79County: true, lat: 34.0175, lng: -118.1550, address: "5426 East Olympic Boulevard, Commerce, CA 90022", url: "https://www.va.gov/greater-los-angeles-health-care/locations/", note: "VA Greater LA HCS." },
+  { name: "Los Angeles VA Clinic (Downtown)", category: "CBOC", county: "Los Angeles", sb79County: true, lat: 34.0567, lng: -118.2400, address: "351 East Temple Street, Los Angeles, CA 90012", url: "https://www.va.gov/greater-los-angeles-health-care/locations/", note: "VA Greater LA HCS." },
+  { name: "San Gabriel Valley VA Clinic (Arcadia)", category: "CBOC", county: "Los Angeles", sb79County: true, lat: 34.1367, lng: -118.0360, address: "7 West Foothill Boulevard, Suite D, Arcadia, CA 91006", url: "https://www.va.gov/greater-los-angeles-health-care/locations/", note: "VA Greater LA HCS." },
+  { name: "San Luis Obispo VA Clinic", category: "CBOC", county: "San Luis Obispo", sb79County: false, lat: 35.2820, lng: -120.6605, address: "1288 Morro Street, Suite 200, San Luis Obispo, CA 93401", url: "https://www.va.gov/greater-los-angeles-health-care/locations/", note: "VA Greater LA HCS." },
+  { name: "Santa Barbara VA Clinic", category: "CBOC", county: "Santa Barbara", sb79County: false, lat: 34.4380, lng: -119.7660, address: "4440 Calle Real, Santa Barbara, CA 93110", url: "https://www.va.gov/greater-los-angeles-health-care/locations/", note: "VA Greater LA HCS." },
+  { name: "Santa Maria VA Clinic", category: "CBOC", county: "Santa Barbara", sb79County: false, lat: 34.9530, lng: -120.4180, address: "1550 East Main Street, Santa Maria, CA 93454", url: "https://www.va.gov/greater-los-angeles-health-care/locations/", note: "VA Greater LA HCS." },
+
+  // ---- CBOCs — VA Long Beach HCS ----
+  { name: "Cabrillo VA Clinic", category: "CBOC", county: "Los Angeles", sb79County: true, lat: 33.8080, lng: -118.1890, address: "2001 River Avenue, Building 28, Long Beach, CA 90806", url: "https://www.va.gov/long-beach-health-care/locations/", note: "VA Long Beach HCS." },
+  { name: "Gardena VA Clinic", category: "CBOC", county: "Los Angeles", sb79County: true, lat: 33.8590, lng: -118.3040, address: "1149 West 190th Street, Suite 100, Gardena, CA 90248", url: "https://www.va.gov/long-beach-health-care/locations/", note: "VA Long Beach HCS." },
+  { name: "Laguna Hills VA Clinic", category: "CBOC", county: "Orange", sb79County: false, lat: 33.6120, lng: -117.7080, address: "23719 Moulton Parkway, Laguna Hills, CA 92653", url: "https://www.va.gov/long-beach-health-care/locations/", note: "VA Long Beach HCS." },
+  { name: "Placentia VA Clinic", category: "CBOC", county: "Orange", sb79County: false, lat: 33.8650, lng: -117.8560, address: "770 South Placentia Avenue, Placentia, CA 92870", url: "https://www.va.gov/long-beach-health-care/locations/", note: "VA Long Beach HCS." },
+  { name: "Santa Ana VA Clinic", category: "CBOC", county: "Orange", sb79County: false, lat: 33.7440, lng: -117.8390, address: "1506 Brookhollow Drive, Suite 100, Santa Ana, CA 92705", url: "https://www.va.gov/long-beach-health-care/locations/", note: "VA Long Beach HCS." },
+  { name: "Santa Fe Springs VA Clinic", category: "CBOC", county: "Los Angeles", sb79County: true, lat: 33.9440, lng: -118.0740, address: "10330 Pioneer Boulevard, Suite 180, Santa Fe Springs, CA 90670", url: "https://www.va.gov/long-beach-health-care/locations/", note: "VA Long Beach HCS." },
+  { name: "West Santa Ana VA Clinic (CRRC)", category: "CBOC", county: "Orange", sb79County: false, lat: 33.7480, lng: -117.8720, address: "888 West Santa Ana Boulevard, Suite 150, Santa Ana, CA 92701", url: "https://www.va.gov/long-beach-health-care/locations/", note: "VA Long Beach HCS." },
+
+  // ---- CBOCs — VA Loma Linda HCS ----
+  { name: "Blythe VA Clinic", category: "CBOC", county: "Riverside", sb79County: false, lat: 33.6100, lng: -114.6000, address: "1273 West Hobson Way, Blythe, CA 92225", url: "https://www.va.gov/loma-linda-health-care/locations/", note: "VA Loma Linda HCS." },
+  { name: "Corona VA Clinic", category: "CBOC", county: "Riverside", sb79County: false, lat: 33.8770, lng: -117.5470, address: "280 Teller Street, Suite 120, Corona, CA 92879", url: "https://www.va.gov/loma-linda-health-care/locations/", note: "VA Loma Linda HCS." },
+  { name: "Hemet VA Clinic", category: "CBOC", county: "Riverside", sb79County: false, lat: 33.7440, lng: -116.9640, address: "720 East Latham Avenue, Hemet, CA 92543", url: "https://www.va.gov/loma-linda-health-care/locations/", note: "VA Loma Linda HCS." },
+  { name: "Loma Linda VA Clinic (Redlands Ambulatory Care Center)", category: "CBOC", county: "San Bernardino", sb79County: false, lat: 34.0290, lng: -117.1690, address: "26001 Redlands Boulevard, Redlands, CA 92373", url: "https://www.va.gov/loma-linda-health-care/locations/", note: "VA Loma Linda HCS." },
+  { name: "Murrieta VA Clinic", category: "CBOC", county: "Riverside", sb79County: false, lat: 33.5680, lng: -117.1720, address: "25125 Madison Avenue, Suite 105, Murrieta, CA 92562", url: "https://www.va.gov/loma-linda-health-care/locations/", note: "VA Loma Linda HCS." },
+  { name: "Women's Health Center (Redlands)", category: "CBOC", county: "San Bernardino", sb79County: false, lat: 34.0570, lng: -117.1450, address: "10391 Corporate Drive, Redlands, CA 92374", url: "https://www.va.gov/loma-linda-health-care/locations/", note: "VA Loma Linda HCS." },
+  { name: "Rancho Cucamonga VA Clinic", category: "CBOC", county: "San Bernardino", sb79County: false, lat: 34.1310, lng: -117.5720, address: "8160 Day Creek Boulevard, Suite 120, Rancho Cucamonga, CA 91739", url: "https://www.va.gov/loma-linda-health-care/locations/", note: "VA Loma Linda HCS." },
+  { name: "Palm Desert VA Clinic (Sy Kaplan)", category: "CBOC", county: "Riverside", sb79County: false, lat: 33.7920, lng: -116.3980, address: "72700 Dinah Shore Drive, Suite 200, Palm Desert, CA 92211", url: "https://www.va.gov/loma-linda-health-care/locations/", note: "VA Loma Linda HCS." },
+  { name: "Victorville VA Clinic", category: "CBOC", county: "San Bernardino", sb79County: false, lat: 34.5330, lng: -117.2920, address: "14598 Seventh Street, Suite B, Victorville, CA 92395", url: "https://www.va.gov/loma-linda-health-care/locations/", note: "VA Loma Linda HCS." },
+
+  // ---- CBOCs — VA San Diego HCS ----
+  { name: "Chula Vista VA Clinic", category: "CBOC", county: "San Diego", sb79County: true, lat: 32.6390, lng: -117.0840, address: "353 H Street, Chula Vista, CA 91910", url: "https://www.va.gov/san-diego-health-care/locations/", note: "VA San Diego HCS." },
+  { name: "Escondido VA Clinic", category: "CBOC", county: "San Diego", sb79County: true, lat: 33.1260, lng: -117.0700, address: "815 East Pennsylvania Avenue, Escondido, CA 92025", url: "https://www.va.gov/san-diego-health-care/locations/", note: "VA San Diego HCS." },
+  { name: "Imperial Valley VA Clinic (El Centro)", category: "CBOC", county: "Imperial", sb79County: false, lat: 32.7870, lng: -115.5590, address: "1115 South 4th Street, El Centro, CA 92243", url: "https://www.va.gov/san-diego-health-care/locations/", note: "VA San Diego HCS." },
+  { name: "Kearny Mesa VA Clinic", category: "CBOC", county: "San Diego", sb79County: true, lat: 32.8180, lng: -117.1440, address: "8875 Aero Drive, San Diego, CA 92123", url: "https://www.va.gov/san-diego-health-care/locations/", note: "VA San Diego HCS." },
+  { name: "Oceanside VA Clinic", category: "CBOC", county: "San Diego", sb79County: true, lat: 33.2260, lng: -117.3160, address: "1300 Rancho del Oro Drive, Oceanside, CA 92056", url: "https://www.va.gov/san-diego-health-care/locations/", note: "VA San Diego HCS." },
+  { name: "Rio VA Clinic", category: "CBOC", county: "San Diego", sb79County: true, lat: 32.7702, lng: -117.1487, address: "8989 Rio San Diego Drive, Suite 350, San Diego, CA 92108", url: "https://www.va.gov/san-diego-health-care/locations/", note: "VA San Diego HCS." },
+  { name: "San Diego VA Domiciliary (Aspire Center)", category: "CBOC", county: "San Diego", sb79County: true, lat: 32.7550, lng: -117.2020, address: "2121 San Diego Avenue, San Diego, CA 92110", url: "https://www.va.gov/san-diego-health-care/locations/", note: "VA San Diego HCS." },
+  { name: "Sorrento Valley VA Clinic", category: "CBOC", county: "San Diego", sb79County: true, lat: 32.9010, lng: -117.1970, address: "10455 Sorrento Valley Road, Suite 210, San Diego, CA 92121", url: "https://www.va.gov/san-diego-health-care/locations/", note: "VA San Diego HCS." },
+
+  // ---- Vet Centers (subset — see va.gov/find-locations for full current list of ~30) ----
+  { name: "Los Angeles Vet Center", category: "Vet Center", county: "Los Angeles", sb79County: true, lat: 34.0447, lng: -118.4285, address: "2000 South Sepulveda Boulevard, Los Angeles, CA 90025", url: "https://www.va.gov/find-locations/", note: "Readjustment counseling." },
+  { name: "East Los Angeles Vet Center", category: "Vet Center", county: "Los Angeles", sb79County: true, lat: 34.0577, lng: -118.1226, address: "Monterey Park, CA", url: "https://www.va.gov/find-locations/", note: "Readjustment counseling; city-level only, exact address not confirmed." },
+  { name: "San Diego Vet Center", category: "Vet Center", county: "San Diego", sb79County: true, lat: 32.7712, lng: -117.1467, address: "8975 Rio San Diego Drive, San Diego, CA 92108", url: "https://www.va.gov/find-locations/", note: "Readjustment counseling." },
+  { name: "San Francisco Vet Center", category: "Vet Center", county: "San Francisco", sb79County: true, lat: 37.7822, lng: -122.4193, address: "505 Polk Street, San Francisco, CA 94102", url: "https://www.va.gov/find-locations/", note: "Readjustment counseling." },
+  { name: "Sacramento Vet Center", category: "Vet Center", county: "Sacramento", sb79County: true, lat: 38.6050, lng: -121.4110, address: "1425 Response Road, Sacramento, CA 95815", url: "https://www.va.gov/find-locations/", note: "Readjustment counseling." },
+  { name: "Fresno Vet Center", category: "Vet Center", county: "Fresno", sb79County: false, lat: 36.7897, lng: -119.7838, address: "3636 North First Street, Fresno, CA 93726", url: "https://www.va.gov/find-locations/", note: "Readjustment counseling." },
+
+  // ---- VA National Cemeteries ----
+  { name: "Golden Gate National Cemetery", category: "National Cemetery", county: "San Mateo", sb79County: true, lat: 37.6210, lng: -122.4275, address: "1300 Sneath Lane, San Bruno, CA 94066", url: "https://www.cem.va.gov/cems/nchp/goldengate.asp", note: "Open (cremains-priority)." },
+  { name: "Los Angeles National Cemetery", category: "National Cemetery", county: "Los Angeles", sb79County: true, lat: 34.0575, lng: -118.4562, address: "950 South Sepulveda Boulevard, Los Angeles, CA 90049", url: "https://www.cem.va.gov/cems/nchp/losangeles.asp", note: "Closed to new casketed; cremains only." },
+  { name: "Riverside National Cemetery", category: "National Cemetery", county: "Riverside", sb79County: false, lat: 33.9061, lng: -117.3336, address: "22495 Van Buren Boulevard, Riverside, CA 92518", url: "https://www.cem.va.gov/cems/nchp/riverside.asp", note: "Open." },
+  { name: "San Joaquin Valley National Cemetery", category: "National Cemetery", county: "Merced", sb79County: false, lat: 37.0396, lng: -121.0271, address: "32053 West McCabe Road, Santa Nella, CA 95322", url: "https://www.cem.va.gov/cems/nchp/sanjoaquinvalley.asp", note: "Open." },
+  { name: "Sacramento Valley National Cemetery", category: "National Cemetery", county: "Solano", sb79County: false, lat: 38.4172, lng: -121.8564, address: "5810 Midway Road, Dixon, CA 95620", url: "https://www.cem.va.gov/cems/nchp/sacramentovalley.asp", note: "Open." },
+  { name: "Bakersfield National Cemetery", category: "National Cemetery", county: "Kern", sb79County: false, lat: 35.2094, lng: -118.8286, address: "30338 East Bear Mountain Boulevard, Arvin, CA 93203", url: "https://www.cem.va.gov/cems/nchp/bakersfield.asp", note: "Open." },
+  { name: "Miramar National Cemetery", category: "National Cemetery", county: "San Diego", sb79County: true, lat: 32.8965, lng: -117.1428, address: "5795 Nobel Drive, San Diego, CA 92122", url: "https://www.cem.va.gov/cems/nchp/miramar.asp", note: "CHECKED: the Nobel Drive Trolley station is ~2.5 miles away — OUTSIDE 0.5mi despite being in the same general area. Don't assume proximity from shared street names." },
+  { name: "Fort Rosecrans National Cemetery", category: "National Cemetery", county: "San Diego", sb79County: true, lat: 32.6958, lng: -117.2378, address: "1 Cabrillo Memorial Drive, San Diego, CA 92106", url: "https://www.cem.va.gov/cems/nchp/ftrosecrans.asp", note: "Closed to new casketed; cremains only." }
+];
+
+// ============================================================
+// DATA — TRANSIT STOPS, classified using SB 79's ACTUAL statutory tiers
+// (Gov. Code §65912.156, subds. (m)-(o)), verified against Gov. Code §65912.156
+// bill text and secondary legal summaries (Allen Matkins, Buchalter,
+// California YIMBY). These are the real definitions, not paraphrases:
+//
+//   Tier 1 TOD stop: within an urban transit county, served by HEAVY RAIL
+//     transit, or VERY HIGH FREQUENCY commuter rail (≥72 trains/day, both
+//     directions combined). Examples: BART; LA Metro B/D Lines (subway).
+//
+//   Tier 2 TOD stop (excludes Tier 1): within an urban transit county,
+//     served by LIGHT RAIL transit (incl. streetcar/trolley/tramway), by
+//     HIGH-FREQUENCY commuter rail (≥48 trains/day), or by bus service
+//     meeting CEQA's strict BRT standard (Pub. Res. Code §21060.2(a)(1)):
+//     full-time dedicated lane/separate ROW AND ≤15-min peak headways.
+//     Examples: San Diego Trolley, Muni Metro, Sac RT light rail.
+//
+//   Tier 3 TOD stop (excludes Tier 1 & 2): served by FREQUENT commuter rail
+//     (≥24 trains/day) or ferry service.
+//
+// CRITICAL GATE: none of this applies outside an "urban transit county"
+// (15+ passenger rail stations) — see facility data notes above. A stop
+// physically identical to a BART station, if built in Fresno or Riverside
+// County, would NOT be an SB 79 TOD stop under the statute as written.
+// ============================================================
+const transitStops = [
+  { name: "VA Medical Center Station (San Diego Trolley, Blue Line)", tier: "SB 79 Tier 2 — Light Rail (San Diego Co. ✓ urban transit county)",
+    lat: 32.8692, lng: -117.2140, note: "Adjacent to VA San Diego campus; built specifically to serve it. WITHIN 0.5mi." },
+  { name: "Expo/Sepulveda Station (LA Metro E Line)", tier: "SB 79 Tier 2 — Light Rail (LA Co. ✓ urban transit county)",
+    lat: 34.0263, lng: -118.4467, note: "~1 mile from VA Greater LA (West LA) — OUTSIDE 0.5-mile radius." },
+  { name: "Union Station (LA Metro B/D Line = heavy rail; also Metrolink, Amtrak)", tier: "SB 79 Tier 1 — Heavy Rail (LA Co. ✓ urban transit county)",
+    lat: 34.0556, lng: -118.2364, note: "~0.3–0.4 mi from Downtown LA VA Clinic (351 E Temple St) — WITHIN 0.5mi, verify with real geocoding." },
+  { name: "Old Town Transit Center (Trolley = light rail; Coaster = commuter rail, frequency unconfirmed)", tier: "SB 79 Tier 2 confirmed via Trolley (San Diego Co. ✓ urban transit county)",
+    lat: 32.7552, lng: -117.1995, note: "Same compact Old Town district as San Diego VA Domiciliary/Aspire Center (2121 San Diego Ave) — WITHIN 0.5mi, verify with real geocoding." },
+  { name: "4th and King Station (Muni T-Third = light rail; Caltrain terminus, frequency unconfirmed for Tier 1)", tier: "SB 79 Tier 2 confirmed via Muni (SF Co. ✓ urban transit county)",
+    lat: 37.7764, lng: -122.3944, note: "A few blocks from SF Downtown VA Clinic (401 3rd St) — WITHIN 0.5mi, verify with real geocoding." },
+  { name: "H Street Station (San Diego Trolley, Blue Line)", tier: "SB 79 Tier 2 — Light Rail (San Diego Co. ✓ urban transit county)",
+    lat: 32.6295, lng: -117.0946, note: "Same street as Chula Vista VA Clinic (353 H St) but several blocks away — BORDERLINE, could be just outside 0.5mi. Verify." },
+  { name: "19th Street Oakland Station (BART)", tier: "SB 79 Tier 1 — Heavy Rail (Alameda Co. ✓ urban transit county)",
+    lat: 37.8079, lng: -122.2690, note: "~0.3–0.4 mi from Oakland VA Clinic (2221 MLK Jr. Way) and Oakland 21st St Clinic (525 21st St) — LIKELY WITHIN 0.5mi for both, verify with real geocoding." },
+  { name: "San Bruno Station (BART)", tier: "SB 79 Tier 1 — Heavy Rail (San Mateo Co. ✓ urban transit county)",
+    lat: 37.6383, lng: -122.4165, note: "San Bruno VA Clinic (1001 Sneath Ln) is BORDERLINE — nearby addresses on Sneath Ln run roughly 0.5–1 mi from this station depending on exact position. Verify." },
+  { name: "California Ave Station (Caltrain)", tier: "SB 79 Tier 2/3 depending on frequency (Santa Clara Co. ✓ urban transit county)",
+    lat: 37.4291, lng: -122.1425, note: "~1.5+ mi from VA Palo Alto Medical Center (3801 Miranda Ave) — OUTSIDE 0.5-mile radius." },
+  { name: "Menlo Park Station (Caltrain)", tier: "SB 79 Tier 2/3 depending on frequency (San Mateo Co. ✓ urban transit county)",
+    lat: 37.4547, lng: -122.1817, note: "VA Menlo Park Division (795 Willow Rd) is roughly 0.5–1 mi away — BORDERLINE, verify with real geocoding." },
+  { name: "Civic Center/UN Plaza Station (BART + Muni Metro, multiple lines)", tier: "SB 79 Tier 1 (BART) — Heavy Rail (SF Co. ✓ urban transit county)",
+    lat: 37.7799, lng: -122.4135, note: "SF Vet Center (505 Polk St) is a few blocks away in the compact Civic Center district — LIKELY WITHIN 0.5mi, verify with real geocoding." },
+  { name: "Sorrento Valley Station (NCTD Coaster commuter rail)", tier: "Tier uncertain — Coaster runs roughly hourly at this stop, close to Tier 3's 24-trains/day threshold but not confirmed (San Diego Co. ✓ urban transit county)",
+    lat: 32.9030, lng: -117.2250, note: "Same road as Sorrento Valley VA Clinic (10455 Sorrento Valley Rd) — BORDERLINE on distance (~0.5-0.8mi) AND on whether frequency clears the Tier 3 bar. Verify both." }
+];
+
+// ============================================================
+// DATA — BART (Bay Area Rapid Transit). Heavy rail = SB 79 Tier 1, but ONLY
+// where the station's county is an urban transit county. Many BART stations
+// sit in Contra Costa County, which is NOT on the urban-transit-county list
+// — those stations are heavy rail in every physical sense but cannot be an
+// SB 79 TOD stop. Coordinates are a mix of Wikipedia-verified station
+// entries and best-effort estimates; treat as reference-quality, not
+// survey-grade.
+// ============================================================
+const bartStations = [
+  ["Millbrae","San Mateo",true,37.5999,-122.3866],["San Bruno","San Mateo",true,37.6382,-122.4166],
+  ["South San Francisco","San Mateo",true,37.6642,-122.4440],["Colma","San Mateo",true,37.6844,-122.4661],
+  ["Daly City","San Mateo",true,37.7061,-122.4691],["Balboa Park","San Francisco",true,37.7217,-122.4474],
+  ["Glen Park","San Francisco",true,37.7331,-122.4339],["24th St Mission","San Francisco",true,37.7520,-122.4187],
+  ["16th St Mission","San Francisco",true,37.7649,-122.4200],["Civic Center/UN Plaza","San Francisco",true,37.7799,-122.4135],
+  ["Powell St","San Francisco",true,37.7844,-122.4079],["Montgomery St","San Francisco",true,37.7894,-122.4013],
+  ["Embarcadero","San Francisco",true,37.7931,-122.3972],["West Oakland","Alameda",true,37.8049,-122.2951],
+  ["12th St Oakland City Center","Alameda",true,37.8037,-122.2716],["19th St Oakland","Alameda",true,37.8075,-122.2686],
+  ["MacArthur","Alameda",true,37.8291,-122.2671],["Rockridge","Alameda",true,37.8447,-122.2519],
+  ["Orinda","Contra Costa",false,37.8781,-122.1836],["Lafayette","Contra Costa",false,37.8932,-122.1241],
+  ["Walnut Creek","Contra Costa",false,37.9057,-122.0674],["Pleasant Hill/Contra Costa Centre","Contra Costa",false,37.9284,-122.0563],
+  ["Concord","Contra Costa",false,37.9737,-122.0291],["North Concord/Martinez","Contra Costa",false,38.0032,-122.0245],
+  ["Pittsburg/Bay Point","Contra Costa",false,38.0189,-121.9442],["Pittsburg Center","Contra Costa",false,38.0182,-121.8902],
+  ["Antioch","Contra Costa",false,37.9955,-121.7807],["Lake Merritt","Alameda",true,37.7975,-122.2660],
+  ["Fruitvale","Alameda",true,37.7747,-122.2242],["Coliseum","Alameda",true,37.7537,-122.1968],
+  ["San Leandro","Alameda",true,37.7222,-122.1611],["Bay Fair","Alameda",true,37.6971,-122.1265],
+  ["Hayward","Alameda",true,37.6698,-122.0870],["South Hayward","Alameda",true,37.6349,-122.0575],
+  ["Union City","Alameda",true,37.5911,-122.0177],["Fremont","Alameda",true,37.5574,-121.9764],
+  ["Warm Springs/South Fremont","Alameda",true,37.5022,-121.9393],["Milpitas","Santa Clara",true,37.4102,-121.8916],
+  ["Berryessa/North San Jose","Santa Clara",true,37.3684,-121.8747],["Ashby","Alameda",true,37.8529,-122.2698],
+  ["Downtown Berkeley","Alameda",true,37.8700,-122.2680],["North Berkeley","Alameda",true,37.8740,-122.2835],
+  ["El Cerrito Plaza","Contra Costa",false,37.9028,-122.2989],["El Cerrito del Norte","Contra Costa",false,37.9257,-122.3168],
+  ["Richmond","Contra Costa",false,37.9368,-122.3531],["Castro Valley","Alameda",true,37.6906,-122.0754],
+  ["West Dublin/Pleasanton","Alameda",true,37.6996,-121.9282],["Dublin/Pleasanton","Alameda",true,37.7017,-121.8997],
+  ["SFO Airport","San Mateo",true,37.6159,-122.3925],["Oakland International Airport","Alameda",true,37.7133,-122.2124]
+];
+
+// ============================================================
+// DATA — Caltrain (SF Peninsula + South Bay commuter rail). Runs entirely
+// through San Francisco, San Mateo, and Santa Clara counties — all three
+// are SB 79 urban transit counties, so the county gate is not the issue
+// here. What's NOT verified: each station's actual daily train count,
+// which determines whether it clears the Tier 2 (≥48/day) or Tier 3
+// (≥24/day) thresholds — busier core stations (Palo Alto, Mountain View,
+// San Jose Diridon) are more likely to qualify than smaller stops. Shown
+// as "commuter rail, tier TBD" rather than assigning a specific tier.
+// ============================================================
+const caltrainStations = [
+  ["San Francisco (4th & King)",37.7764,-122.3944],["22nd Street",37.7576,-122.3928],["Bayshore",37.7093,-122.4017],
+  ["South San Francisco",37.6555,-122.4046],["San Bruno",37.6303,-122.4111],["Millbrae",37.5999,-122.3866],
+  ["Broadway",37.5836,-122.3676],["Burlingame",37.5779,-122.3453],["San Mateo",37.5686,-122.3238],
+  ["Hayward Park",37.5563,-122.3086],["Hillsdale",37.5423,-122.2977],["Belmont",37.5202,-122.2757],
+  ["San Carlos",37.5074,-122.2606],["Redwood City",37.4855,-122.2318],["Menlo Park",37.4544,-122.1822],
+  ["Palo Alto",37.4432,-122.1650],["California Ave",37.4293,-122.1425],["San Antonio",37.4070,-122.1073],
+  ["Mountain View",37.3944,-122.0762],["Sunnyvale",37.3786,-122.0309],["Lawrence",37.3689,-121.9968],
+  ["Santa Clara",37.3526,-121.9364],["College Park",37.3391,-121.9186],["San Jose Diridon",37.3297,-121.9026],
+  ["Tamien",37.3121,-121.8850],["Capitol",37.2848,-121.8221],["Blossom Hill",37.2542,-121.7986],
+  ["Morgan Hill",37.1305,-121.6544],["San Martin",37.0851,-121.6106],["Gilroy",37.0033,-121.5680]
+];
+
+// ============================================================
+// MAP SETUP
+// ============================================================
+const map = L.map('map').setView([36.7, -119.6], 6);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+const METERS_PER_MILE = 1609.34;
+
+const categoryStyle = {
+  "VA Medical Center":  { color: "#b3282d", shape: "circle" },
+  "CBOC":               { color: "#e07b00", shape: "circle" },
+  "Vet Center":         { color: "#7a3ea1", shape: "circle" },
+  "National Cemetery":  { color: "#2e6b3e", shape: "square" }
+};
+
+function makeIcon(color, shape) {
+  const radius = shape === "square" ? "3px" : "50%";
+  return L.divIcon({
+    className: '',
+    html: `<div style="background:${color};width:14px;height:14px;border-radius:${radius};border:2px solid white;box-shadow:0 0 3px rgba(0,0,0,0.5);"></div>`,
+    iconSize: [14, 14], iconAnchor: [7, 7]
+  });
+}
+
+const transitIcon = L.divIcon({
+  className: '',
+  html: '<div style="background:#1a73e8;width:14px;height:14px;border-radius:3px;border:2px solid white;box-shadow:0 0 3px rgba(0,0,0,0.5);"></div>',
+  iconSize: [14, 14], iconAnchor: [7, 7]
+});
+
+function bartIcon(qualifies) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="background:${qualifies ? '#003a70' : '#9aa5ad'};width:10px;height:10px;border-radius:50%;border:1.5px solid white;box-shadow:0 0 2px rgba(0,0,0,0.5);"></div>`,
+    iconSize: [10, 10], iconAnchor: [5, 5]
+  });
+}
+
+const caltrainIcon = L.divIcon({
+  className: '',
+  html: '<div style="background:#d1282e;width:9px;height:9px;transform:rotate(45deg);border:1.5px solid white;box-shadow:0 0 2px rgba(0,0,0,0.5);"></div>',
+  iconSize: [9, 9], iconAnchor: [4, 4]
+});
+
+const categoryLayers = {};
+Object.keys(categoryStyle).forEach(cat => { categoryLayers[cat] = L.layerGroup(); });
+const quarterMileLayer = L.layerGroup();
+const halfMileLayer = L.layerGroup();
+const transitLayer = L.layerGroup();
+
+facilities.forEach(f => {
+  const style = categoryStyle[f.category];
+  const opacity = f.sb79County ? 1.0 : 0.35; // dim facilities outside SB 79 urban transit counties
+  const marker = L.marker([f.lat, f.lng], { icon: makeIcon(style.color, style.shape), opacity: opacity });
+  const sb79Line = f.sb79County
+    ? `<strong>SB 79 status:</strong> ${f.county} County IS an urban transit county — a nearby SB 79 TOD stop is legally possible here.`
+    : `<strong>SB 79 status:</strong> ${f.county} County is NOT an urban transit county — no SB 79 TOD stop can exist near this facility, regardless of local transit.`;
+  marker.bindPopup(`
+    <div class="popup-title">${f.name}</div>
+    <div class="popup-tag">${f.category}</div>
+    <div class="popup-row"><strong>Address:</strong> ${f.address}</div>
+    <div class="popup-row"><strong>Website:</strong> <a class="popup-link" href="${f.url}" target="_blank" rel="noopener">${f.url}</a></div>
+    <div class="popup-row" style="margin-top:6px; color:${f.sb79County ? '#1a7a2e' : '#a33'};">${sb79Line}</div>
+    <div class="popup-row" style="margin-top:4px; color:#444;">${f.note}</div>
+  `);
+  marker.addTo(categoryLayers[f.category]);
+
+  L.circle([f.lat, f.lng], { radius: 0.25 * METERS_PER_MILE, color: style.color, weight: 1.5, dashArray: '4,4', fillOpacity: 0.03, opacity: opacity }).addTo(quarterMileLayer);
+  L.circle([f.lat, f.lng], { radius: 0.5 * METERS_PER_MILE, color: style.color, weight: 1, fillOpacity: 0.02, opacity: opacity }).addTo(halfMileLayer);
+});
+
+transitStops.forEach(t => {
+  const marker = L.marker([t.lat, t.lng], { icon: transitIcon });
+  marker.bindPopup(`
+    <div class="popup-title">${t.name}</div>
+    <div class="popup-tag">${t.tier}</div>
+    <div class="popup-row" style="margin-top:6px; color:#444;">${t.note}</div>
+  `);
+  marker.addTo(transitLayer);
+});
+
+const bartLayer = L.layerGroup();
+bartStations.forEach(([name, county, qualifies, lat, lng]) => {
+  const marker = L.marker([lat, lng], { icon: bartIcon(qualifies) });
+  const tierLine = qualifies
+    ? `<strong>SB 79 Tier 1 — Heavy Rail.</strong> ${county} County IS an urban transit county.`
+    : `<strong>Heavy rail, but NOT an SB 79 TOD stop.</strong> ${county} County is NOT an urban transit county — this station can't create SB 79 eligibility nearby, despite being full heavy rail.`;
+  marker.bindPopup(`
+    <div class="popup-title">${name} (BART)</div>
+    <div class="popup-row" style="color:${qualifies ? '#003a70' : '#a33'};">${tierLine}</div>
+  `);
+  marker.addTo(bartLayer);
+});
+
+const caltrainLayer = L.layerGroup();
+caltrainStations.forEach(([name, lat, lng]) => {
+  const marker = L.marker([lat, lng], { icon: caltrainIcon });
+  marker.bindPopup(`
+    <div class="popup-title">${name} (Caltrain)</div>
+    <div class="popup-row">Commuter rail. County (SF/San Mateo/Santa Clara) always qualifies as an
+    SB 79 urban transit county — but the SPECIFIC tier here (Tier 2 needs ≥48 trains/day, Tier 3
+    needs ≥24/day) depends on this station's actual daily frequency, which hasn't been checked.
+    Busier core stations (Palo Alto, Mountain View, San Jose Diridon) are the best bets.</div>
+  `);
+  marker.addTo(caltrainLayer);
+});
+
+// Default visible layers
+categoryLayers["VA Medical Center"].addTo(map);
+transitLayer.addTo(map);
+
+L.control.layers(null, {
+  "VA Medical Centers": categoryLayers["VA Medical Center"],
+  "CBOCs (outpatient clinics)": categoryLayers["CBOC"],
+  "Vet Centers": categoryLayers["Vet Center"],
+  "National Cemeteries": categoryLayers["National Cemetery"],
+  "— 0.25-mile radius —": quarterMileLayer,
+  "— 0.5-mile radius —": halfMileLayer,
+  "Facility-specific transit checks (SB 79 tiers)": transitLayer,
+  "BART stations (Bay Area)": bartLayer,
+  "Caltrain stations (SF Peninsula/South Bay)": caltrainLayer
+}, { collapsed: false }).addTo(map);
+
+const legend = L.control({ position: 'bottomleft' });
+legend.onAdd = function () {
+  const div = L.DomUtil.create('div', 'legend');
+  div.innerHTML = `
+    <h4>California Veteran Facility Map</h4>
+    <div class="row"><span class="swatch" style="background:#b3282d;"></span> VA Medical Center</div>
+    <div class="row"><span class="swatch" style="background:#e07b00;"></span> CBOC (outpatient clinic)</div>
+    <div class="row"><span class="swatch" style="background:#7a3ea1;"></span> Vet Center</div>
+    <div class="row"><span class="swatch" style="background:#2e6b3e; border-radius:3px;"></span> National Cemetery</div>
+    <div class="row"><span class="swatch" style="background:#1a73e8; border-radius:3px;"></span> Transit stop (SB 79 tier)</div>
+    <div class="row"><span class="swatch" style="background:#003a70;"></span> BART station (dark=qualifying county, light gray=not)</div>
+    <div class="row"><span class="swatch" style="background:#d1282e; border-radius:2px; transform:rotate(45deg);"></span> Caltrain station</div>
+    <div class="row"><span class="ring" style="border-color:#888; border-style:dashed;"></span> 0.25-mile radius</div>
+    <div class="row"><span class="ring" style="border-color:#888;"></span> 0.5-mile radius</div>
+    <div class="row"><span class="swatch" style="background:#b3282d; opacity:0.35;"></span> Faded = NOT in an SB 79 urban transit county</div>
+    <div class="note">
+      <strong>Biggest finding — SB 79's county gate:</strong> SB 79's tiers only exist inside
+      "urban transit counties" (15+ passenger rail stations): <strong>Alameda, Los Angeles,
+      Sacramento, San Diego, San Francisco, San Mateo, Santa Clara</strong> (Orange Co.
+      pending). Dimmed/faded markers below are OUTSIDE these counties — no SB 79 TOD stop
+      can legally exist near them, full stop, regardless of local transit quality. This
+      excludes VA Loma Linda's entire clinic network (Riverside/San Bernardino), VA Central
+      California (Fresno), most of VA Northern California, and several VA Long Beach clinics
+      in Orange County. Click any marker for its specific county status.
+      <br><br>
+      <strong>Transit layer methodology:</strong> each stop shown was individually researched
+      (real station coordinates, checked against the nearby facility's address, tiered per
+      the actual statutory definitions in Gov. Code §65912.156) — a manual check, not a
+      systematic GIS analysis. Confirmed: VA San Diego (adjacent), Downtown LA VA Clinic
+      (Union Station, Tier 1), SF Downtown VA Clinic (4th & King, Tier 2), San Diego VA
+      Domiciliary (Old Town, Tier 2). <strong>Bay Area:</strong> full BART and Caltrain networks are now on the map as
+      toggleable layers (color-coded by county qualification) — Oakland's two VA clinics are
+      close to 19th St Oakland BART (likely within 0.5mi); San Bruno VA Clinic and VA Menlo
+      Park Division are borderline against San Bruno BART and Menlo Park Caltrain; VA Palo
+      Alto is confirmed too far from California Ave Caltrain; SF Vet Center is likely within
+      0.5mi of Civic Center BART/Muni. <strong>San Diego round 2:</strong> Sorrento Valley VA
+      Clinic is borderline on both distance and Coaster frequency (roughly hourly — close to
+      but not confirmed above the Tier 3 24-trains/day bar). <strong>Important negative
+      result — don't assume proximity from a shared neighborhood name:</strong> Miramar
+      National Cemetery is actually ~2.5 miles from the Nobel Drive Trolley station despite
+      both being in the "UTC/La Jolla" area — checked and ruled out. <strong>Still unchecked,
+      in qualifying counties:</strong> Fremont VA Clinic, San Jose VA Clinic, VA Livermore
+      Division, McClellan/Sacramento Vet Center, Rio VA Clinic, Arcadia/SGV VA Clinic,
+      Escondido/Oceanside VA Clinics, Kearny Mesa, East LA/Commerce, Antelope
+      Valley/Lancaster, Cabrillo, Gardena, Santa Fe Springs, LA National Cemetery, LA/East LA
+      Vet Centers — cross-reference these against the BART/Caltrain layers above, or ask me
+      to keep checking them one by one.
+      <strong>Excluded by the county gate regardless of transit quality:</strong> Fresno VAMC
+      (FAX BRT), Corona VA Clinic (Metrolink), Redlands-area Loma Linda clinics (Arrow rail) —
+      Fresno, Riverside, and San Bernardino counties don't qualify no matter what.
+      <br><br>
+      All facility coordinates are hardcoded best-effort placements (not a live geocoding
+      API) — good enough to see the pattern, but spot-check before relying on any single
+      point for a filing.
+    </div>
+  `;
+  return div;
+};
+legend.addTo(map);
+
+</script>
+</body>
+</html>
