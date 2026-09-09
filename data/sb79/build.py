@@ -31,6 +31,7 @@ import argparse
 import datetime as dt
 import json
 import os
+import re
 import sys
 import urllib.request
 
@@ -282,19 +283,26 @@ def norm_sacog(props, lon, lat):
 NORMALIZERS = {"scag": norm_scag, "mtc": norm_mtc, "sandag": norm_sandag, "sacog": norm_sacog}
 
 
+def _clean_station_name(name):
+    """'Heritage Square / Arroyo Station - East Entrance' -> 'heritage square / arroyo station';
+    'Canoga Station (SB)' -> 'canoga station'."""
+    n = name.split(" - ")[0]
+    n = re.sub(r"\s*\([^)]*\)\s*$", "", n)
+    n = re.sub(r"\s+(NB|SB|EB|WB|Northbound|Southbound|Eastbound|Westbound)\s*$", "", n, flags=re.I)
+    return n.strip().lower()
+
+
 def _station_key(mpo, sid, name, lon, lat):
     """Best-effort grouping id so consumers can collapse the several
-    access-point rows that belong to one physical station."""
+    access-point / directional-platform rows that belong to one physical station."""
     if mpo == "MTC" and sid:
         return f"mtc:{sid}"
-    if mpo == "SCAG" and sid:
-        # SCAG access-point ids look like '80414A', '80414B' -> station '80414'
-        base = sid[:-1] if sid[-1:].isalpha() else sid
-        return f"scag:{base}"
-    if mpo == "SANDAG" and sid:
-        return f"sandag:{sid}"
     if name:
-        return f"{mpo.lower()}:{name.split(' - ')[0].strip().lower()}"
+        # SCAG / SANDAG ids are per-access-point; a cleaned name + coarse
+        # location groups the platforms of one station far better.
+        return f"{mpo.lower()}:{_clean_station_name(name)}@{round(lat, 2)},{round(lon, 2)}"
+    if sid:
+        return f"{mpo.lower()}:{sid}"
     return f"{mpo.lower()}:{round(lon, 4)},{round(lat, 4)}"
 
 

@@ -1,6 +1,6 @@
 generated 2026-09-09
 total points: 1585
-approx distinct stations (station_key): 1100
+approx distinct stations (station_key): 986
 by tier: {2: 1380, 1: 186, None: 19}
 by mode: {'brt': 177, 'light_rail': 942, 'heavy_rail': 130, 'bus': 227, 'commuter_rail': 74, 'unknown': 35}
 by county: {'Los Angeles': 406, 'San Francisco': 471, 'Santa Clara': 153, 'Alameda': 139, 'San Mateo': 34, 'San Diego': 182, 'Sacramento': 200}
