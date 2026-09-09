@@ -15,8 +15,12 @@
   }
   .controls { padding: 10px 12px; max-width: 240px; }
   .controls h1 { font-size: 13px; margin: 0 0 6px; font-weight: 700; }
-  .controls label { display: flex; align-items: center; gap: 7px; margin: 4px 0; cursor: pointer; }
-  .controls .sub { color: #666; font-size: 11.5px; margin: 2px 0 8px; }
+  .controls label { display: flex; align-items: center; gap: 7px; margin: 3px 0; cursor: pointer; }
+  .controls .grp { margin: 6px 0; padding-top: 5px; border-top: 1px solid #ececec; }
+  .controls .grp-h { font-size: 11px; font-weight: 700; text-transform: uppercase;
+                     letter-spacing: .04em; color: #888; margin-bottom: 3px; }
+  .controls .sub { color: #666; font-size: 11.5px; margin: 6px 0 0; }
+  .controls { max-height: 82vh; overflow-y: auto; }
   .dot { width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(0,0,0,.35); }
   .sq  { width: 13px; height: 13px; flex-shrink: 0; border: 1.5px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.4); }
 
@@ -75,12 +79,37 @@ const esc = s => (s == null ? '' : String(s).replace(/[&<>"]/g, c => (
 
 // ---- layers ------------------------------------------------------------
 const layers = {
-  tier1: L.layerGroup(),
-  tier2: L.layerGroup(),
-  mc:    L.layerGroup(),
-  cboc:  L.layerGroup(),
-  rings: L.layerGroup(),
+  tier1:       L.layerGroup(),
+  tier2:       L.layerGroup(),
+  mc:          L.layerGroup(),
+  cboc:        L.layerGroup(),
+  stopQuarter: L.layerGroup(),
+  stopHalf:    L.layerGroup(),
+  vaQuarter:   L.layerGroup(),
+  vaHalf:      L.layerGroup(),
 };
+
+// Ring layers are populated on first use (thousands of circles otherwise
+// build on page load). ringSpec: [layerKey, () => [[lat,lng],...], miles, color]
+const ringCoords = { stop: [], va: [] };
+const RING_STYLE = {
+  stopQuarter: { src: 'stop', mi: 0.25, color: '#2f6f4f' },
+  stopHalf:    { src: 'stop', mi: 0.5,  color: '#2f6f4f' },
+  vaQuarter:   { src: 'va',   mi: 0.25, color: '#c62828' },
+  vaHalf:      { src: 'va',   mi: 0.5,  color: '#c62828' },
+};
+const ringsBuilt = {};
+function ensureRings(key) {
+  const spec = RING_STYLE[key];
+  if (!spec || ringsBuilt[key]) return;
+  ringsBuilt[key] = true;
+  ringCoords[spec.src].forEach(([lat, lng]) => {
+    L.circle([lat, lng], {
+      radius: spec.mi * MILE_M, color: spec.color, weight: 0.8, opacity: 0.5,
+      fillColor: spec.color, fillOpacity: spec.mi < 0.4 ? 0.06 : 0.03,
+    }).addTo(layers[key]);
+  });
+}
 
 // ---- SB 79 transit stops --------------------------------------------------
 const MODE_LABEL = {
@@ -118,6 +147,7 @@ stations.forEach(s => {
   if (tier === 1) nT1++; else nT2++;
   const modes = [...s.modes].map(m => MODE_LABEL[m] || m).join(', ') || 'Rail transit';
   const lines = [...s.lines].slice(0, 8).join(', ');
+  ringCoords.stop.push([lat, lng]);
 
   L.circleMarker([lat, lng], {
     radius: 3,
@@ -159,32 +189,48 @@ let nMC = 0, nCBOC = 0;
     `${p.override_reason ? '<br><br><em>Location note: ' + esc(p.override_reason) + '</em>' : ''}</div>`
   ).addTo(isMC ? layers.mc : layers.cboc);
 
-  L.circle([c[1], c[0]], {
-    radius: 0.5 * MILE_M, color: COLORS.ring, weight: 1,
-    fillColor: COLORS.ring, fillOpacity: 0.04, opacity: 0.5,
-  }).addTo(layers.rings);
+  ringCoords.va.push([c[1], c[0]]);
 });
 
 // ---- default visible ---------------------------------------------------
-[layers.tier1, layers.tier2, layers.mc, layers.cboc, layers.rings].forEach(l => l.addTo(map));
+['tier1', 'tier2', 'mc', 'cboc', 'vaHalf'].forEach(k => {
+  ensureRings(k);            // no-op for non-ring keys
+  layers[k].addTo(map);
+});
 
 // ---- controls --------------------------------------------------------
 const nf = n => n.toLocaleString('en-US');
+
+// [key, label, swatchHTML, defaultOn]
+const CONTROL_GROUPS = [
+  ['SB 79 transit', [
+    ['tier1', 'Tier 1 stations', `<span class="dot" style="background:${COLORS.tier1}"></span>`, true],
+    ['tier2', 'Tier 2 stations', `<span class="dot" style="background:${COLORS.tier2}"></span>`, true],
+    ['stopQuarter', '&frac14;-mile around stops', `<span class="dot" style="background:#2f6f4f;opacity:.5"></span>`, false],
+    ['stopHalf', '&frac12;-mile around stops', `<span class="dot" style="background:#2f6f4f;opacity:.3"></span>`, false],
+  ]],
+  ['VA facilities', [
+    ['mc', 'Medical centers', `<span class="sq" style="background:${COLORS.mc}"></span>`, true],
+    ['cboc', 'CBOCs (VA clinics)', `<span class="dot" style="background:${COLORS.cboc}"></span>`, true],
+    ['vaQuarter', '&frac14;-mile around VA sites', `<span class="dot" style="background:#c62828;opacity:.5"></span>`, false],
+    ['vaHalf', '&frac12;-mile around VA sites', `<span class="dot" style="background:#c62828;opacity:.3"></span>`, true],
+  ]],
+];
+
 const control = L.control({ position: 'topright' });
 control.onAdd = () => {
   const d = L.DomUtil.create('div', 'panel controls');
-  d.innerHTML = `
-    <h1>Show on map</h1>
-    <label><input type="checkbox" data-k="tier1" checked><span class="dot" style="background:${COLORS.tier1}"></span> SB 79 Tier 1 stations</label>
-    <label><input type="checkbox" data-k="tier2" checked><span class="dot" style="background:${COLORS.tier2}"></span> SB 79 Tier 2 stations</label>
-    <label><input type="checkbox" data-k="mc" checked><span class="sq" style="background:${COLORS.mc}"></span> VA medical centers</label>
-    <label><input type="checkbox" data-k="cboc" checked><span class="dot" style="background:${COLORS.cboc}"></span> CBOCs (VA clinics)</label>
-    <label><input type="checkbox" data-k="rings" checked><span class="dot" style="background:#ccc"></span> &frac12;-mile around VA sites</label>
-    <div class="sub">Hollow dashed dots = planned stops.</div>`;
+  d.innerHTML = '<h1>Show on map</h1>' + CONTROL_GROUPS.map(([title, items]) =>
+    `<div class="grp"><div class="grp-h">${title}</div>` + items.map(([k, label, sw, on]) =>
+      `<label><input type="checkbox" data-k="${k}" ${on ? 'checked' : ''}>${sw} ${label}</label>`
+    ).join('') + '</div>'
+  ).join('') + '<div class="sub">Hollow dashed dots = planned stops.</div>';
   L.DomEvent.disableClickPropagation(d);
+  L.DomEvent.disableScrollPropagation(d);
   d.querySelectorAll('input').forEach(inp => inp.addEventListener('change', e => {
-    const l = layers[e.target.dataset.k];
-    if (e.target.checked) l.addTo(map); else map.removeLayer(l);
+    const k = e.target.dataset.k;
+    if (e.target.checked) { ensureRings(k); layers[k].addTo(map); }
+    else map.removeLayer(layers[k]);
   }));
   return d;
 };
@@ -201,7 +247,8 @@ legend.onAdd = () => {
     <div class="row"><span class="dot" style="background:${COLORS.cboc}"></span> CBOC &nbsp;<b>${nf(nCBOC)}</b></div>
     <div class="note">SB 79 (Gov. Code &sect;&sect;&nbsp;65912.155&ndash;.162) qualifying transit
       stops in California's urban transit counties, from the SCAG / MTC / SANDAG / SACOG maps.
-      VA sites from the VHA facilities layer. Data &amp; sources: <code>data/</code> in the repo.
+      VA sites from the VHA facilities layer. &frac12;&#8209;mile ring = SB&nbsp;79 TOD zone;
+      &frac14;&#8209;mile ring = inner band. Data &amp; sources: <code>data/</code> in the repo.
       ${nPlanned ? nf(nPlanned) + ' planned stops shown hollow.' : ''}</div>`;
   return d;
 };
