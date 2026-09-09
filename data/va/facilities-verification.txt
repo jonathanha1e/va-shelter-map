@@ -1,0 +1,77 @@
+VHA facility coordinate verification  (VHA vintage MAR2025, checked 2026-09-09)
+
+OK         0 m  Fresno VA Medical Center                    <->  VA Central California Medical Center (Fres
+OK         0 m  Jennifer Moreno Department of Veterans Aff  <->  VA San Diego (Jennifer Moreno VAMC)
+OK         0 m  Jerry L. Pettis Memorial Veterans' Hospita  <->  VA Loma Linda (Jerry L. Pettis Memorial)
+OK         0 m  Martinez VA Medical Center                  <->  Martinez VA Medical Center
+OK         0 m  Palo Alto VA Medical Center                 <->  VA Palo Alto Medical Center
+OK         0 m  Palo Alto VA Medical Center-Livermore       <->  VA Livermore Division
+OK         0 m  Palo Alto VA Medical Center-Menlo Park      <->  VA Menlo Park Division
+OK         0 m  Sacramento VA Medical Center                <->  Sacramento VA Medical Center (Mather)
+OK         0 m  San Francisco VA Medical Center             <->  San Francisco VA Medical Center
+OK         0 m  Sepulveda VA Medical Center                 <->  Sepulveda Ambulatory Care Center
+OK         0 m  Tibor Rubin VA Medical Center               <->  VA Long Beach (Tibor Rubin VAMC)
+OK         0 m  West Los Angeles VA Medical Center          <->  VA Greater Los Angeles (West LA)
+OK         0 m  Antelope Valley VA Clinic                   <->  Antelope Valley VA Clinic (Lancaster)
+OK         0 m  Bakersfield VA Clinic                       <->  Bakersfield VA Clinic
+OK         0 m  Blythe VA Clinic                            <->  Blythe VA Clinic
+OK         0 m  Cabrillo VA Clinic                          <->  Cabrillo VA Clinic
+OK         0 m  Capitola VA Clinic                          <->  Capitola VA Clinic
+OK         0 m  Captain Rosemary Bryant Mariner Outpatient  <->  Ventura VA Clinic (Capt. Rosemary Bryant M
+OK         0 m  Chico VA Clinic                             <->  Chico VA Clinic
+OK         0 m  Chula Vista VA Clinic                       <->  Chula Vista VA Clinic
+OK         0 m  Clearlake VA Clinic                         <->  Clearlake VA Clinic
+OK         0 m  Corona VA Clinic                            <->  Corona VA Clinic
+OK         0 m  Cypress Avenue VA Clinic                    <->  Cypress Avenue VA Clinic
+OK         0 m  Diamond View VA Clinic                      <->  Diamond View VA Clinic (South Lake Tahoe)
+OK         0 m  East Los Angeles VA Clinic                  <->  East Los Angeles VA Clinic
+MOVED   2234 m  Escondido VA Clinic                         <->  Escondido VA Clinic
+OK         0 m  Eureka VA Clinic                            <->  Eureka VA Clinic
+OK         0 m  Fairfield VA Clinic                         <->  Fairfield VA Clinic (Travis AFB)
+OK         0 m  Fremont VA Clinic                           <->  Fremont VA Clinic
+OK         0 m  Gardena VA Clinic                           <->  Gardena VA Clinic
+OK         0 m  Hemet VA Clinic                             <->  Hemet VA Clinic
+OK        22 m  Imperial Valley VA Clinic                   <->  Imperial Valley VA Clinic (El Centro)
+OK         0 m  Kearny Mesa VA Clinic                       <->  Kearny Mesa VA Clinic
+OK         0 m  Laguna Hills VA Clinic                      <->  Laguna Hills VA Clinic
+OK         0 m  Loma Linda VA Clinic                        <->  Loma Linda VA Clinic (Redlands Ambulatory 
+OK         0 m  Los Angeles VA Clinic                       <->  Los Angeles VA Clinic (Downtown)
+OK         0 m  Major General William H. Gourley VA-DoD Ou  <->  Monterey/Marina VA Clinic
+OK         0 m  Mare Island VA Clinic                       <->  Mare Island VA Clinic
+OK         0 m  McClellan VA Clinic                         <->  McClellan VA Clinic
+OK         0 m  Merced VA Clinic                            <->  Merced VA Clinic
+OK         0 m  Modesto VA Clinic                           <->  Modesto VA Clinic
+OK         0 m  Murrieta VA Clinic                          <->  Murrieta VA Clinic
+OK         0 m  North Loma Linda VA Clinic                  <->  North Loma Linda VA Clinic
+OK         0 m  North Santa Rosa VA Clinic                  <->  Santa Rosa North VA Clinic
+OK         0 m  Oakhurst VA Clinic                          <->  Oakhurst VA Clinic
+OK         0 m  Oakland VA Clinic                           <->  Oakland VA Clinic
+OK         0 m  Oceanside VA Clinic                         <->  Oceanside VA Clinic
+OK         0 m  Placentia VA Clinic                         <->  Placentia VA Clinic
+OK         0 m  Rancho Cucamonga VA Clinic                  <->  Rancho Cucamonga VA Clinic
+OK         0 m  Redding VA Clinic                           <->  Redding VA Clinic
+OK         0 m  Richard A. Pittman VA Clinic                <->  Richard A. Pittman VA Clinic (Stockton)
+OK         0 m  Rio VA Clinic                               <->  Rio VA Clinic
+OK         0 m  San Bruno VA Clinic                         <->  San Bruno VA Clinic
+OK         0 m  San Francisco VA Clinic                     <->  SF Downtown VA Clinic (CRRC)
+OK         0 m  San Gabriel Valley VA Clinic                <->  San Gabriel Valley VA Clinic (Arcadia)
+OK         0 m  San Jose VA Clinic                          <->  San Jose VA Clinic
+OK         0 m  San Luis Obispo VA Clinic                   <->  San Luis Obispo VA Clinic
+OK         0 m  Santa Ana VA Clinic                         <->  Santa Ana VA Clinic
+OK         0 m  Santa Barbara VA Clinic                     <->  Santa Barbara VA Clinic
+OK         0 m  Santa Fe Springs VA Clinic                  <->  Santa Fe Springs VA Clinic
+OK         0 m  Santa Maria VA Clinic                       <->  Santa Maria VA Clinic
+OK         0 m  Sierra Foothills VA Clinic                  <->  Louis A. Conter VA Clinic (Auburn)
+OK         0 m  Sonora VA Clinic                            <->  Sonora VA Clinic
+OK         0 m  Sorrento Valley VA Clinic                   <->  Sorrento Valley VA Clinic
+OK         0 m  South Santa Rosa VA Clinic                  <->  Santa Rosa South VA Clinic
+OK         0 m  Sy Kaplan VA Clinic                         <->  Palm Desert VA Clinic (Sy Kaplan)
+MOVED    280 m  Twenty-First Street VA Clinic               <->  Oakland VA Clinic
+OK         0 m  Ukiah VA Clinic                             <->  Ukiah VA Clinic
+OK         0 m  Victorville VA Clinic                       <->  Victorville VA Clinic
+OK         0 m  Visalia VA Clinic                           <->  Visalia VA Clinic
+OK         0 m  West Santa Ana VA Clinic                    <->  West Santa Ana VA Clinic (CRRC)
+OK         0 m  Yreka VA Clinic                             <->  Yreka VA Clinic
+OK         0 m  Yuba City VA Clinic                         <->  Yuba City VA Clinic
+
+2 facilities differ from the old map by > 150 m (VHA coordinate is authoritative and is what the new map uses).

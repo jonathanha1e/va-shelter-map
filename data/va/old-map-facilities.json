@@ -1,0 +1,668 @@
+[
+ {
+  "name": "Martinez VA Medical Center",
+  "category": "VA Medical Center",
+  "county": "Contra Costa",
+  "lat": 37.99523917,
+  "lng": -122.11528524,
+  "address": "150 Muir Road, Martinez, CA 94553-4668",
+  "url": "https://www.va.gov/northern-california-health-care/locations/martinez-va-medical-center/"
+ },
+ {
+  "name": "Sacramento VA Medical Center (Mather)",
+  "category": "VA Medical Center",
+  "county": "Sacramento",
+  "lat": 38.572461,
+  "lng": -121.296501,
+  "address": "10535 Hospital Way, Mather, CA 95655-4200",
+  "url": "https://www.va.gov/northern-california-health-care/locations/sacramento-va-medical-center/"
+ },
+ {
+  "name": "VA Palo Alto Medical Center",
+  "category": "VA Medical Center",
+  "county": "Santa Clara",
+  "lat": 37.40132327,
+  "lng": -122.13910592,
+  "address": "3801 Miranda Avenue, Palo Alto, CA 94304-1207",
+  "url": "https://www.va.gov/palo-alto-health-care/"
+ },
+ {
+  "name": "VA Livermore Division",
+  "category": "VA Medical Center",
+  "county": "Alameda",
+  "lat": 37.62508753,
+  "lng": -121.75668774,
+  "address": "4951 Arroyo Road, Livermore, CA 94550-9650",
+  "url": "https://www.va.gov/palo-alto-health-care/"
+ },
+ {
+  "name": "VA Menlo Park Division",
+  "category": "VA Medical Center",
+  "county": "San Mateo",
+  "lat": 37.468341,
+  "lng": -122.15871,
+  "address": "795 Willow Road, Menlo Park, CA 94025-2539",
+  "url": "https://www.va.gov/palo-alto-health-care/"
+ },
+ {
+  "name": "San Francisco VA Medical Center",
+  "category": "VA Medical Center",
+  "county": "San Francisco",
+  "lat": 37.781766,
+  "lng": -122.50512,
+  "address": "4150 Clement Street, San Francisco, CA 94121-1545",
+  "url": "https://www.va.gov/san-francisco-health-care/"
+ },
+ {
+  "name": "VA Central California Medical Center (Fresno)",
+  "category": "VA Medical Center",
+  "county": "Fresno",
+  "lat": 36.773487,
+  "lng": -119.7790245,
+  "address": "2615 East Clinton Avenue, Fresno, CA 93703-2223",
+  "url": "https://www.va.gov/central-california-health-care/"
+ },
+ {
+  "name": "VA Greater Los Angeles (West LA)",
+  "category": "VA Medical Center",
+  "county": "Los Angeles",
+  "lat": 34.05243241,
+  "lng": -118.45846334,
+  "address": "11301 Wilshire Boulevard, Los Angeles, CA 90073-1003",
+  "url": "https://www.va.gov/greater-los-angeles-health-care/"
+ },
+ {
+  "name": "Sepulveda Ambulatory Care Center",
+  "category": "VA Medical Center",
+  "county": "Los Angeles",
+  "lat": 34.24292261,
+  "lng": -118.48325017,
+  "address": "16111 Plummer Street, Sepulveda, CA 91343-2036",
+  "url": "https://www.va.gov/greater-los-angeles-health-care/locations/"
+ },
+ {
+  "name": "VA Long Beach (Tibor Rubin VAMC)",
+  "category": "VA Medical Center",
+  "county": "Los Angeles",
+  "lat": 33.77536793,
+  "lng": -118.11995371,
+  "address": "5901 East Seventh Street, Long Beach, CA 90822-5201",
+  "url": "https://www.va.gov/long-beach-health-care/"
+ },
+ {
+  "name": "VA Loma Linda (Jerry L. Pettis Memorial)",
+  "category": "VA Medical Center",
+  "county": "San Bernardino",
+  "lat": 34.0501827,
+  "lng": -117.2523432,
+  "address": "11201 Benton Street, Loma Linda, CA 92357-1000",
+  "url": "https://www.va.gov/loma-linda-health-care/"
+ },
+ {
+  "name": "VA San Diego (Jennifer Moreno VAMC)",
+  "category": "VA Medical Center",
+  "county": "San Diego",
+  "lat": 32.875551,
+  "lng": -117.2322855,
+  "address": "3350 La Jolla Village Drive, San Diego, CA 92161-0002",
+  "url": "https://www.va.gov/san-diego-health-care/"
+ },
+ {
+  "name": "Chico VA Clinic",
+  "category": "CBOC",
+  "county": "Butte",
+  "lat": 39.731985,
+  "lng": -121.7879595,
+  "address": "1601 Concord Avenue, Chico, CA 95928-9486",
+  "url": "https://www.va.gov/northern-california-health-care/locations/"
+ },
+ {
+  "name": "Redding VA Clinic",
+  "category": "CBOC",
+  "county": "Shasta",
+  "lat": 40.50702956,
+  "lng": -122.31256572,
+  "address": "3455 Knighton Road, Redding, CA 96002-9498",
+  "url": "https://www.va.gov/northern-california-health-care/locations/"
+ },
+ {
+  "name": "Fairfield VA Clinic (Travis AFB)",
+  "category": "CBOC",
+  "county": "Solano",
+  "lat": 38.26758502,
+  "lng": -121.96510932,
+  "address": "103 Bodin Circle, Travis AFB, CA 94535-1801",
+  "url": "https://www.va.gov/northern-california-health-care/locations/"
+ },
+ {
+  "name": "Louis A. Conter VA Clinic (Auburn)",
+  "category": "CBOC",
+  "county": "Placer",
+  "lat": 38.94154267,
+  "lng": -121.09888733,
+  "address": "11985 Heritage Oaks Place, Auburn, CA 95603-2413",
+  "url": "https://www.va.gov/northern-california-health-care/locations/"
+ },
+ {
+  "name": "Mare Island VA Clinic",
+  "category": "CBOC",
+  "county": "Solano",
+  "lat": 38.11418311,
+  "lng": -122.28685535,
+  "address": "201 Walnut Avenue, Mare Island, CA 94592-1107",
+  "url": "https://www.va.gov/northern-california-health-care/locations/"
+ },
+ {
+  "name": "McClellan VA Clinic",
+  "category": "CBOC",
+  "county": "Sacramento",
+  "lat": 38.664378,
+  "lng": -121.3864605,
+  "address": "5342 Dudley Boulevard, McClellan Park, CA 95652-1012",
+  "url": "https://www.va.gov/northern-california-health-care/locations/"
+ },
+ {
+  "name": "Modesto VA Clinic",
+  "category": "CBOC",
+  "county": "Stanislaus",
+  "lat": 37.66061082,
+  "lng": -120.95755168,
+  "address": "1225 Oakdale Road, Modesto, CA 95355-3357",
+  "url": "https://www.va.gov/northern-california-health-care/locations/"
+ },
+ {
+  "name": "Richard A. Pittman VA Clinic (Stockton)",
+  "category": "CBOC",
+  "county": "San Joaquin",
+  "lat": 37.8917697,
+  "lng": -121.28461293,
+  "address": "6505 South Manthey Road, French Camp, CA 95231-9518",
+  "url": "https://www.va.gov/northern-california-health-care/locations/"
+ },
+ {
+  "name": "Sonora VA Clinic",
+  "category": "CBOC",
+  "county": "Tuolumne",
+  "lat": 37.97506316,
+  "lng": -120.34499674,
+  "address": "13663 Mono Way, Sonora, CA 95370-2811",
+  "url": "https://www.va.gov/northern-california-health-care/locations/"
+ },
+ {
+  "name": "Yreka VA Clinic",
+  "category": "CBOC",
+  "county": "Siskiyou",
+  "lat": 41.71600544,
+  "lng": -122.63866086,
+  "address": "101 East Oberlin Road, Yreka, CA 96097-9645",
+  "url": "https://www.va.gov/northern-california-health-care/locations/"
+ },
+ {
+  "name": "Yuba City VA Clinic",
+  "category": "CBOC",
+  "county": "Sutter",
+  "lat": 39.13108223,
+  "lng": -121.61385793,
+  "address": "425 Plumas Boulevard, Yuba City, CA 95991-5074",
+  "url": "https://www.va.gov/northern-california-health-care/locations/"
+ },
+ {
+  "name": "Capitola VA Clinic",
+  "category": "CBOC",
+  "county": "Santa Cruz",
+  "lat": 36.970596,
+  "lng": -121.9641795,
+  "address": "1350 41st Avenue, Capitola, CA 95010-3906",
+  "url": "https://www.va.gov/palo-alto-health-care/locations/"
+ },
+ {
+  "name": "Fremont VA Clinic",
+  "category": "CBOC",
+  "county": "Alameda",
+  "lat": 37.5506205,
+  "lng": -121.98167203,
+  "address": "39199 Liberty Street, Fremont, CA 94538-1501",
+  "url": "https://www.va.gov/palo-alto-health-care/locations/"
+ },
+ {
+  "name": "Monterey/Marina VA Clinic",
+  "category": "CBOC",
+  "county": "Monterey",
+  "lat": 36.66249151,
+  "lng": -121.81348234,
+  "address": "201 9th Street, Marina, CA 93933-6039",
+  "url": "https://www.va.gov/palo-alto-health-care/locations/"
+ },
+ {
+  "name": "San Jose VA Clinic",
+  "category": "CBOC",
+  "county": "Santa Clara",
+  "lat": 37.26833126,
+  "lng": -121.78593385,
+  "address": "5855 Silver Creek Valley Place, San Jose, CA 95138-1059",
+  "url": "https://www.va.gov/palo-alto-health-care/locations/"
+ },
+ {
+  "name": "Clearlake VA Clinic",
+  "category": "CBOC",
+  "county": "Lake",
+  "lat": 38.94984654,
+  "lng": -122.62854435,
+  "address": "15145 Lakeshore Drive, Clearlake, CA 95422-8106",
+  "url": "https://www.va.gov/san-francisco-health-care/locations/"
+ },
+ {
+  "name": "Eureka VA Clinic",
+  "category": "CBOC",
+  "county": "Humboldt",
+  "lat": 40.78058447,
+  "lng": -124.1811495,
+  "address": "930 West Harris Street, Eureka, CA 95503-3927",
+  "url": "https://www.va.gov/san-francisco-health-care/locations/"
+ },
+ {
+  "name": "Santa Rosa North VA Clinic",
+  "category": "CBOC",
+  "county": "Sonoma",
+  "lat": 38.51220505,
+  "lng": -122.79335681,
+  "address": "3841 Brickway Boulevard, Santa Rosa, CA 95403-8226",
+  "url": "https://www.va.gov/san-francisco-health-care/locations/"
+ },
+ {
+  "name": "Santa Rosa South VA Clinic",
+  "category": "CBOC",
+  "county": "Sonoma",
+  "lat": 38.423664,
+  "lng": -122.7510855,
+  "address": "2285 Challenger Way, Santa Rosa, CA 95407-5418",
+  "url": "https://www.va.gov/san-francisco-health-care/locations/"
+ },
+ {
+  "name": "Oakland VA Clinic",
+  "category": "CBOC",
+  "county": "Alameda",
+  "lat": 37.81192328,
+  "lng": -122.27301879,
+  "address": "2221 Martin Luther King Jr. Way, Oakland, CA 94612-1318",
+  "url": "https://www.va.gov/san-francisco-health-care/locations/"
+ },
+ {
+  "name": "Oakland 21st Street VA Clinic",
+  "category": "CBOC",
+  "county": "Alameda",
+  "lat": 37.81192328,
+  "lng": -122.27301879,
+  "address": "2221 Martin Luther King Jr. Way, Oakland, CA 94612-1318",
+  "url": "https://www.va.gov/san-francisco-health-care/locations/"
+ },
+ {
+  "name": "San Bruno VA Clinic",
+  "category": "CBOC",
+  "county": "San Mateo",
+  "lat": 37.63469178,
+  "lng": -122.42578874,
+  "address": "1001 Sneath Lane, San Bruno, CA 94066-2349",
+  "url": "https://www.va.gov/san-francisco-health-care/locations/"
+ },
+ {
+  "name": "SF Downtown VA Clinic (CRRC)",
+  "category": "CBOC",
+  "county": "San Francisco",
+  "lat": 37.782549,
+  "lng": -122.3971335,
+  "address": "401 3rd Street, San Francisco, CA 94107-1214",
+  "url": "https://www.va.gov/san-francisco-health-care/locations/"
+ },
+ {
+  "name": "Ukiah VA Clinic",
+  "category": "CBOC",
+  "county": "Mendocino",
+  "lat": 39.14811949,
+  "lng": -123.19754373,
+  "address": "630 Kings Court, Ukiah, CA 95482-5003",
+  "url": "https://www.va.gov/san-francisco-health-care/locations/"
+ },
+ {
+  "name": "Merced VA Clinic",
+  "category": "CBOC",
+  "county": "Merced",
+  "lat": 37.330848,
+  "lng": -120.46482,
+  "address": "340 East Yosemite Avenue, Merced, CA 95340-9167",
+  "url": "https://www.va.gov/central-california-health-care/locations/"
+ },
+ {
+  "name": "Oakhurst VA Clinic",
+  "category": "CBOC",
+  "county": "Madera",
+  "lat": 37.33850042,
+  "lng": -119.66928932,
+  "address": "40597 Westlake Drive, Oakhurst, CA 93644-9024",
+  "url": "https://www.va.gov/central-california-health-care/locations/"
+ },
+ {
+  "name": "Visalia VA Clinic",
+  "category": "CBOC",
+  "county": "Tulare",
+  "lat": 36.334053,
+  "lng": -119.2875975,
+  "address": "500 North Santa Fe Street, Visalia, CA 93292-5065",
+  "url": "https://www.va.gov/central-california-health-care/locations/"
+ },
+ {
+  "name": "Antelope Valley VA Clinic (Lancaster)",
+  "category": "CBOC",
+  "county": "Los Angeles",
+  "lat": 34.69044901,
+  "lng": -118.16129504,
+  "address": "44439 Veterans Way, Lancaster, CA 93534-2831",
+  "url": "https://www.va.gov/greater-los-angeles-health-care/locations/"
+ },
+ {
+  "name": "Bakersfield VA Clinic",
+  "category": "CBOC",
+  "county": "Kern",
+  "lat": 35.37581914,
+  "lng": -119.04254203,
+  "address": "1801 Westwind Drive, Bakersfield, CA 93301-3028",
+  "url": "https://www.va.gov/greater-los-angeles-health-care/locations/"
+ },
+ {
+  "name": "Ventura VA Clinic (Capt. Rosemary Bryant Mariner)",
+  "category": "CBOC",
+  "county": "Ventura",
+  "lat": 34.25955593,
+  "lng": -119.22007484,
+  "address": "5250 Ralston Street, Ventura, CA 93003-7318",
+  "url": "https://www.va.gov/greater-los-angeles-health-care/locations/"
+ },
+ {
+  "name": "East Los Angeles VA Clinic",
+  "category": "CBOC",
+  "county": "Los Angeles",
+  "lat": 34.01553574,
+  "lng": -118.15522237,
+  "address": "5426 East Olympic Boulevard, Commerce, CA 90022-5113",
+  "url": "https://www.va.gov/greater-los-angeles-health-care/locations/"
+ },
+ {
+  "name": "Los Angeles VA Clinic (Downtown)",
+  "category": "CBOC",
+  "county": "Los Angeles",
+  "lat": 34.05149131,
+  "lng": -118.23847927,
+  "address": "351 East Temple Street, Los Angeles, CA 90012-3328",
+  "url": "https://www.va.gov/greater-los-angeles-health-care/locations/"
+ },
+ {
+  "name": "San Gabriel Valley VA Clinic (Arcadia)",
+  "category": "CBOC",
+  "county": "Los Angeles",
+  "lat": 34.15108223,
+  "lng": -118.03227023,
+  "address": "7 West Foothill Boulevard, Arcadia, CA 91006-2367",
+  "url": "https://www.va.gov/greater-los-angeles-health-care/locations/"
+ },
+ {
+  "name": "San Luis Obispo VA Clinic",
+  "category": "CBOC",
+  "county": "San Luis Obispo",
+  "lat": 35.27924306,
+  "lng": -120.66041368,
+  "address": "1288 Morro Street, San Luis Obispo, CA 93401-6302",
+  "url": "https://www.va.gov/greater-los-angeles-health-care/locations/"
+ },
+ {
+  "name": "Santa Barbara VA Clinic",
+  "category": "CBOC",
+  "county": "Santa Barbara",
+  "lat": 34.44240299,
+  "lng": -119.77646095,
+  "address": "4440 Calle Real, Santa Barbara, CA 93110-1002",
+  "url": "https://www.va.gov/greater-los-angeles-health-care/locations/"
+ },
+ {
+  "name": "Santa Maria VA Clinic",
+  "category": "CBOC",
+  "county": "Santa Barbara",
+  "lat": 34.95274328,
+  "lng": -120.40748487,
+  "address": "1550 East Main Street, Santa Maria, CA 93454-4819",
+  "url": "https://www.va.gov/greater-los-angeles-health-care/locations/"
+ },
+ {
+  "name": "Cabrillo VA Clinic",
+  "category": "CBOC",
+  "county": "Los Angeles",
+  "lat": 33.79221374,
+  "lng": -118.22216091,
+  "address": "2001 River Avenue, Long Beach, CA 90806-3622",
+  "url": "https://www.va.gov/long-beach-health-care/locations/"
+ },
+ {
+  "name": "Gardena VA Clinic",
+  "category": "CBOC",
+  "county": "Los Angeles",
+  "lat": 33.85834559,
+  "lng": -118.29651619,
+  "address": "1149 West 190th Street, Gardena, CA 90248-4321",
+  "url": "https://www.va.gov/long-beach-health-care/locations/"
+ },
+ {
+  "name": "Laguna Hills VA Clinic",
+  "category": "CBOC",
+  "county": "Orange",
+  "lat": 33.61822202,
+  "lng": -117.73147997,
+  "address": "23719 Moulton Parkway, Laguna Hills, CA 92653-5422",
+  "url": "https://www.va.gov/long-beach-health-care/locations/"
+ },
+ {
+  "name": "Placentia VA Clinic",
+  "category": "CBOC",
+  "county": "Orange",
+  "lat": 33.86228513,
+  "lng": -117.88237063,
+  "address": "770 South Placentia Avenue, Placentia, CA 92870-6832",
+  "url": "https://www.va.gov/long-beach-health-care/locations/"
+ },
+ {
+  "name": "Santa Ana VA Clinic",
+  "category": "CBOC",
+  "county": "Orange",
+  "lat": 33.71475358,
+  "lng": -117.84971128,
+  "address": "1506 Brookhollow Drive, Santa Ana, CA 92705-5405",
+  "url": "https://www.va.gov/long-beach-health-care/locations/"
+ },
+ {
+  "name": "Santa Fe Springs VA Clinic",
+  "category": "CBOC",
+  "county": "Los Angeles",
+  "lat": 33.942348,
+  "lng": -118.08179253,
+  "address": "10330 Pioneer Boulevard, Santa Fe Springs, CA 90670-6012",
+  "url": "https://www.va.gov/long-beach-health-care/locations/"
+ },
+ {
+  "name": "West Santa Ana VA Clinic (CRRC)",
+  "category": "CBOC",
+  "county": "Orange",
+  "lat": 33.747642,
+  "lng": -117.8760285,
+  "address": "888 West Santa Ana Boulevard, Santa Ana, CA 92701-4561",
+  "url": "https://www.va.gov/long-beach-health-care/locations/"
+ },
+ {
+  "name": "Blythe VA Clinic",
+  "category": "CBOC",
+  "county": "Riverside",
+  "lat": 33.61022137,
+  "lng": -114.61099581,
+  "address": "1273 West Hobson Way, Blythe, CA 92225-1423",
+  "url": "https://www.va.gov/loma-linda-health-care/locations/"
+ },
+ {
+  "name": "Corona VA Clinic",
+  "category": "CBOC",
+  "county": "Riverside",
+  "lat": 33.88335819,
+  "lng": -117.5228955,
+  "address": "280 Teller Street, Corona, CA 92879-1888",
+  "url": "https://www.va.gov/loma-linda-health-care/locations/"
+ },
+ {
+  "name": "Hemet VA Clinic",
+  "category": "CBOC",
+  "county": "Riverside",
+  "lat": 33.74940948,
+  "lng": -116.9648415,
+  "address": "720 East Latham Avenue, Hemet, CA 92543-4364",
+  "url": "https://www.va.gov/loma-linda-health-care/locations/"
+ },
+ {
+  "name": "Loma Linda VA Clinic (Redlands Ambulatory Care Center)",
+  "category": "CBOC",
+  "county": "San Bernardino",
+  "lat": 34.061049,
+  "lng": -117.235278,
+  "address": "26001 Redlands Boulevard, Redlands, CA 92373-7762",
+  "url": "https://www.va.gov/loma-linda-health-care/locations/"
+ },
+ {
+  "name": "Murrieta VA Clinic",
+  "category": "CBOC",
+  "county": "Riverside",
+  "lat": 33.55658285,
+  "lng": -117.19967885,
+  "address": "25125 Madison Avenue, Murrieta, CA 92562-8970",
+  "url": "https://www.va.gov/loma-linda-health-care/locations/"
+ },
+ {
+  "name": "Rancho Cucamonga VA Clinic",
+  "category": "CBOC",
+  "county": "San Bernardino",
+  "lat": 34.105158,
+  "lng": -117.539505,
+  "address": "8160 Day Creek Boulevard, Rancho Cucamonga, CA 91739-9329",
+  "url": "https://www.va.gov/loma-linda-health-care/locations/"
+ },
+ {
+  "name": "Palm Desert VA Clinic (Sy Kaplan)",
+  "category": "CBOC",
+  "county": "Riverside",
+  "lat": 33.805836,
+  "lng": -116.3915415,
+  "address": "72700 Dinah Shore Drive, Palm Desert, CA 92211-9329",
+  "url": "https://www.va.gov/loma-linda-health-care/locations/"
+ },
+ {
+  "name": "Victorville VA Clinic",
+  "category": "CBOC",
+  "county": "San Bernardino",
+  "lat": 34.51587637,
+  "lng": -117.3136475,
+  "address": "14598 Seventh Street, Victorville, CA 92395-4214",
+  "url": "https://www.va.gov/loma-linda-health-care/locations/"
+ },
+ {
+  "name": "Chula Vista VA Clinic",
+  "category": "CBOC",
+  "county": "San Diego",
+  "lat": 32.63386758,
+  "lng": -117.07923508,
+  "address": "353 H Street, Chula Vista, CA 91910-5501",
+  "url": "https://www.va.gov/san-diego-health-care/locations/"
+ },
+ {
+  "name": "Escondido VA Clinic",
+  "category": "CBOC",
+  "county": "San Diego",
+  "lat": 33.13776779,
+  "lng": -117.0514832,
+  "address": "2010 East Valley Parkway, Escondido, CA 92027-2710",
+  "url": "https://www.va.gov/san-diego-health-care/locations/"
+ },
+ {
+  "name": "Imperial Valley VA Clinic (El Centro)",
+  "category": "CBOC",
+  "county": "Imperial",
+  "lat": 32.7928,
+  "lng": -115.571,
+  "address": "1501 West Main Street, El Centro, CA 92243-2211",
+  "url": "https://www.va.gov/san-diego-health-care/locations/"
+ },
+ {
+  "name": "Kearny Mesa VA Clinic",
+  "category": "CBOC",
+  "county": "San Diego",
+  "lat": 32.80974319,
+  "lng": -117.13706751,
+  "address": "8875 Aero Drive, San Diego, CA 92123-2251",
+  "url": "https://www.va.gov/san-diego-health-care/locations/"
+ },
+ {
+  "name": "Oceanside VA Clinic",
+  "category": "CBOC",
+  "county": "San Diego",
+  "lat": 33.207399,
+  "lng": -117.3108465,
+  "address": "1300 Rancho del Oro Drive, Oceanside, CA 92056-1729",
+  "url": "https://www.va.gov/san-diego-health-care/locations/"
+ },
+ {
+  "name": "Rio VA Clinic",
+  "category": "CBOC",
+  "county": "San Diego",
+  "lat": 32.77579719,
+  "lng": -117.13677034,
+  "address": "8989 Rio San Diego Drive, San Diego, CA 92108-1605",
+  "url": "https://www.va.gov/san-diego-health-care/locations/"
+ },
+ {
+  "name": "San Diego VA Domiciliary (Aspire Center)",
+  "category": "CBOC",
+  "county": "San Diego",
+  "lat": 32.74651025,
+  "lng": -117.18937336,
+  "address": "2121 San Diego Avenue, San Diego, CA 92110-2928",
+  "url": "https://www.va.gov/san-diego-health-care/locations/"
+ },
+ {
+  "name": "Sorrento Valley VA Clinic",
+  "category": "CBOC",
+  "county": "San Diego",
+  "lat": 32.89503489,
+  "lng": -117.21714903,
+  "address": "10455 Sorrento Valley Road, San Diego, CA 92121-1622",
+  "url": "https://www.va.gov/san-diego-health-care/locations/"
+ },
+ {
+  "name": "North Loma Linda VA Clinic",
+  "category": "CBOC",
+  "county": "San Bernardino",
+  "lat": 34.06501057,
+  "lng": -117.24020721,
+  "address": "10391 Corporate Drive, Redlands, CA 92374-4509",
+  "url": "https://www.va.gov/loma-linda-health-care/"
+ },
+ {
+  "name": "Diamond View VA Clinic (South Lake Tahoe)",
+  "category": "CBOC",
+  "county": "El Dorado",
+  "lat": 40.40584984,
+  "lng": -120.62556908,
+  "address": "110 Bella Way, Susanville, CA 96130-9102",
+  "url": "https://www.va.gov/reno-health-care/"
+ },
+ {
+  "name": "Cypress Avenue VA Clinic",
+  "category": "CBOC",
+  "county": "Shasta",
+  "lat": 40.57438449,
+  "lng": -122.38047136,
+  "address": "760 Cypress Avenue, Redding, CA 96001-2732",
+  "url": "https://www.va.gov/northern-california-health-care/"
+ }
+]
