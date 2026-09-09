@@ -24,7 +24,7 @@
   .dot { width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(0,0,0,.35); }
   .sq  { width: 13px; height: 13px; flex-shrink: 0; border: 1.5px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.4); }
 
-  .legend { padding: 9px 12px; max-width: 230px; }
+  .legend { padding: 9px 12px; max-width: 230px; max-height: 46vh; overflow-y: auto; }
   .legend .row { display: flex; align-items: center; gap: 7px; margin: 3px 0; }
   .legend .note { color: #666; font-size: 11px; margin-top: 7px; border-top: 1px solid #e3e3e3; padding-top: 6px; }
 
@@ -45,6 +45,7 @@
 <!-- Data (generated — see data/sb79/SOURCES.md and data/va/build_facilities.py) -->
 <script src="data/sb79/sb79-tod-stops.js"></script>
 <script src="data/va/va-ca-facilities.js"></script>
+<script src="data/care/care-facilities.js"></script>
 <script>
 // ============================================================
 // California VA facilities + SB 79 transit-oriented-development stops.
@@ -63,6 +64,14 @@ const COLORS = {
   mc:    '#c62828',   // VA medical center
   cboc:  '#7b1fa2',   // community-based outpatient clinic
   ring:  '#444',
+};
+// care-facility categories -> [color, layerKey, label]
+const CARE = {
+  fqhc:              ['#2e7d32', 'Health centers (FQHC)'],
+  bh_substance_use:  ['#a1887f', 'Substance-use treatment'],
+  bh_mental_health:  ['#26a69a', 'Mental-health treatment'],
+  regional_center:   ['#f9a825', 'DDS Regional Centers'],
+  independent_living:['#ec407a', 'Independent Living Centers'],
 };
 const MILE_M = 1609.34;
 
@@ -87,6 +96,11 @@ const layers = {
   stopHalf:    L.layerGroup(),
   vaQuarter:   L.layerGroup(),
   vaHalf:      L.layerGroup(),
+  fqhc:              L.layerGroup(),
+  bh_substance_use:  L.layerGroup(),
+  bh_mental_health:  L.layerGroup(),
+  regional_center:   L.layerGroup(),
+  independent_living:L.layerGroup(),
 };
 
 // Ring layers are populated on first use (thousands of circles otherwise
@@ -192,6 +206,25 @@ let nMC = 0, nCBOC = 0;
   ringCoords.va.push([c[1], c[0]]);
 });
 
+// ---- care facilities (health & disability) -----------------------------
+const nCare = {};
+(window.CARE_FACILITIES?.features || []).forEach(f => {
+  const p = f.properties, c = f.geometry.coordinates;
+  const spec = CARE[p.category];
+  if (!spec) return;
+  nCare[p.category] = (nCare[p.category] || 0) + 1;
+  L.circleMarker([c[1], c[0]], {
+    radius: 3, color: 'rgba(0,0,0,.3)', weight: 0.5,
+    fillColor: spec[0], fillOpacity: 0.85,
+  }).bindPopup(
+    `<div class="pt">${esc(p.name)}</div>` +
+    `<div class="tag">${esc(p.category_label)}</div>` +
+    `<div class="muted">${esc(p.address)}${p.county ? '<br>' + esc(p.county) + ' County' : ''}` +
+    `${p.services ? '<br>' + esc(p.services) : ''}` +
+    `${p.phone ? '<br>' + esc(p.phone) : ''}</div>`
+  ).addTo(layers[p.category]);
+});
+
 // ---- default visible ---------------------------------------------------
 ['tier1', 'tier2', 'mc', 'cboc', 'vaHalf'].forEach(k => {
   ensureRings(k);            // no-op for non-ring keys
@@ -215,6 +248,8 @@ const CONTROL_GROUPS = [
     ['vaQuarter', '&frac14;-mile around VA sites', `<span class="dot" style="background:#c62828;opacity:.5"></span>`, false],
     ['vaHalf', '&frac12;-mile around VA sites', `<span class="dot" style="background:#c62828;opacity:.3"></span>`, true],
   ]],
+  ['Health & disability services', Object.entries(CARE).map(([k, [color, label]]) =>
+    [k, label, `<span class="dot" style="background:${color}"></span>`, false])],
 ];
 
 const control = L.control({ position: 'topright' });
@@ -245,9 +280,12 @@ legend.onAdd = () => {
     <div class="row"><span class="dot" style="background:${COLORS.tier2}"></span> Tier 2 station &nbsp;<b>${nf(nT2)}</b></div>
     <div class="row"><span class="sq" style="background:${COLORS.mc}"></span> VA medical center &nbsp;<b>${nf(nMC)}</b></div>
     <div class="row"><span class="dot" style="background:${COLORS.cboc}"></span> CBOC &nbsp;<b>${nf(nCBOC)}</b></div>
+    ${Object.entries(CARE).map(([k, [color, label]]) => nCare[k]
+      ? `<div class="row"><span class="dot" style="background:${color}"></span> ${label} &nbsp;<b>${nf(nCare[k])}</b></div>` : '').join('')}
     <div class="note">SB 79 (Gov. Code &sect;&sect;&nbsp;65912.155&ndash;.162) qualifying transit
       stops in California's urban transit counties, from the SCAG / MTC / SANDAG / SACOG maps.
-      VA sites from the VHA facilities layer. &frac12;&#8209;mile ring = SB&nbsp;79 TOD zone;
+      VA sites from the VHA facilities layer; health &amp; disability facilities from
+      HRSA, SAMHSA, CA&nbsp;DDS and Cal&nbsp;OES. &frac12;&#8209;mile ring = SB&nbsp;79 TOD zone;
       &frac14;&#8209;mile ring = inner band. Data &amp; sources: <code>data/</code> in the repo.
       ${nPlanned ? nf(nPlanned) + ' planned stops shown hollow.' : ''}</div>`;
   return d;
@@ -256,7 +294,7 @@ legend.addTo(map);
 
 // ---- done ----------------------------------------------------------
 const el = document.getElementById('loading');
-if (!window.SB79_TOD_STOPS || !window.VA_FACILITIES) {
+if (!window.SB79_TOD_STOPS || !window.VA_FACILITIES || !window.CARE_FACILITIES) {
   el.textContent = 'Could not load data files (data/…). Serve this page over http, not file://.';
 } else {
   el.remove();

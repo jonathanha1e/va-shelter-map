@@ -1,0 +1,4 @@
+generated 2026-09-09
+total: 4451
+by category: {'fqhc': 2542, 'bh_substance_use': 1209, 'bh_mental_health': 654, 'regional_center': 21, 'independent_living': 25}
+source feature counts: {'fqhc_ca.geojson': 2543, 'samhsa_bh_ca.geojson': 1209, 'samhsa_mh_ca.geojson': 654, 'dds_rc.geojson': 21, 'ilc_cdda.geojson': 25}
