@@ -1,0 +1,26 @@
+{
+  "_comment": "Per-facility corrections applied on top of the VHA feature layer, for cases where the VHA public dataset (vintage MAR2025) is stale versus the current va.gov location page. Each entry is keyed by STA_NO. Verified 2026-09-09.",
+  "691GG": {
+    "name": "Antelope Valley VA Clinic",
+    "address": "44439 Veterans Way, Lancaster, CA 93534-2831",
+    "lat": 34.690449,
+    "lng": -118.161295,
+    "override_reason": "Clinic moved to the new 44439 Veterans Way building (opened Aug 27 2025); the VHA MAR2025 layer still lists the closed 340 E Avenue I site.",
+    "override_source": "https://www.va.gov/greater-los-angeles-health-care/locations/antelope-valley-va-clinic/"
+  },
+  "664GA": {
+    "name": "Imperial Valley VA Clinic",
+    "address": "1501 West Main Street, El Centro, CA 92243-2211",
+    "lat": 32.792786,
+    "lng": -115.571230,
+    "override_reason": "Current va.gov address is 1501 W Main St; the VHA MAR2025 layer lists 1115 S 4th St.",
+    "override_source": "https://www.va.gov/san-diego-health-care/locations/imperial-valley-va-clinic/ ; coordinate from U.S. Census Bureau geocoder"
+  },
+  "664GD": {
+    "address": "815 East Pennsylvania Avenue, Escondido, CA 92025-2664",
+    "lat": 33.127363,
+    "lng": -117.072005,
+    "override_reason": "Coordinate tightened to the 815 E Pennsylvania Ave building (matches VHA address; old map still had the former 2010 E Valley Pkwy site).",
+    "override_source": "https://www.va.gov/san-diego-health-care/locations/escondido-va-clinic/ ; coordinate from U.S. Census Bureau geocoder"
+  }
+}
