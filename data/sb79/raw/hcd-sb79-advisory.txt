@@ -1,0 +1,408 @@
+California Department of Housing and Community Development
+
+
+SB 79 Advisory
+Clarifications on
+Definitions for
+Metropolitan Planning
+Organizations
+On the Implementation of Senate Bill 79 (Chapter 512, Statutes of
+2025)
+
+
+
+
+ Housing Policy Development Division
+ March 20, 2026
+Introduction
+
+
+Introduction
+The Association of Bay Area Governments (ABAG), Sacramento Area Council of
+Governments (SACOG), San Diego Association of Governments (SANDAG), and
+Southern California Association of Governments (SCAG) requested early consultation
+with the California Department of Housing and Community Development (HCD) on the
+implementation of SB 79, including clarification of certain definitions to facilitate the
+metropolitan planning organizations’ (MPO) ability to complete their statutory mapping
+role in a consistent manner across the state. In response, HCD facilitated several
+meetings with MPOs, in consultation with Caltrans, with the goal of arriving on
+definitions of key terms in the statute.
+MPOs also requested that HCD issue a memo in advance of the statute’s July 1, 2026
+operative date to assist MPOs with consistent implementation of SB 79 mapping across
+the regions. This memo is advisory and consolidates definitions discussed with MPOs,
+in consultation with Caltrans, which HCD has compiled at the MPOs’ request to support
+carrying out their duties under Government Code section 65912.160, subdivision (f).
+
+
+Executive Summary of SB 79
+SB 79 makes qualified transit-oriented housing developments an allowed use on sites
+zoned for residential, mixed-use, or commercial development that are located near
+specified transit stops in urban transit counties with more than 15 passenger rail
+stations. Governor Newsom signed SB 79 into law on October 10, 2025, and the law is
+codified in Government Code Chapter 4.1.5 (Transit-Oriented Development), which
+includes sections 65912.155 through 65912.162.
+HCD is tasked with overseeing compliance with SB 79, 1 including reviewing enacted SB
+79 ordinances 2 and Transit-Oriented Development (TOD) Alternative Plans3 and
+determining their compliance with state law. HCD is also required to promulgate
+standards for inclusion of SB 79 sites in the housing element sites inventory. 4 In
+addition, SB 79 requires that each MPO must create a map of TOD stops and zones
+within its region by tier, and the maps carry a rebuttable presumption of validity for use
+by project applicants and local governments. 5
+
+
+
+
+1 Gov. Code, § 65912.160, subd. (a).
+2 Gov. Code, § 65912.160, subd. (d).
+3 Gov. Code, § 65912.161, subd. (d).
+4 Gov. Code, § 65912.160, subd. (b).
+5 Gov. Code, § 65912.160, subd. (f).
+
+
+                                                                                            2
+Clarifications on Definitions
+
+
+Clarifications on Definitions
+Based on discussions with ABAG/MTC, SACOG, SANDAG, and SCAG, and in
+consultation with Caltrans, the following key definitions are intended to facilitate
+consistent implementation of SB 79. The left-hand column is the definition or reference
+in the statute, while the right-hand column provides advisory clarifications informed by
+input from MPOs and Caltrans.
+
+Adjacent
+ “Adjacent” means within 200 feet of any          The edge of the parcel(s) associated
+ pedestrian access point to a transit-            with the proposed housing development
+ oriented development stop.                       project is within 200 feet of any
+ Gov. Code, § 65912.156, subd. (a)                pedestrian access point to a TOD stop.
+
+Bus Service
+ …[B]us service meeting the standards of          A public mass transit service that
+ paragraph (1) of subdivision (a) of              includes full-time dedicated bus lanes or
+ Section 21060.2 of the Public Resources          operation in a separate right-of-way
+ Code.                                            dedicated for public transportation with
+ Gov. Code, § 65912.156, subd. (o)                a frequency of service interval of 15
+                                                  minutes or less during the morning and
+                                                  afternoon peak commute periods.
+ Full-time dedicated bus lanes or                 A qualifying bus service TOD stop is a
+ operation in a separate right-of-way             location where the bus stop is adjacent
+ dedicated for public transportation with a       to a full-time dedicated transit lane and
+ frequency of service interval of 15              the average bus service intervals across
+ minutes or less during the morning and           the combined morning and afternoon
+ afternoon peak commute periods.                  peak periods is 15 minutes or less.
+ Public Resources Code, § 21060.2, subd.
+ (a)(1)
+
+Commuter Rail
+ “Commuter rail” means a public rail transit      A public rail transit service that is not
+ service not meeting the standards for            any of the following: heavy or light rail,
+ heavy rail or light rail, excluding California   California High-Speed Rail, Amtrak
+ High-Speed Rail and Amtrak Long                  Long Distance Service, or privately
+ Distance Service.                                operated passenger rail service. A
+ Gov. Code, § 65912.156, subd. (b)                commuter rail can include planned high
+                                                  or very high frequency commuter rail
+                                                  public rail transit service, including
+                                                  those managed by state-supported Joint
+                                                  Powers Authorities (e.g., Gold Runner,
+                                                  Capitol Corridor, Pacific Surfliner).
+
+
+
+                                                                                           3
+Clarifications on Definitions
+
+
+Commuter Rail, High-Frequency
+ “High-frequency commuter rail” means a       A commuter rail service operating an
+ commuter rail service operating a total of   average of at least 48 trains per
+ at least 48 trains per day across both       weekday across all directions at any
+ directions, not including temporary          point in the past three years, not
+ service changes of less than one month       including temporary service changes of
+ or unplanned disruptions, and not            less than one month or unplanned
+ meeting the standard for very high           disruptions, and not meeting the
+ frequency commuter rail, at any point in     standard for very high frequency
+ the past three years.                        commuter rail. The average is the sum
+ Gov. Code, § 65912.156, subd. (e)            of the number of scheduled stops at a
+                                              station for a commuter rail service for all
+                                              weekdays, divided by five weekdays.
+                                              In assessing whether a station meets
+                                              this threshold, frequency is based on
+                                              the total number of trains serving the
+                                              station, including trains operated by
+                                              multiple commuter rail services where
+                                              applicable. This approach reflects the
+                                              overall level of transit access and
+                                              frequency experienced by riders at a
+                                              given stop.
+
+Commuter Rail, Very High Frequency
+ “Very high frequency commuter rail”          A commuter rail service operating an
+ means a commuter rail service with a         average of at least 72 trains per
+ total of at least 72 trains per day across   weekday across all directions at any
+ both directions, not including temporary     point in the past three years, not
+ service changes of less than one month       including temporary service changes of
+ or unplanned disruptions, at any point in    less than one month or unplanned
+ the past three years.                        disruptions. The average is the sum of
+ Gov. Code, § 65912.156, subd. (r)            the number of scheduled stops at a
+                                              station for a commuter rail service for all
+                                              weekdays, divided by five weekdays.
+                                              In assessing whether a station meets
+                                              this threshold, frequency is based on
+                                              the total number of trains serving the
+                                              station, including trains operated by
+                                              multiple commuter rail services where
+                                              applicable. This approach reflects the
+                                              overall level of transit access and
+                                              frequency experienced by riders at a
+                                              given stop.
+
+
+
+                                                                                            4
+Clarifications on Definitions
+
+
+Heavy Rail Transit
+ “Heavy rail transit” means a public electric   A public electric railway line that
+ railway line with the capacity for a heavy     includes all the following:
+ volume of traffic using high-speed and          Has capacity for a heavy volume of
+ rapid acceleration passenger rail cars            traffic,
+ operating singly or in multicar trains on
+ fixed rails, separate rights-of-way from        Uses high-speed and rapid
+ which all other vehicular and foot traffic        acceleration passenger rail cars,
+ are excluded, and high platform loading.        Operates singly or in multicar trains
+ “Heavy rail transit” does not include             on fixed rails,
+ California High-Speed Rail.                     Operates in a separate right-of-way
+ Gov. Code, § 65912.156, subd. (d)                 from which all other vehicular and
+                                                   foot traffic are excluded, and
+                                                 Stops at stations with high platform
+                                                   loading (i.e., where the platforms are
+                                                   built at the same height as the train
+                                                   floor).
+                                                Heavy rail transit lines typically use a
+                                                third rail power source. Heavy rail transit
+                                                does not include California High-Speed
+                                                Rail.
+
+Light Rail Transit
+ “Light rail transit” includes streetcar,       An electric railway line that is not a
+ trolley, and tramway service. “Light rail      “heavy rail transit” line which typically
+ transit” does not include airport people       draws power from overhead wires.
+ movers.                                        Includes, but is not limited to, streetcar,
+ Gov. Code, § 65912.156, subd. (h)              trolley, and tramway service. Does not
+                                                include airport people movers or cable
+                                                cars.
+
+Passenger Rail Station
+ [Undefined]                                    A passenger rail station includes all
+ “Urban transit county” means a county          forms of public heavy rail, light rail, or
+ with more than 15 passenger rail stations.     commuter rail stations that are in active
+                                                operation and provide regular service. A
+ Gov. Code, § 65912.156, subd. (q)              passenger rail station does not include
+                                                planned rail stations that are not yet in
+                                                service. A passenger rail station
+                                                occupying one physical location counts
+                                                as a single station, even if multiple rail
+                                                services utilize the station.
+
+
+
+
+                                                                                              5
+Clarifications on Definitions
+
+
+Pedestrian Access Point
+ [Undefined]                                  A pedestrian access point is any
+ “Adjacent” means within 200 feet of any      applicable station entrance, boarding
+ pedestrian access point to a transit-        platform access point, or location of a
+ oriented development stop.                   transit stop as defined and depicted on
+                                              the applicable MPO SB 79 map. MPOs
+ Gov. Code, § 65912.156, subd. (a)            may rely on General Transit Feed
+                                              Specification (GTFS) data, if provided
+ For purposes of this chapter, the distance   by individual transit providers within
+ of a transit-oriented housing development    each region, and may add additional
+ project from a transit-oriented              pedestrian access points for TOD stops
+ development stop shall be measured in a      with multiple entrances.
+ straight line from the nearest edge of the
+ parcel containing the proposed project to
+ a pedestrian access point for the
+ transit-oriented development stop.
+ Gov. Code, § 65912.157, subd. (b)
+
+Project Site
+ [Undefined]                                  Parcel(s) containing the proposed
+ A housing development project shall be       housing development project.
+ an allowed use as a transit-oriented
+ housing development on any site zoned
+ for residential, mixed, or commercial
+ development within one-half or one-
+ quarter mile of a transit-oriented
+ development stop, if the development
+ complies with the applicable of all of the
+ following requirements:
+ Gov. Code, § 65912.157, subd. (a)
+
+ For purposes of this chapter, the distance
+ of a transit-oriented housing development
+ project from a transit-oriented
+ development stop shall be measured in a
+ straight line from the nearest edge of the
+ parcel containing the proposed project to
+ a pedestrian access point for the transit-
+ oriented development stop.
+ Gov. Code, § 65912.157, subd. (b)
+
+
+
+
+                                                                                        6
+Clarifications on Definitions
+
+
+Rail Transit
+ “Rail transit” has the same meaning as         [No clarification]
+ defined in Section 99602 of the Public         Same meaning as defined in Section
+ Utilities Code.                                99602 of the Public Utilities Code, which
+ Gov. Code, § 65912.156, subd. (k)              is a rail mass transportation operation
+                                                usually within an urban area, generally
+                                                characterized by more frequent service
+                                                over shorter distances than normally
+                                                provided by commuter rail service or
+                                                intercity rail service, and operating on a
+                                                rail line without any or with very limited
+                                                rail freight service.
+
+Transit-Oriented Development (TOD) Stop
+ “Transit-oriented development stop”            A TOD stop is any of the following:
+ means a major transit stop, as defined by       An existing or planned transit station
+ Section 21064.3 of the Public Resources          or stop identified in a region’s
+ Code, and also including stops on a route        federally or state-mandated
+ for which a preferred alternative has been       transportation improvement program
+ selected or which are identified in a            (TIP) that is served by any of the
+ regional transportation improvement              following: light rail or heavy rail, high-
+ program, that is served by heavy rail            frequency or very high-frequency
+ transit, very high frequency commuter            commuter rail, or eligible bus service
+ rail, high frequency commuter rail, light        (see also “Bus Service”). Planned
+ rail transit, or bus service within an urban     TOD stops in a region’s TIP may be
+ transit county meeting the standards of          limited to include only those with any
+ paragraph (1) of subdivision (a) of              amount of committed construction
+ Section 21060.2 of the Public Resources          funding.
+ Code. When a new transit route or
+ extension is planned that was not               Selected preferred alternative route
+ identified in the applicable regional            stops from an adopted CEQA/NEPA
+ transportation plan on or before January         document, an adopted locally
+ 1, 2026, those stops shall not be eligible       preferred alternative (LPA), or other
+ as transit-oriented development stops            local implementing document as
+ unless they would be eligible as Tier 1          determined by the MPO, regardless
+ transit-oriented development stops. If a         of their status in a federally or state
+ county becomes an urban transit county           mandated TIP.
+ subsequent to July 1, 2026, then bus
+ service in that county shall remain
+ ineligible for designation of a transit-
+ oriented development stop.
+ Gov. Code, § 65912.156, subd. (p)
+
+
+
+
+                                                                                               7
+Clarifications on Definitions
+
+
+TOD Stop, Tier 1
+ “Tier 1 transit-oriented development stop”    An existing or planned TOD stop within
+ means a transit-oriented development          an urban transit county that is served by
+ stop within an urban transit county served    heavy rail transit or very high-frequency
+ by heavy rail transit or very high            commuter rail.
+ frequency commuter rail.
+ Gov. Code, § 65912.156, subd. (n)
+
+TOD Stop, Tier 2
+ “Tier 2 transit-oriented development stop”    An existing or planned TOD stop within
+ means a transit-oriented development          an urban transit county (excluding a Tier
+ stop within an urban transit county,          1 TOD Stop) that is served by light rail
+ excluding a Tier 1 transit-oriented           transit, high-frequency commuter rail, or
+ development stop, served by light rail        qualifying bus service. See also “Bus
+ transit, by high-frequency commuter rail,     Service.”
+ or by bus service meeting the standards
+ of paragraph (1) of subdivision (a) of
+ Section 21060.2 of the Public Resources
+ Code.
+ Gov. Code, § 65912.156, subd. (o);
+ Public Resources Code, § 21060.2, subd.
+ (a)(1)
+
+TOD Zone
+ “Transit-oriented development zone”           [No clarification]
+ means the area within one-half mile of a      The area within one-half mile of a TOD
+ transit-oriented development stop.            stop.
+ Gov. Code, § 65912.156, subd. (m)
+
+Unincorporated Area of a County
+ [Undefined]                                   An area that does not have its own local
+ This section shall not apply to a local       government and is governed as part of
+ agency until July 1, 2026, unless the local   a larger administrative division, such as
+ agency adopts an ordinance or local           a county.
+ transit-oriented development alternative      SB 79 does not apply to an
+ plan deemed compliant by the                  unincorporated area of a county until
+ department before July 1, 2026. It shall      the date that its 7th cycle housing
+ not apply within an unincorporated area       element is due (i.e., at the beginning of
+ of a county until the 7th regional housing    the eight-year planning period),
+ needs allocation cycle.                       although the portion within the TOD
+ Gov. Code, § 65912.157, subd. (n)             Zone of a qualifying jurisdiction is
+                                               eligible for provisions under SB 79,
+
+
+
+                                                                                           8
+Existing Rail Typologies
+
+
+                                                even where the TOD Stop is located in
+                                                an unincorporated jurisdiction.
+
+Urban Transit County
+ “Urban transit county” means a county          [No clarification]
+ with more than 15 passenger rail stations.     A county with more than 15 passenger
+ Gov. Code, § 65912.156, subd. (q)              rail stations.
+
+
+Existing Rail Typologies
+Based on the advisory clarifications of statutory definitions, and in response to MPO
+requests, the following classifications for existing rail typologies for the purpose of SB
+79 implementation are provided in the table below. This table does not reflect rail
+typologies for rail services that have yet to be constructed or enter into operation. Note:
+Not all commuter rail stops and stations are necessarily TOD stops; to be a TOD stop, it
+must meet the definitions in the statute as clarified above.
+
+          Heavy Rail                     Light Rail                 Commuter Rail
+    Bay Area Rapid Transit       LA Metro Rail (A, C, E,       Altamont Corridor
+     (BART): All except            K Lines)                       Express (ACE)
+     eBART Pittsburg              Sacramento Regional           Arrow
+     Center, Antioch               Transit (SacRT)               BART (eBART
+     stations
+                                  San Diego Metropolitan         Pittsburg Center,
+    Los Angeles (LA) Metro        Transit System (MTS)           Antioch stations only)
+     Rail: B, D Lines              Trolley                       Caltrain
+                                  San Francisco                 Capitol Corridor
+                                   Municipal Railway             Coaster
+                                   (Muni) Metro and
+                                   Streetcar                     Metrolink
+                                  Santa Clara Valley            Pacific Surfliner
+                                   Transportation                San Joaquins (Gold
+                                   Authority (VTA) Light          Runner)
+                                   Rail                          Sonoma-Marin Area
+                                                                  Rail Transit (SMART)
+                                                                 Sprinter
+
+Pursuant to these classifications, SB 79’s upzoning provisions (Gov. Code, §
+65912.157) will take effect on July 1, 2026, in Alameda, Los Angeles, Sacramento, San
+Francisco, San Mateo, Santa Clara, and San Diego Counties. Under the statute,
+applicability is tied to the presence of qualifying transit infrastructure within a county.
+Accordingly, the geographic scope of SB 79 is dynamic and will modify over time,
+including when additional qualifying rail or transit projects are completed and placed into
+service.
+
+                                                                                           9
+

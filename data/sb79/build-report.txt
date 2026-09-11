@@ -1,0 +1,14 @@
+generated 2026-09-09
+total points: 1585
+approx distinct stations (station_key): 986
+by tier: {2: 1380, 1: 186, None: 19}
+by mode: {'brt': 177, 'light_rail': 942, 'heavy_rail': 130, 'bus': 227, 'commuter_rail': 74, 'unknown': 35}
+by county: {'Los Angeles': 406, 'San Francisco': 471, 'Santa Clara': 153, 'Alameda': 139, 'San Mateo': 34, 'San Diego': 182, 'Sacramento': 200}
+by mpo (source feature counts): {'SCAG': 406, 'MTC': 797, 'SANDAG': 182, 'SACOG': 200}
+
+notes / unclassified:
+  SCAG: 406 source features -> 406 points
+  MTC: existing stop with no tier -> California St & Pierce St ({'OBJECTID': 162, 'stop_id': '13885', 'station_id': 'mtc:california-pierce', 'location_type': 0, 'stop_name': 'California St & Pierce St', 'agency_id': 'SF', 'agency_name': 'San Francisco Municipal Transportation Agency', 'route_short_name': '1', 'route_type': '3', 'tod_tier': '0'})
+  MTC: 797 source features -> 797 points
+  SANDAG: 182 source features -> 182 points
+  SACOG: 200 source features -> 200 points

@@ -1,0 +1,431 @@
+               MOBILITY + COMMUNITIES + ENVIRONMENT + ECONOMY
+
+
+
+
+SB 79
+Mapping
+Approach and
+Methodology
+July 2, 2026
+SB 79 Mapping Approach and Methodology                                                                  July 2026
+
+
+
+
+Table of Contents
+Background .................................................................................................. 1
+
+Approach ...................................................................................................... 2
+
+SB 79 Mapping Terms ................................................................................. 3
+
+Map Updates ................................................................................................ 8
+
+
+
+
+                                                        i
+SB 79 Mapping Approach and Methodology                                                            July 2026
+
+
+
+
+Background
+On October 10, 2025, Governor Newsom signed Senate Bill 79 (SB 79), the Abundant and Affordable
+Homes Near Transit Act, into law. Authored by Senator Scott Wiener (D–San Francisco), the bill establishes
+statewide standards to streamline housing development near transit by defining and mapping Transit
+Oriented Development (TOD) zones and stops. SB 79 aims to accelerate transit-oriented housing
+production by making qualifying projects an allowed use on sites zoned for residential, mixed-use, or
+commercial development if the project meets applicable requirements.
+
+The law becomes operative July 1, 2026, unless a local agency adopts a TOD ordinance or a TOD
+alternative plan deemed compliant by the Department of Housing and Community Development (HCD)
+before that date or secures deferred effectuation. For unincorporated areas, the provisions apply
+beginning with the planning of the 7th Regional Housing Needs Allocation (RHNA) cycle.
+
+The legislation requires that Metropolitan Planning Organizations (MPOs), like SCAG, develop and
+maintain a map identifying and classifying Tier 1 and Tier 2 TOD zones around major transit stops. The
+statute provides that the MPO map should be prepared in accordance with the guidance prepared by the
+California Department of Housing and Community Development (HCD). The statute also states that the
+map carries a rebuttable presumption of validity for use by project applicants and local governments.
+
+SCAG engaged with other affected MPOs and the HCD regarding interpretation of key statutory terms
+relevant to the MPO mapping assignment. The HCD provided the SB 79 Advisory Clarifications on
+Definitions (HCD Clarifications) on March 20, 2026.
+
+
+
+
+                                                    1
+SB 79 Mapping Approach and Methodology                                                          May 2026
+
+
+
+
+Approach
+SCAG’s approach to map development is focused on providing clear and transparent assumptions and
+processes that meet SCAG’s mapping obligation in the statute and provide affected jurisdictions and
+other stakeholders with the necessary information to inform local land use decisions. SCAG’s mapping
+approach was informed by:
+
+    •   SB 79 statute
+    •   HCD Clarifications
+    •   SCAG’s technical interpretation of statute where HCD guidance was broad or lacked clarity
+
+The following outlines the key terms that informed map development and how SCAG staff arrived at a
+recommended approach to produce the map.
+
+
+
+
+                                                   2
+SB 79 Mapping Approach and Methodology                                                                    May 2026
+
+
+
+
+SB 79 Mapping Terms
+Urban Transit County
+The first step in assessing SB 79 eligibility is to identify eligible urban transit counties. The statute defines
+urban transit counties as counties with more than 15 passenger rail stations. SB 79 does not indicate
+whether those passenger rail stations are required to be operational or whether planned stations count
+towards the 15 stations.
+
+THE HCD CLARIFICATIONS STATE THAT:
+a passenger rail station includes all forms of public heavy rail, light rail, or commuter rail stations that are in
+active operation and provide regular service. A passenger rail station does not include planned rail stations
+that are not yet in service. A passenger rail station occupying one physical location counts as a single
+station, even if multiple rail services utilize the station.
+
+SCAG Applicability: As of June 2026, Los Angeles County is the only urban transit county in the SCAG
+region. Orange County is anticipated to qualify as an urban transit county when the OC Streetcar opens
+for revenue service, subject to confirmation that the county then has more than 15 qualifying passenger
+rail stations under SB 79 and HCD’s Clarifications. Future transit extensions and projects throughout the
+SCAG region will continue to be evaluated to determine whether additional counties may qualify as urban
+transit counties in the future.
+
+Once an urban transit county is identified, major transit stops need to be evaluated to assess whether
+they qualify as TOD stops under the SB 79 statute.
+
+TOD Stops (Tier 1 and Tier 2) and TOD Zones
+SB 79 applicability is determined by the transit service type and level of frequency within an urban transit
+county.
+
+TOD stops are major transit stops as defined by Section 21064.3 of the Public Resources Code, and also
+include stops on a route for which a preferred alternative has been selected or which are identified in a
+regional transportation improvement program, that is served by heavy rail transit, very high frequency
+commuter rail, high frequency commuter rail, light rail transit, or bus service within an urban transit
+county meeting the standards of paragraph (1) of subdivision (a) of Section 21060.2 of the Public
+Resources Code.
+
+The statute includes two different tiers of TOD stops, each with distinct transit service characteristics and
+corresponding allowable development intensities.
+
+To qualify as a Tier 1 TOD stop, a major transit stop must be served by heavy rail or by very high-
+frequency commuter rail (72 daily trains across both directions).
+
+To qualify as a Tier 2 TOD stop, a major transit stop must be served by light rail, high frequency commuter
+rail (48 daily trains across both directions), or bus service meeting the standards of paragraph (1) of
+subdivision (a) of Section 21060.2 of the Public Resources Code.
+
+
+
+
+                                                         3
+SB 79 Mapping Approach and Methodology                                                             May 2026
+
+
+
+
+PLANNED TRANSIT PROJECTS
+As noted in the TOD stop definition above, the statute encompasses planned projects (meaning transit
+projects that are not yet constructed or operational). This is inclusive of projects for which a locally
+preferred alternative has been selected or those identified in a regional transportation improvement
+program.
+
+On environmental clearance, the HCD Clarifications published on March 22, 2026 note:
+
+    •   Selected preferred alternative route stops from an adopted CEQA/NEPA document, an adopted
+        locally preferred alternative (LPA), or other local implementing document as determined by the
+        MPO, regardless of their status in a federally or state mandated TIP.
+
+For projects with funding in the transportation improvement program, the HCD Clarifications note:
+
+    •   An existing or planned transit station or stop identified in a region’s federally or state-mandated
+        transportation improvement program (TIP) that is served by any of the following: light rail or heavy
+        rail, high-frequency or very high-frequency commuter rail, or eligible bus service (see also “Bus
+        Service”). Planned TOD stops in a region’s TIP may be limited to include only those with any amount
+        of committed construction funding.
+
+HCD provided additional initial direction to SCAG on June 22, 2026, indicating that, upon further review,
+the SB 79 map should include projects with a locally preferred alternative and should not be limited to
+those projects with full environmental clearance. SCAG has revised this methodology to reflect this
+direction
+
+SCAG Applicability: Based on discussions with HCD and the HCD Clarifications published on March 22,
+2026, SCAG’s approach to planned projects was to map planned TOD stops where the station or stop
+location has sufficient certainly for regional mapping purposes. For purposes of the SB 79 map, SCAG’s
+approach was to treat a planned project as having sufficient certainty where the project has completed
+full environmental clearance under the California Environmental Quality Act (CEQA) and, when required,
+the National Environmental Policy Act (NEPA). However, based on the additional initial direction received
+from HCD, SCAG’s approach to planned projects will be to map planned TOD stops where a locally
+preferred alternative has been selected, and will not require full environmental clearance. This adjustment
+will be implemented on the SB 79 map once official clarification has been received from HCD.
+
+Additionally, SCAG will map projects identified in the Federal Transportation Improvement Program (FTIP)
+only when they include committed construction funding. This approach ensures that there is a greater
+degree of certainty that the project will be constructed.
+
+TOD ZONES
+Although SB 79 specifies a one-half-mile radius for defining TOD zones, SCAG will enhance this approach
+by mapping around each qualifying TOD stop three distinct buffer areas as identified in SB 79: a 200-foot
+buffer, a quarter-mile buffer, and a half-mile buffer. Multiple buffers allow for a more nuanced
+understanding of the built environment and potential development intensity surrounding each stop. By
+displaying multiple buffers, SCAG’s TOD map will provide planners, jurisdictions, and stakeholders with a
+clearer spatial framework for assessing housing and land use opportunities consistent with SB 79
+objectives. Furthermore, if a zone buffer intersects a parcel, the entire parcel shall be considered within
+the zone for development under SB 79.
+
+
+
+
+                                                     4
+SB 79 Mapping Approach and Methodology                                                                May 2026
+
+
+
+The SB 79 statue includes provisions that radius beyond the ¼ mile does not apply to cities with less than
+35,000 people. As such, the SCAG region SB 79 map will only include the 200 foot buffer and the ¼ mile
+buffer for cities that have a population under 35,000.
+
+COMMUTER RAIL
+Under SB 79 and HCD’s Clarifications, Metrolink and Amtrak Pacific Surfliner are recognized as commuter
+rail systems, and stations within their service network will be included in the SB 79 map when they meet
+the required weekday service frequency threshold for qualifying Tier 1 or Tier 2 transit stops. SCAG
+understands that SB 79’s exemption of long-distance routes applies only to services such as the Amtrak
+Southwest Chief or Amtrak Sunset Limited, which traverse multiple states.
+
+Commuter Rail Service Frequency
+To determine which stations qualify under SB 79, a “day” is defined as a typical weekday service day.
+Overall frequency of commuter rail service is calculated at the station level, rather than at the line or
+system-wide level, to more accurately reflect the actual level of service available to each station area.
+
+When defining high frequency or very high frequency commuter rail, the statute defines this as a
+commuter rail service and specifies how many trains must be operated at the station to meet the
+definition of high or very high commuter rail service.
+
+The HCD Clarifications state, “In assessing whether a station meets this threshold, frequency is based on the
+total number of trains serving the station, including trains operated by multiple commuter rail services
+where applicable. This approach reflects the overall level of transit access and frequency experienced by
+riders at a given stop.”
+
+SCAG Applicability: SCAG’s evaluation of commuter rail service frequency when calculating whether a
+station qualifies as a Tier 1 or Tier 2 station is that the statute is focused on counting a commuter rail
+service at a station, whereas the HCD Clarification expands the analysis to account for every train serving a
+station. This increases the train frequency that can be counted and increases the number of Tier 1 and Tier
+2 stations that qualify under SB 79.
+
+SCAG’s interpretation of how to account for frequency is in line with the statute as written and is that
+frequency is calculated at the station level for a single service or line, not aggregated across multiple
+services at the station level.
+
+However, given HCD Clarifications that expand this, the SCAG map complies with the HCD Clarifications
+and identifies stations that are affected by the HCD Clarification and includes a note explaining the
+difference between the statute and HCD Clarifications. Given that land use decisions are local
+determinations, impacted jurisdictions in the SCAG region will need to evaluate this distinction and make
+the final determination as to whether they will account for cumulative service at a station or if they will
+only account for one line at the station level. This approach is intended to preserve transparency for
+affected jurisdictions, project applicants, and the HCD while maintaining the map’s function as the
+regional SB 79 mapping resource with a rebuttable presumption of validity.
+
+HEAVY AND LIGHT RAIL TRANSIT
+SB 79 defines heavy rail transit as a public electric railway line with the capacity for a heavy volume of
+traffic using high-speed and rapid acceleration passenger rail cars operating singly or in multicar trains on
+fixed rails, separate rights-of-way from which all other vehicular and foot traffic are excluded, and high
+
+
+
+                                                      5
+SB 79 Mapping Approach and Methodology                                                                 May 2026
+
+
+
+platform loading. Heavy rail transit does not include California High-Speed Rail. Light rail transit includes
+streetcar, trolley, and tramway service. Light rail transit does not include airport people movers.
+
+SCAG Applicability: For the purposes of SB 79 implementation, LA Metro’s B and D Lines are heavy rail
+transit, consistent with their grade-separated operation and service characteristics. All other Metro rail
+lines are light rail transit, including the C Line, which—despite operating primarily within its own right-of-
+way—does not meet the criteria for heavy rail classification. Additionally, the OC Streetcar will be
+recognized as a qualifying light rail transit service, given its fixed-guideway operation and alignment with
+light rail service standards; however, its inclusion is contingent upon the system opening for revenue
+service.
+
+BUS SERVICE
+SB 79 considers two types of bus stops: a Bus Rapid Transit (BRT) station and the intersection of two or
+more major bus routes with a frequency of service interval of 20 minutes or less during the morning and
+afternoon peak commute periods (Section 21064.3 of the Public Resources Code). In either case, to be
+eligible as a TOD stop, SB 79 requires full-time dedicated bus lanes or operation in a separate right-of-
+way dedicated for public transportation with a frequency of service interval of 15 minutes or less during
+the morning and afternoon peak commute periods (paragraph (1) of subdivision (a) of Section 21060.2 of
+the Public Resources Code).
+
+BRT is defined in Section 21060.2 of the Public Resources Code:
+
+    a) “Bus rapid transit” means a public mass transit service provided by a public agency or by a public-
+       private partnership that includes all of the following features:
+           1. Full-time dedicated bus lanes or operation in a separate right-of-way dedicated for public
+                transportation with a frequency of service interval of 15 minutes or less during the
+                morning and afternoon peak commute periods.
+           2. Transit signal priority.
+           3. All-door boarding.
+           4. Fare collection system that promotes efficiency.
+           5. Defined stations.
+    b) “Bus rapid transit station” means a clearly defined bus station served by a bus rapid transit.
+
+The HCD Clarifications note that a qualifying bus service TOD stop is a location where the bus stop is
+adjacent to a full-time dedicated transit lane and the average bus service intervals across the combined
+morning and afternoon peak periods is 15 minutes or less.
+
+SCAG Applicability: For BRT services, such as the Metro G Line, that meet the definition in Section
+21060.2 of the Public Resources Code, all associated BRT stops adjacent to a full-time dedicated bus lane
+are included.
+
+For bus service not meeting the full definition of BRT, full-time dedicated bus lane segments were
+identified in coordination with transit agencies and local jurisdictions for consideration in this analysis. The
+dedicated lane segments must be adjacent to the stop but are not required to be continuous between
+stops. Bus service eligibility and stop inclusion were further evaluated by determining bus frequencies,
+which were calculated by route and direction to identify major transit stops on these segments. Each
+major transit stop was checked against the major transit stops identified by Cal-ITP. The major transit
+stops adjacent to a full-time dedicated bus lane and with service frequencies of 15 minutes or less during
+the morning and afternoon peak commute periods are included in the SB 79 map, provided they also met
+
+
+
+
+                                                       6
+SB 79 Mapping Approach and Methodology                                                                May 2026
+
+
+
+the Major Transit Stop criteria through an intersecting major bus route operating at headways of 20
+minutes or less.
+
+When defining the ‘adjacency’ of a dedicated lane, SCAG includes dedicated lanes that are directly at the
+bus stop and those located across the intersection. However, in instances where a dedicated lane is not at
+a bus stop and starts or ends a block or more away, the stop will not be counted as a TOD stop under SB
+79. Additionally, dedicated bus lanes that allow bicycles and/or right-turn vehicular lanes are still
+considered dedicated lanes.
+
+PEDESTRIAN ACCESS POINT
+While SB 79 does not define a pedestrian access point, it requires that the distance of a transit-oriented
+housing development project from a TOD stop shall be measured in a straight line from the nearest edge
+of the parcel containing the proposed project to a pedestrian access point for the TOD stop.
+
+The HCD Clarifications state that a pedestrian access point is any applicable station entrance, boarding
+platform access point, or location of a transit stop as defined and depicted on the applicable MPO SB 79
+map. MPOs may rely on General Transit Feed Specification (GTFS) data, if provided by individual transit
+providers within each region, and may add additional pedestrian access points for TOD stops with multiple
+entrances.
+
+SCAG Applicability: For the purposes of SB 79 implementation, a pedestrian access point is the primary
+location where pedestrians enter a transit station or boarding platform and is used to determine the 200-
+foot, quarter-mile, and half-mile zones.
+
+In general, the pedestrian access point corresponds to the official stop or station location contained in
+transit agency-provided geospatial datasets, including GTFS data for existing stops and validated
+shapefiles for planned stops. Because these datasets are vetted and validated by the transit operators,
+SCAG utilizes the geocoded points contained in the shapefile or GTFS data to represent the official,
+agency-approved station locations and access points.
+
+Note the following resources for GTFS data:
+
+    •   LA Metro GTFS
+    •   LADOT GTFS
+    •   Metrolink GTFS
+    •   Santa Monica Big Blue Bus GTFS
+
+GTFS data points are typically represented by a ‘0’ which represents the station location/the platform and
+a ‘2’ which represents access points to a station including but not limited to elevators, escalators, and
+stairs.
+
+When both a ‘0’ (station/platform) and ‘2’ (access points) are available, SCAG will utilize the ‘2’ point and
+remove the ‘0’ and will not modify and any of the ‘2’ points included in the GTFS data. However, when a
+‘0’ is the only point available for planned projects, SCAG will utilize this information except for
+circumstances when a project is operational or when a planned project has construction drawings with
+sufficient level of detailed identified by transit operator. In these circumstances, SCAG will work with the
+transit operator to map the access points and pass the latitude and longitudinal points for future GTFS
+utilization.
+
+
+
+
+                                                      7
+SB 79 Mapping Approach and Methodology                                                               May 2026
+
+
+
+For planned projects that do not have detailed drawings, SCAG will identify a point at the center of the
+platform or bus stop identified by the transit agency.
+
+Given adjusted direction from HCD on planned projects with an LPA, the pedestrian access points for
+these projects will be developed in close coordination with transit operator and will include either the
+center point of platform or the nearest street intersection, based on data availability, with the goal of
+siting them as close to the future station as possible.
+
+
+
+
+Map Updates
+SCAG will update the SB 79 map on an annual basis and when a county becomes an urban transit county.
+The annual updates will account for updated GTFS data, when an eligible transit project secures an LPA, and
+when an eligible transit project secures committed construction funding in the FTIP.
+
+Given that SCAG is not the originator of the SB 79 mapping data, annual updates will require collaboration
+from applicable jurisdictions and transit operators to collect data on transit corridor project status, bus
+service and commuter rail frequency, and information on dedicated lanes, and similar.
+
+SB 79 provides that when a new transit route or extension is planned that was not identified in the
+applicable regional transportation plan on or before January 1, 2026, those stops shall not be eligible as
+TOD stops unless they would be eligible as Tier 1 TOD stops. Further, if a county becomes an urban transit
+county subsequent to July 1, 2026, then bus service in that county shall remain ineligible for designation
+of a TOD stop.
+
+
+
+
+                                                      8
+MAIN OFFICE
+
+LOS ANGELES COUNTY
+900 Wilshire Blvd., Ste. 1700
+Los Angeles, CA 90017
+Tel: (213) 236-1800
+www.scag.ca.gov
+
+
+
+REGIONAL OFFICES
+
+IMPERIAL COUNTY
+1503 N. Imperial Ave., Ste. 104
+El Centro, CA 92243
+Tel: (213) 236-1967
+
+INLAND EMPIRE
+3403 10th St., Ste. 805
+Riverside, CA 92501
+Tel: (951) 784-1513
+ORANGE COUNTY
+OCTA Building
+600 S. Main St., Ste. 1108
+Orange, CA 92868
+Tel: (213) 630-1599
+
+VENTURA COUNTY
+4001 Mission Oaks Blvd., Ste. L
+Camarillo, CA 93012
+Tel: (213) 236-1960
+                                  26-417-MMI-0395-SB79.2026.07.06
+
