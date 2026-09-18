@@ -20,6 +20,7 @@
   .controls .grp-h { font-size: 11px; font-weight: 700; text-transform: uppercase;
                      letter-spacing: .04em; color: #888; margin-bottom: 3px; }
   .controls .sub { color: #666; font-size: 11.5px; margin: 6px 0 0; }
+  .controls .loadnote { color: #888; font-size: 10.5px; font-style: italic; }
   .controls { max-height: 82vh; overflow-y: auto; }
   .dot { width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(0,0,0,.35); }
   .sq  { width: 13px; height: 13px; flex-shrink: 0; border: 1.5px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.4); }
@@ -101,7 +102,9 @@ const layers = {
   bh_mental_health:  L.layerGroup(),
   regional_center:   L.layerGroup(),
   independent_living:L.layerGroup(),
+  faith:             L.layerGroup(),
 };
+const FAITH_COLOR = '#6d4c41';
 
 // Ring layers are populated on first use (thousands of circles otherwise
 // build on page load). ringSpec: [layerKey, () => [[lat,lng],...], miles, color]
@@ -123,6 +126,44 @@ function ensureRings(key) {
       fillColor: spec.color, fillOpacity: spec.mi < 0.4 ? 0.06 : 0.03,
     }).addTo(layers[key]);
   });
+}
+
+// ---- faith-based sites (lazy-fetched — ~25k points, 6MB, not worth loading
+// up front for the ~26 sites 'data/faith/places-of-worship-ca.geojson' were
+// designed for people who never check the box) --------------------------
+let faithState = 'unloaded'; // unloaded -> loading -> loaded
+function ensureFaithLayer(onDone) {
+  if (faithState === 'loaded') return onDone();
+  if (faithState === 'loading') return; // a load is already in flight
+  faithState = 'loading';
+  const note = document.querySelector('.loadnote[data-loading-for="faith"]');
+  if (note) note.textContent = ' (loading 25k sites…)';
+  fetch('data/faith/places-of-worship-ca.geojson')
+    .then(r => r.json())
+    .then(fc => {
+      (fc.features || []).forEach(f => {
+        const p = f.properties, c = f.geometry.coordinates;
+        L.circleMarker([c[1], c[0]], {
+          radius: 2, color: 'rgba(0,0,0,.25)', weight: 0.4,
+          fillColor: FAITH_COLOR, fillOpacity: 0.75,
+        }).bindPopup(
+          `<div class="pt">${esc(p.name)}</div>` +
+          `<div class="tag">Place of worship${p.tradition ? ' — ' + esc(p.tradition) : ''}</div>` +
+          `<div class="muted">${esc(p.address)}${p.county ? '<br>' + esc(p.county) + ' County' : ''}</div>`
+        ).addTo(layers.faith);
+      });
+      faithState = 'loaded';
+      const n = fc.features.length.toLocaleString('en-US');
+      if (note) note.textContent = ` (${n} sites)`;
+      const legendCount = document.getElementById('faith-legend-count');
+      if (legendCount) legendCount.textContent = n;
+      onDone();
+    })
+    .catch(err => {
+      faithState = 'unloaded';
+      if (note) note.textContent = ' (failed to load — click to retry)';
+      console.error('faith layer fetch failed', err);
+    });
 }
 
 // ---- SB 79 transit stops --------------------------------------------------
@@ -250,6 +291,9 @@ const CONTROL_GROUPS = [
   ]],
   ['Health & disability services', Object.entries(CARE).map(([k, [color, label]]) =>
     [k, label, `<span class="dot" style="background:${color}"></span>`, false])],
+  ['Coalition sites', [
+    ['faith', 'Faith-based sites (places of worship)', `<span class="dot" style="background:${FAITH_COLOR}"></span>`, false],
+  ]],
 ];
 
 const control = L.control({ position: 'topright' });
@@ -257,15 +301,18 @@ control.onAdd = () => {
   const d = L.DomUtil.create('div', 'panel controls');
   d.innerHTML = '<h1>Show on map</h1>' + CONTROL_GROUPS.map(([title, items]) =>
     `<div class="grp"><div class="grp-h">${title}</div>` + items.map(([k, label, sw, on]) =>
-      `<label><input type="checkbox" data-k="${k}" ${on ? 'checked' : ''}>${sw} ${label}</label>`
+      `<label><input type="checkbox" data-k="${k}" ${on ? 'checked' : ''}>${sw} ${label}` +
+      `<span class="loadnote" data-loading-for="${k}"></span></label>`
     ).join('') + '</div>'
   ).join('') + '<div class="sub">Hollow dashed dots = planned stops.</div>';
   L.DomEvent.disableClickPropagation(d);
   L.DomEvent.disableScrollPropagation(d);
   d.querySelectorAll('input').forEach(inp => inp.addEventListener('change', e => {
     const k = e.target.dataset.k;
-    if (e.target.checked) { ensureRings(k); layers[k].addTo(map); }
-    else map.removeLayer(layers[k]);
+    if (!e.target.checked) { map.removeLayer(layers[k]); return; }
+    if (k === 'faith') { ensureFaithLayer(() => layers.faith.addTo(map)); return; }
+    ensureRings(k);
+    layers[k].addTo(map);
   }));
   return d;
 };
@@ -282,10 +329,13 @@ legend.onAdd = () => {
     <div class="row"><span class="dot" style="background:${COLORS.cboc}"></span> CBOC &nbsp;<b>${nf(nCBOC)}</b></div>
     ${Object.entries(CARE).map(([k, [color, label]]) => nCare[k]
       ? `<div class="row"><span class="dot" style="background:${color}"></span> ${label} &nbsp;<b>${nf(nCare[k])}</b></div>` : '').join('')}
+    <div class="row"><span class="dot" style="background:${FAITH_COLOR}"></span> Faith-based sites &nbsp;<b id="faith-legend-count">off</b></div>
     <div class="note">SB 79 (Gov. Code &sect;&sect;&nbsp;65912.155&ndash;.162) qualifying transit
       stops in California's urban transit counties, from the SCAG / MTC / SANDAG / SACOG maps.
       VA sites from the VHA facilities layer; health &amp; disability facilities from
-      HRSA, SAMHSA, CA&nbsp;DDS and Cal&nbsp;OES. &frac12;&#8209;mile ring = SB&nbsp;79 TOD zone;
+      HRSA, SAMHSA, CA&nbsp;DDS and Cal&nbsp;OES; faith-based sites (IRS-registered places
+      of worship) from HIFLD — a lead list to verify, not a survey of usable land.
+      &frac12;&#8209;mile ring = SB&nbsp;79 TOD zone;
       &frac14;&#8209;mile ring = inner band. Data &amp; sources: <code>data/</code> in the repo.
       ${nPlanned ? nf(nPlanned) + ' planned stops shown hollow.' : ''}</div>`;
   return d;
