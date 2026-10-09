@@ -1424,56 +1424,58 @@ const accessibility5Layer = accessibility5.layer;
 const accessibility7Layer = accessibility7.layer;
 
 // ============================================================
-// SB 79 BY-RIGHT VETERAN SHELTER ZONE (policy-analysis overlay, not a
-// determination under any adopted bill). The by-right-approval trigger
-// itself comes from existing shelter zoning law (SB 2 of 2007 / SB 340 of
-// 2025-26), which requires a jurisdiction below a shelter-capacity
-// threshold to allow emergency shelter by right in its designated zone —
-// see Map 1 for the county-level 60% capacity-vs-need framework this site
-// uses for that threshold. SB 79 itself does not define a veteran shelter
-// benefit; what SB 79 supplies here is just the TOD-stop geometry: for a
-// facility within an SB 79 urban transit county AND within 0.5 miles of
+// VETERAN SHELTER CAPACITY STANDARD (the actual siting formula, not a
+// hypothetical): by-right emergency shelter approval applies in any city
+// or county whose year-round interim shelter beds dedicated to veterans
+// (HUD's annual Housing Inventory Count) can accommodate fewer than 60%
+// of its average unsheltered veteran point-in-time count over the most
+// recent 10 years — the same 60% benchmark federal Judge David O. Carter
+// has used in homelessness settlements with Orange County cities and the
+// City of Los Angeles (LA Alliance for Human Rights v. City of Los
+// Angeles, 2022 Settlement Agreement; Voice of OC, Sept. 2019). Beds are
+// the current (2024) HIC figure; the unsheltered count is a 10-year
+// rolling average (2015-2024), built in Map 1's data pipeline — see that
+// map's legend for the full methodology and the multi-county-CoC caveat.
+//
+// SB 79 BY-RIGHT VETERAN SHELTER ZONE (this site's own siting-geometry
+// argument, layered on top of the formula above, not a separate legal
+// trigger): for a facility (a) in a county that FAILS the 60% test above,
+// (b) inside an SB 79 urban transit county, AND (c) within 0.5 miles of
 // its nearest major transit stop, this layer extends a by-right-argument
 // radius out to the 3 NEXT stations on that line (NOT the nearest stop
 // itself — only the adjacent ones), reusing the same real station
 // sequences as the Accessibility layers above.
 // ============================================================
 const BY_RIGHT_MAX_DIST_MILES = 0.5;
-const byRightFacilities = facilityNearestStation.filter(({ facility, nearest }) =>
-  facility.sb79County && nearest && nearest.dist <= BY_RIGHT_MAX_DIST_MILES
-);
-
 const byRightHalfMileLayer = L.layerGroup();
-byRightFacilities.forEach(({ facility, nearest }) => {
-  const adjacent = stationsWithinNStops(nearest, 3); // offset 0 (the nearest stop) is excluded by design
-  adjacent.forEach(st => {
-    L.circle([st.lat, st.lng], {
-      radius: BY_RIGHT_MAX_DIST_MILES * METERS_PER_MILE,
-      color: '#1a7a2e', weight: 1.5, fillColor: '#1a7a2e', fillOpacity: 0.08
-    }).bindPopup(`
-      <div class="popup-title">${st.name}${st.planned ? ' (PLANNED)' : ''}</div>
-      <div class="popup-tag">By-right veteran shelter zone — analysis</div>
-      <div class="popup-row">${st.stops} stop${st.stops === 1 ? '' : 's'} from <strong>${nearest.name}</strong> on the ${st.line}, the nearest major transit stop to <strong>${facility.name}</strong> (${nearest.dist.toFixed(2)} mi away).</div>
-      <div class="popup-row" style="margin-top:4px; color:#444;">This is this map's own policy framework, not settled law — see legend for methodology.</div>
-    `).addTo(byRightHalfMileLayer);
-  });
-  L.circleMarker([nearest.lat, nearest.lng], {
-    radius: 6, color: '#1a7a2e', weight: 2, fillColor: '#fff', fillOpacity: 1
-  }).bindTooltip(`${nearest.name} — nearest major transit stop to ${facility.name} (anchor, not itself a by-right ring)`, { direction: 'top' }).addTo(byRightHalfMileLayer);
-});
-
-// ============================================================
-// VETERAN HOMELESSNESS & SHELTER CAPACITY BY COUNTY (choropleth) — same
-// HUD 2024 PIT/HIC source data and CoC-to-county crosswalk as Map 1,
-// scoped to the Veteran subpopulation (PIT "Veterans" count) and HIC's
-// "Dedicated Veteran Beds" field. See Map 1's methodology note for the
-// multi-county-CoC caveat (several rural counties share one CoC, so their
-// figures are identical county to county — not an error).
-// ============================================================
 const vetChoroplethLayer = L.layerGroup();
+
 fetch('county_data.json').then(r => r.json()).then(countyData => {
+  const byRightFacilities = facilityNearestStation.filter(({ facility, nearest }) => {
+    const d = countyData[facility.county];
+    return facility.sb79County && nearest && nearest.dist <= BY_RIGHT_MAX_DIST_MILES && d && !d.vetMeets60Threshold;
+  });
+
+  byRightFacilities.forEach(({ facility, nearest }) => {
+    const adjacent = stationsWithinNStops(nearest, 3); // offset 0 (the nearest stop) is excluded by design
+    adjacent.forEach(st => {
+      L.circle([st.lat, st.lng], {
+        radius: BY_RIGHT_MAX_DIST_MILES * METERS_PER_MILE,
+        color: '#1a7a2e', weight: 1.5, fillColor: '#1a7a2e', fillOpacity: 0.08
+      }).bindPopup(`
+        <div class="popup-title">${st.name}${st.planned ? ' (PLANNED)' : ''}</div>
+        <div class="popup-tag">By-right veteran shelter zone — analysis</div>
+        <div class="popup-row">${st.stops} stop${st.stops === 1 ? '' : 's'} from <strong>${nearest.name}</strong> on the ${st.line}, the nearest major transit stop to <strong>${facility.name}</strong> (${nearest.dist.toFixed(2)} mi away).</div>
+        <div class="popup-row" style="margin-top:4px; color:#444;"><strong>${facility.county}</strong> County fails the 60% veteran shelter-capacity standard (${countyData[facility.county].vetPctCapacityVsNeed}% — see legend), which is what actually triggers by-right approval here. The transit-stop radius is this site's own argument about where that zone should extend, not settled law.</div>
+      `).addTo(byRightHalfMileLayer);
+    });
+    L.circleMarker([nearest.lat, nearest.lng], {
+      radius: 6, color: '#1a7a2e', weight: 2, fillColor: '#fff', fillOpacity: 1
+    }).bindTooltip(`${nearest.name} — nearest major transit stop to ${facility.name} (anchor, not itself a by-right ring)`, { direction: 'top' }).addTo(byRightHalfMileLayer);
+  });
+
   fetch('ca_counties.geojson').then(r => r.json()).then(counties => {
-    const maxUnsheltered = Math.max(...Object.values(countyData).map(c => c.vetUnsheltered));
+    const maxUnsheltered = Math.max(...Object.values(countyData).map(c => c.avgVetUnsheltered10yr || 0));
     function vetColor(v) {
       const t = Math.sqrt(v / maxUnsheltered);
       const r = Math.round(255 - t * 65), g = Math.round(255 - t * 190), b = Math.round(255 - t * 170);
@@ -1482,19 +1484,23 @@ fetch('county_data.json').then(r => r.json()).then(countyData => {
     L.geoJSON(counties, {
       style: feat => {
         const d = countyData[feat.properties.CountyName];
-        return { fillColor: d ? vetColor(d.vetUnsheltered) : '#eee', fillOpacity: 0.65, color: '#666', weight: 1 };
+        return { fillColor: d ? vetColor(d.avgVetUnsheltered10yr) : '#eee', fillOpacity: 0.65, color: '#666', weight: 1 };
       },
       onEachFeature: (feat, layer) => {
         const d = countyData[feat.properties.CountyName];
         if (!d) return;
-        const pct = d.vetHomelessTotal ? Math.round(1000 * d.vetDedicatedBeds / d.vetHomelessTotal) / 10 : null;
+        const status = d.vetMeets60Threshold
+          ? '<span style="color:#1a7a2e; font-weight:600;">Meets the 60% standard</span>'
+          : '<span style="color:#a33; font-weight:600;">Below 60% — by-right approval applies</span>';
         layer.bindPopup(`
           <div class="popup-title">${feat.properties.CountyName} County — Veteran Homelessness</div>
           ${d.multiCountyCoC ? `<div class="popup-row" style="color:#a33;">Part of a multi-county CoC (${d.cocNames.join('; ')}) — figures are CoC-wide, shared with: ${d.sharedWithCounties.join(', ') || 'none'}.</div>` : ''}
           <div class="popup-row"><strong>Homeless veterans (2024 PIT):</strong> ${d.vetHomelessTotal}</div>
-          <div class="popup-row"><strong>Unsheltered veterans:</strong> ${d.vetUnsheltered}</div>
+          <div class="popup-row"><strong>Unsheltered veterans (2024):</strong> ${d.vetUnsheltered2024}</div>
+          <div class="popup-row"><strong>Average unsheltered veterans (10-yr):</strong> ${d.avgVetUnsheltered10yr ?? '—'}${d.avgVetUnshelteredYearsUsed && d.avgVetUnshelteredYearsUsed < 10 ? ` (${d.avgVetUnshelteredYearsUsed} yrs used)` : ''}</div>
           <div class="popup-row"><strong>Dedicated veteran shelter beds (HIC 2024):</strong> ${d.vetDedicatedBeds}</div>
-          ${pct !== null ? `<div class="popup-row">Dedicated veteran beds cover ${pct}% of the county's homeless veteran count.</div>` : ''}
+          <div class="popup-row"><strong>Beds ÷ average unsheltered veterans:</strong> ${d.vetPctCapacityVsNeed}%</div>
+          <div class="popup-row" style="margin-top:4px;">${status}</div>
         `);
       }
     }).addTo(vetChoroplethLayer);
@@ -1788,19 +1794,27 @@ legend.onAdd = function () {
       API and each agency's own GIS data, but this is not a substitute for verifying any
       single point before relying on it for a filing.
       <br><br>
-      <strong>By-right veteran shelter zone &amp; veteran homelessness layers:</strong> the
-      green by-right zone is <em>this map's own policy analysis</em>, not a provision of any
-      adopted bill. The by-right-approval trigger comes from existing shelter zoning law
-      (SB 2 of 2007 / SB 340 of 2025-26), which requires a jurisdiction below a
-      shelter-capacity threshold to allow emergency shelter by right in its designated zone
-      — Map 1 applies a 60% capacity-vs-need threshold (referencing Judge Carter's benchmark
-      in <em>LA Alliance for Human Rights v. City/County of LA</em>) to decide which
-      jurisdictions are below that line. SB 79 itself only supplies the transit-stop
-      geometry used here: where a facility sits in an SB 79 urban transit county and within
-      0.5 miles of a real major transit stop, this layer extends an by-right-argument radius
-      to the 3 next stations on that line. The veteran homelessness/bed-capacity choropleth
-      uses the same HUD 2024 PIT (veteran subpopulation) and HIC ("Dedicated Veteran Beds")
-      data as Map 1 — see that map for the CoC-to-county crosswalk and its caveats.
+      <strong>The veteran shelter capacity standard — the actual trigger:</strong> by-right
+      emergency shelter approval applies in any city or county whose year-round interim
+      shelter beds dedicated to veterans (HUD's annual Housing Inventory Count) can
+      accommodate fewer than 60% of its average unsheltered veteran point-in-time count over
+      the most recent 10 years (2015-2024; a CoC's years with no unsheltered count conducted
+      — most of California in January 2021, under a COVID-era HUD waiver — are excluded from
+      that average, not counted as zero). This is the same 60% benchmark federal Judge David
+      O. Carter has used in homelessness settlements with Orange County cities and the City
+      of Los Angeles (<em>LA Alliance for Human Rights v. City of Los Angeles</em>, 2022
+      Settlement Agreement; Voice of OC, Sept. 2019). This is the real test driving both the
+      veteran choropleth's green/red status and which facilities get a by-right zone below.
+      <br><br>
+      <strong>By-right veteran shelter zone (transit layer):</strong> the green rings are
+      <em>this site's own siting-geometry argument</em>, layered on top of the standard
+      above, not a separate legal trigger. A facility only gets this layer if (a) its county
+      fails the 60% standard above, (b) the facility sits in an SB 79 urban transit county,
+      and (c) it's within 0.5 miles of a real major transit stop — in which case the by-right
+      zone is argued to extend to the 3 adjacent stations on that line (not the nearest stop
+      itself). The veteran homelessness/bed-capacity choropleth uses the same HUD PIT
+      (veteran subpopulation, 2015-2024 history) and HIC ("Dedicated Veteran Beds") data as
+      Map 1 — see that map for the full CoC-to-county crosswalk and its caveats.
     </div>
   `;
   const toggle = div.querySelector('#legend-toggle');
