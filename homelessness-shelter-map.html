@@ -108,22 +108,23 @@ function countColor(v, max) {
 function countyPopup(name, d) {
   if (!d) return `<div class="popup-title">${name} County</div><div class="popup-row">No data.</div>`;
   const thresholdLine = d.meets60Threshold
-    ? `<span class="exempt-likely">Meets the 60% threshold — shelter beds can accommodate at least 60% of the average unsheltered count, so by-right approval is not automatically triggered here</span>`
-    : `<span class="exempt-no">Below the 60% threshold — beds cover under 60% of the average unsheltered count, so by-right emergency shelter approval is argued to apply here</span>`;
-  const yearsNote = d.avgUnshelteredYearsUsed < 10
-    ? ` (averaged over ${d.avgUnshelteredYearsUsed} of the last 10 years — some years were excluded, see methodology)`
+    ? `<span class="exempt-likely">Meets the 60% threshold — shelter beds can accommodate at least 60% of the average total homeless count, so by-right approval is not automatically triggered here</span>`
+    : `<span class="exempt-no">Below the 60% threshold — beds cover under 60% of the average total homeless count, so by-right emergency shelter approval is argued to apply here</span>`;
+  const yearsNote = d.avgTotalYearsUsed < 10
+    ? ` (averaged over ${d.avgTotalYearsUsed} of the last 10 years — some years were excluded, see methodology)`
     : ' (2015–2024)';
   return `
     <div class="popup-title">${name} County</div>
     ${d.multiCountyCoC ? `<div class="popup-row" style="color:#a66a00;">Part of a multi-county Continuum of Care (${d.cocNames.join('; ')}) — figures below are CoC-wide, shared identically with: ${d.sharedWithCounties.join(', ') || 'none'}.</div>` : `<div class="popup-row" style="color:#555;">${d.cocNames.join('; ')}</div>`}
     <div class="popup-row"><strong>Homeless count (2024 PIT, total):</strong> ${fmt(d.homelessTotal)}</div>
     <div class="popup-row">&nbsp;&nbsp;Sheltered: ${fmt(d.homelessSheltered)} &nbsp;|&nbsp; Unsheltered (2024): ${fmt(d.homelessUnsheltered2024)}</div>
-    <div class="popup-row"><strong>Average unsheltered count${yearsNote}:</strong> ${fmt(d.avgUnsheltered10yr)}</div>
+    <div class="popup-row"><strong>Average total homeless count${yearsNote}:</strong> ${fmt(d.avgTotal10yr)}</div>
+    <div class="popup-row" style="color:#777;">(for reference, average unsheltered alone: ${fmt(d.avgUnsheltered10yr)})</div>
     <div class="popup-row"><strong>Year-round interim shelter beds (2024 HIC):</strong> ${fmt(d.emergencyInterimBeds)}</div>
     <div class="popup-row">&nbsp;&nbsp;Emergency shelter: ${fmt(d.shelterBedsES)} &nbsp;|&nbsp; Transitional housing: ${fmt(d.shelterBedsTH)} &nbsp;|&nbsp; Safe haven: ${fmt(d.shelterBedsSH)}</div>
-    <div class="popup-row"><strong>Beds ÷ average unsheltered count:</strong> ${d.pctCapacityVsNeed}%</div>
+    <div class="popup-row"><strong>Beds ÷ average total homeless count:</strong> ${d.pctCapacityVsNeed}%</div>
     <div class="popup-row" style="margin-top:4px;">${thresholdLine}</div>
-    <div class="popup-row" style="margin-top:6px; color:#444;"><strong>Veterans:</strong> ${fmt(d.vetHomelessTotal)} homeless (${fmt(d.vetUnsheltered2024)} unsheltered in 2024, ${fmt(d.avgVetUnsheltered10yr)} avg.), ${fmt(d.vetDedicatedBeds)} dedicated beds, ${d.vetPctCapacityVsNeed}% — see Map 2 for the VA-facility-level view.</div>
+    <div class="popup-row" style="margin-top:6px; color:#444;"><strong>Veterans:</strong> ${fmt(d.vetHomelessTotal)} homeless (${fmt(d.vetUnsheltered2024)} unsheltered in 2024, ${fmt(d.avgVetTotal10yr)} avg. total), ${fmt(d.vetDedicatedBeds)} dedicated beds, ${d.vetPctCapacityVsNeed}% — see Map 2 for the VA-facility-level view.</div>
   `;
 }
 
@@ -314,16 +315,34 @@ legend.onAdd = function () {
       <strong>The siting formula — this map's exact standard:</strong> a jurisdiction (city or
       county) is subject to a by-right emergency-shelter-approval mandate when its year-round
       interim shelter beds, as reported in HUD's annual HIC, can accommodate <strong>fewer than
-      60% of its average unsheltered point-in-time count over the most recent 10 years</strong>
-      (2015–2024 here; years a CoC didn't exist yet, or didn't conduct an unsheltered count —
-      most of California skipped it in January 2021 under a COVID-era HUD waiver — are excluded
-      from that average rather than counted as zero). This is the same 60% benchmark federal
-      Judge David O. Carter has used in homelessness settlements with Orange County cities and
-      the City of Los Angeles (<em>LA Alliance for Human Rights v. City of Los Angeles</em>, 2022
-      Settlement Agreement; Voice of OC, Sept. 2019). The underlying by-right-zoning requirement
-      itself comes from existing California shelter law (SB 2 of 2007, expanded by SB 340 of
-      2025-26); this map's own contribution is applying the 60%-of-average-unsheltered test as
-      the specific pass/fail line.
+      60% of its average TOTAL homeless point-in-time count (sheltered + unsheltered) over the
+      most recent 10 years</strong> (2015–2024 here; years a CoC didn't exist yet, or didn't
+      conduct an unsheltered count — most of California skipped it in January 2021 under a
+      COVID-era HUD waiver, which makes that year's total figure equally unusable — are
+      excluded from the average rather than counted as zero or as a true total).
+      <br><br>
+      <strong>Why total, not unsheltered — a deliberate departure from the source litigation:</strong>
+      the 60% figure itself comes from federal Judge David O. Carter's homelessness settlements
+      with Orange County cities and the City of Los Angeles (<em>LA Alliance for Human Rights v.
+      City of Los Angeles</em>, 2022 Settlement Agreement; Voice of OC, Sept. 2019) — but those
+      settlements actually benchmarked bed capacity against the <em>unsheltered</em> count alone,
+      not total homelessness. Unsheltered-only is a lower bar: it only asks whether a
+      jurisdiction has capacity for people who don't already have a shelter placement, ignoring
+      everyone already inside the shelter system. This map instead deliberately measures against
+      the TOTAL homeless population, sheltered and unsheltered combined — a higher, stricter bar
+      that a jurisdiction can't clear just by having enough beds for today's visible unsheltered
+      population while leaving its existing shelter residents out of the count. The underlying
+      by-right-zoning requirement itself comes from existing California shelter law (SB 2 of
+      2007, expanded by SB 340 of 2025-26); this map's own contribution is applying the
+      60%-of-average-total test as the specific pass/fail line.
+      <br><br>
+      One more limitation worth naming: "beds" here is gross HIC bed inventory, not beds net of
+      current occupancy. Most of a county's existing shelter beds are already occupied by its
+      own sheltered population (in most CA counties, sheltered count ÷ total beds runs
+      80-95%) — so gross bed counts overstate how much of that capacity is actually free for
+      anyone not already inside it. A county that "meets 60%" on this map is not a county with
+      spare capacity for 60% of its homeless population; it's a county whose total shelter
+      system, fully built out, is sized to roughly that share.
       <br><br>
       <strong>District overlays:</strong> California's State Senate (40 districts) and Assembly
       (80 districts) boundaries are the current 2021 Citizens Redistricting Commission cycle
