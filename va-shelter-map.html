@@ -1428,14 +1428,17 @@ const accessibility7Layer = accessibility7.layer;
 // hypothetical): by-right emergency shelter approval applies in any city
 // or county whose year-round interim shelter beds dedicated to veterans
 // (HUD's annual Housing Inventory Count) can accommodate fewer than 60%
-// of its average unsheltered veteran point-in-time count over the most
-// recent 10 years — the same 60% benchmark federal Judge David O. Carter
-// has used in homelessness settlements with Orange County cities and the
-// City of Los Angeles (LA Alliance for Human Rights v. City of Los
-// Angeles, 2022 Settlement Agreement; Voice of OC, Sept. 2019). Beds are
-// the current (2024) HIC figure; the unsheltered count is a 10-year
-// rolling average (2015-2024), built in Map 1's data pipeline — see that
-// map's legend for the full methodology and the multi-county-CoC caveat.
+// of its average TOTAL homeless veteran point-in-time count (sheltered +
+// unsheltered) over the most recent 10 years. The 60% figure traces back
+// to federal Judge David O. Carter's homelessness settlements with Orange
+// County cities and the City of Los Angeles (LA Alliance for Human Rights
+// v. City of Los Angeles, 2022 Settlement Agreement; Voice of OC, Sept.
+// 2019) — but those settlements actually benchmarked against the
+// UNSHELTERED count alone. This project deliberately measures against the
+// TOTAL veteran homeless count instead, a stricter bar — see Map 1's
+// legend for the full reasoning, the gross-vs-net-bed-capacity caveat,
+// and the multi-county-CoC crosswalk. Beds are the current (2024) HIC
+// figure; the homeless count is a 10-year rolling average (2015-2024).
 //
 // SB 79 BY-RIGHT VETERAN SHELTER ZONE (this site's own siting-geometry
 // argument, layered on top of the formula above, not a separate legal
@@ -1475,16 +1478,16 @@ fetch('county_data.json').then(r => r.json()).then(countyData => {
   });
 
   fetch('ca_counties.geojson').then(r => r.json()).then(counties => {
-    const maxUnsheltered = Math.max(...Object.values(countyData).map(c => c.avgVetUnsheltered10yr || 0));
+    const maxTotal = Math.max(...Object.values(countyData).map(c => c.avgVetTotal10yr || 0));
     function vetColor(v) {
-      const t = Math.sqrt(v / maxUnsheltered);
+      const t = Math.sqrt(v / maxTotal);
       const r = Math.round(255 - t * 65), g = Math.round(255 - t * 190), b = Math.round(255 - t * 170);
       return `rgb(${r},${g},${b})`;
     }
     L.geoJSON(counties, {
       style: feat => {
         const d = countyData[feat.properties.CountyName];
-        return { fillColor: d ? vetColor(d.avgVetUnsheltered10yr) : '#eee', fillOpacity: 0.65, color: '#666', weight: 1 };
+        return { fillColor: d ? vetColor(d.avgVetTotal10yr) : '#eee', fillOpacity: 0.65, color: '#666', weight: 1 };
       },
       onEachFeature: (feat, layer) => {
         const d = countyData[feat.properties.CountyName];
@@ -1495,11 +1498,12 @@ fetch('county_data.json').then(r => r.json()).then(countyData => {
         layer.bindPopup(`
           <div class="popup-title">${feat.properties.CountyName} County — Veteran Homelessness</div>
           ${d.multiCountyCoC ? `<div class="popup-row" style="color:#a33;">Part of a multi-county CoC (${d.cocNames.join('; ')}) — figures are CoC-wide, shared with: ${d.sharedWithCounties.join(', ') || 'none'}.</div>` : ''}
-          <div class="popup-row"><strong>Homeless veterans (2024 PIT):</strong> ${d.vetHomelessTotal}</div>
+          <div class="popup-row"><strong>Homeless veterans (2024 PIT, total):</strong> ${d.vetHomelessTotal}</div>
           <div class="popup-row"><strong>Unsheltered veterans (2024):</strong> ${d.vetUnsheltered2024}</div>
-          <div class="popup-row"><strong>Average unsheltered veterans (10-yr):</strong> ${d.avgVetUnsheltered10yr ?? '—'}${d.avgVetUnshelteredYearsUsed && d.avgVetUnshelteredYearsUsed < 10 ? ` (${d.avgVetUnshelteredYearsUsed} yrs used)` : ''}</div>
+          <div class="popup-row"><strong>Average total homeless veterans (10-yr):</strong> ${d.avgVetTotal10yr ?? '—'}${d.avgVetTotalYearsUsed && d.avgVetTotalYearsUsed < 10 ? ` (${d.avgVetTotalYearsUsed} yrs used)` : ''}</div>
+          <div class="popup-row" style="color:#777;">(for reference, average unsheltered veterans alone: ${d.avgVetUnsheltered10yr ?? '—'})</div>
           <div class="popup-row"><strong>Dedicated veteran shelter beds (HIC 2024):</strong> ${d.vetDedicatedBeds}</div>
-          <div class="popup-row"><strong>Beds ÷ average unsheltered veterans:</strong> ${d.vetPctCapacityVsNeed}%</div>
+          <div class="popup-row"><strong>Beds ÷ average total homeless veterans:</strong> ${d.vetPctCapacityVsNeed}%</div>
           <div class="popup-row" style="margin-top:4px;">${status}</div>
         `);
       }
@@ -1797,14 +1801,21 @@ legend.onAdd = function () {
       <strong>The veteran shelter capacity standard — the actual trigger:</strong> by-right
       emergency shelter approval applies in any city or county whose year-round interim
       shelter beds dedicated to veterans (HUD's annual Housing Inventory Count) can
-      accommodate fewer than 60% of its average unsheltered veteran point-in-time count over
-      the most recent 10 years (2015-2024; a CoC's years with no unsheltered count conducted
-      — most of California in January 2021, under a COVID-era HUD waiver — are excluded from
-      that average, not counted as zero). This is the same 60% benchmark federal Judge David
-      O. Carter has used in homelessness settlements with Orange County cities and the City
-      of Los Angeles (<em>LA Alliance for Human Rights v. City of Los Angeles</em>, 2022
-      Settlement Agreement; Voice of OC, Sept. 2019). This is the real test driving both the
-      veteran choropleth's green/red status and which facilities get a by-right zone below.
+      accommodate fewer than 60% of its average TOTAL homeless veteran point-in-time count
+      (sheltered + unsheltered) over the most recent 10 years (2015-2024; a CoC's years with
+      no unsheltered count conducted — most of California in January 2021, under a COVID-era
+      HUD waiver — are excluded from that average, since that also makes the year's total
+      figure sheltered-only and equally unusable). The 60% figure traces to federal Judge
+      David O. Carter's homelessness settlements with Orange County cities and the City of
+      Los Angeles (<em>LA Alliance for Human Rights v. City of Los Angeles</em>, 2022
+      Settlement Agreement; Voice of OC, Sept. 2019) — though those settlements actually
+      benchmarked against the unsheltered count alone, not total homelessness; this project
+      deliberately uses the stricter total-population bar instead (see Map 1's legend for the
+      full reasoning). Also worth knowing: "beds" is gross HIC inventory, not beds net of
+      current occupancy — most existing beds are already occupied by a county's own sheltered
+      population, so this likely overstates genuinely free capacity (again, see Map 1). This
+      is the real test driving both the veteran choropleth's green/red status and which
+      facilities get a by-right zone below.
       <br><br>
       <strong>By-right veteran shelter zone (transit layer):</strong> the green rings are
       <em>this site's own siting-geometry argument</em>, layered on top of the standard
