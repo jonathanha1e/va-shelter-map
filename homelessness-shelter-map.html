@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>California Homelessness &amp; Shelter Capacity Map</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  #map { height: 100vh; width: 100vw; }
+  .legend {
+    background: white; padding: 12px 14px; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.3); font-size: 13px; line-height: 1.5;
+    max-width: 280px; max-height: 80vh; overflow-y: auto;
+  }
+  .legend h4 { margin: 0 0 6px 0; font-size: 14px; }
+  .legend .row { display: flex; align-items: center; margin: 3px 0; }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; margin-right: 8px; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.3); }
+  .line { width: 16px; height: 0; margin-right: 8px; flex-shrink: 0; border-top: 3px solid; }
+  .note { font-size: 11px; color: #555; margin-top: 8px; border-top: 1px solid #ddd; padding-top: 6px; }
+  .popup-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+  .popup-tag { display: inline-block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.03em; background: #eee; padding: 1px 6px; border-radius: 3px; margin-bottom: 6px; }
+  .popup-row { font-size: 12px; margin: 2px 0; }
+  a.popup-link { color: #0056b3; }
+  .layer-panel {
+    background: white; padding: 10px 12px; border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.3); font-size: 12.5px; line-height: 1.5;
+    max-width: 270px; max-height: 85vh; overflow-y: auto;
+  }
+  .lp-group { margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 6px; }
+  .lp-group:last-child { border-bottom: none; }
+  .lp-group-header { display: block; font-weight: 600; cursor: pointer; margin-bottom: 3px; }
+  .lp-sub { margin-left: 18px; }
+  .lp-sub label { display: block; font-weight: 400; cursor: pointer; margin: 2px 0; }
+  .legend-toggle { cursor: pointer; color: #0056b3; font-size: 11px; margin-top: 4px; display: inline-block; }
+  .note.collapsed { display: none; }
+  .exempt-likely { color: #1a7a2e; font-weight: 600; }
+  .exempt-no { color: #a33; font-weight: 600; }
+  .exempt-mixed { color: #a66a00; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+
+// ============================================================
+// DATA SOURCES (all loaded at runtime from local files alongside this page):
+//   county_data.json          — HUD 2024 PIT (homeless count) + HIC (shelter
+//                                bed inventory) by California county, built
+//                                from the official CoC-level reports at
+//                                huduser.gov (2024 AHAR Part 1), apportioned
+//                                to counties via a CoC-to-county crosswalk.
+//                                Multi-county CoCs (e.g. the 7-county Redding/
+//                                Shasta... CoC) share identical figures across
+//                                all member counties — that is a real
+//                                reporting limit, not a data error.
+//   ca_counties.geojson        — CA county boundaries (CA State Geoportal,
+//                                reprojected to WGS84, simplified).
+//   ca_senate.geojson          — CA State Senate districts, Oct 2024 cycle
+//                                (2021 Citizens Redistricting Commission).
+//   ca_assembly.geojson        — CA State Assembly districts, 2024-26 cycle.
+//   senate_county_overlap.json / assembly_county_overlap.json — precomputed
+//                                polygon-intersection of each district against
+//                                every county it overlaps (by area fraction).
+//
+// THE 60% THRESHOLD — IMPORTANT METHODOLOGY NOTE: this map applies a 60%
+// shelter-capacity-vs-homeless-count threshold as its own policy-analysis
+// framework, referencing the benchmark used by Judge David Carter in his
+// orders in LA Alliance for Human Rights v. City/County of Los Angeles. It is
+// layered on top of EXISTING California shelter zoning law (SB 2 of 2007,
+// expanded by SB 340 of 2025-26), which requires a jurisdiction to allow
+// emergency shelters by right (no discretionary permit) in a designated zone
+// sized to its most recent point-in-time homeless count — UNLESS the
+// jurisdiction can show existing/planned shelter capacity already meets that
+// need. This map's 60% cutoff is NOT text from any adopted bill; it is this
+// site's own argument for where that existing by-right trigger should bite.
+// Toggle the "60% Threshold" layer's legend note for the full explanation.
+// ============================================================
+
+const map = L.map('map').setView([36.7, -119.6], 6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+let countyData = {};
+let countyGeo = null;
+let senateOverlap = {};
+let assemblyOverlap = {};
+
+const countColorLayer = L.layerGroup();
+const thresholdColorLayer = L.layerGroup();
+const senateLayer = L.layerGroup();
+const assemblyLayer = L.layerGroup();
+
+function fmt(n) { return n == null ? '—' : n.toLocaleString(); }
+
+function countColor(v, max) {
+  const t = Math.sqrt(v / max);
+  const r = 255, g = Math.round(255 - t * 200), b = Math.round(255 - t * 215);
+  return `rgb(${r},${g},${b})`;
+}
+
+function countyPopup(name, d) {
+  if (!d) return `<div class="popup-title">${name} County</div><div class="popup-row">No data.</div>`;
+  const thresholdLine = d.meets60Threshold
+    ? `<span class="exempt-likely">Meets 60% threshold — shelter likely allowed to remain discretionary here (not automatically by right)</span>`
+    : `<span class="exempt-no">Below 60% threshold — by-right emergency shelter approval is argued to apply here</span>`;
+  return `
+    <div class="popup-title">${name} County</div>
+    ${d.multiCountyCoC ? `<div class="popup-row" style="color:#a66a00;">Part of a multi-county Continuum of Care (${d.cocNames.join('; ')}) — figures below are CoC-wide, shared identically with: ${d.sharedWithCounties.join(', ') || 'none'}.</div>` : `<div class="popup-row" style="color:#555;">${d.cocNames.join('; ')}</div>`}
+    <div class="popup-row"><strong>Homeless count (2024 PIT):</strong> ${fmt(d.homelessTotal)}</div>
+    <div class="popup-row">&nbsp;&nbsp;Sheltered: ${fmt(d.homelessSheltered)} &nbsp;|&nbsp; Unsheltered: ${fmt(d.homelessUnsheltered)}</div>
+    <div class="popup-row"><strong>Emergency/interim shelter beds (2024 HIC):</strong> ${fmt(d.emergencyInterimBeds)}</div>
+    <div class="popup-row">&nbsp;&nbsp;Emergency shelter: ${fmt(d.shelterBedsES)} &nbsp;|&nbsp; Transitional housing: ${fmt(d.shelterBedsTH)} &nbsp;|&nbsp; Safe haven: ${fmt(d.shelterBedsSH)}</div>
+    <div class="popup-row"><strong>Capacity vs. need:</strong> ${d.pctCapacityVsHomeless}%</div>
+    <div class="popup-row" style="margin-top:4px;">${thresholdLine}</div>
+    <div class="popup-row" style="margin-top:6px; color:#444;"><strong>Veterans:</strong> ${fmt(d.vetHomelessTotal)} homeless (${fmt(d.vetUnsheltered)} unsheltered), ${fmt(d.vetDedicatedBeds)} dedicated beds — see Map 2 for the VA-facility-level view.</div>
+  `;
+}
+
+function districtAssessment(overlapList) {
+  if (!overlapList || !overlapList.length) return { cls: 'exempt-mixed', text: 'No county overlap data.' };
+  const withStatus = overlapList.map(o => ({ ...o, d: countyData[o.county] })).filter(o => o.d);
+  if (!withStatus.length) return { cls: 'exempt-mixed', text: 'No matching county data.' };
+  const allMeet = withStatus.every(o => o.d.meets60Threshold);
+  const noneMeet = withStatus.every(o => !o.d.meets60Threshold);
+  if (allMeet) return { cls: 'exempt-likely', text: 'Likely exempt — every overlapping jurisdiction meets the 60% threshold.' };
+  if (noneMeet) return { cls: 'exempt-no', text: 'Likely subject to the by-right mandate — no overlapping jurisdiction meets the 60% threshold.' };
+  return { cls: 'exempt-mixed', text: 'Mixed — depends which jurisdiction a given site falls in (see breakdown below).' };
+}
+
+function districtPopup(kind, num, overlapList) {
+  const assessment = districtAssessment(overlapList);
+  const rows = (overlapList || []).map(o => {
+    const d = countyData[o.county];
+    const pct = Math.round(o.frac * 1000) / 10;
+    if (!d) return `<div class="popup-row">${o.county} County (${pct}% of district area) — no data</div>`;
+    const status = d.meets60Threshold ? '<span class="exempt-likely">meets 60%</span>' : '<span class="exempt-no">below 60%</span>';
+    return `<div class="popup-row">${o.county} County (${pct}% of district area) — ${d.pctCapacityVsHomeless}% capacity, ${status}</div>`;
+  }).join('');
+  return `
+    <div class="popup-title">${kind} District ${num}</div>
+    <div class="popup-row" style="margin:4px 0;"><span class="${assessment.cls}">${assessment.text}</span></div>
+    <div class="popup-row" style="margin-top:6px; color:#444;"><strong>Overlapping counties:</strong></div>
+    ${rows}
+  `;
+}
+
+Promise.all([
+  fetch('county_data.json').then(r => r.json()),
+  fetch('ca_counties.geojson').then(r => r.json()),
+  fetch('ca_senate.geojson').then(r => r.json()),
+  fetch('ca_assembly.geojson').then(r => r.json()),
+  fetch('senate_county_overlap.json').then(r => r.json()),
+  fetch('assembly_county_overlap.json').then(r => r.json())
+]).then(([cd, counties, senate, assembly, senateOv, assemblyOv]) => {
+  countyData = cd;
+  countyGeo = counties;
+  senateOverlap = senateOv;
+  assemblyOverlap = assemblyOv;
+
+  const maxHomeless = Math.max(...Object.values(countyData).map(c => c.homelessTotal));
+
+  L.geoJSON(counties, {
+    style: feat => {
+      const d = countyData[feat.properties.CountyName];
+      return { fillColor: d ? countColor(d.homelessTotal, maxHomeless) : '#eee', fillOpacity: 0.7, color: '#888', weight: 1 };
+    },
+    onEachFeature: (feat, layer) => {
+      layer.bindPopup(countyPopup(feat.properties.CountyName, countyData[feat.properties.CountyName]));
+    }
+  }).addTo(countColorLayer);
+
+  L.geoJSON(counties, {
+    style: feat => {
+      const d = countyData[feat.properties.CountyName];
+      const meets = d && d.meets60Threshold;
+      return { fillColor: meets ? '#2a9d4a' : '#c0392b', fillOpacity: 0.55, color: '#666', weight: 1 };
+    },
+    onEachFeature: (feat, layer) => {
+      layer.bindPopup(countyPopup(feat.properties.CountyName, countyData[feat.properties.CountyName]));
+    }
+  }).addTo(thresholdColorLayer);
+
+  L.geoJSON(senate, {
+    style: { fillOpacity: 0, color: '#5b3fa0', weight: 2 },
+    onEachFeature: (feat, layer) => {
+      const num = feat.properties.district;
+      layer.bindPopup(districtPopup('Senate', num, senateOverlap[String(num)]));
+      layer.on('mouseover', () => layer.setStyle({ weight: 4 }));
+      layer.on('mouseout', () => layer.setStyle({ weight: 2 }));
+    }
+  }).addTo(senateLayer);
+
+  L.geoJSON(assembly, {
+    style: { fillOpacity: 0, color: '#1a73e8', weight: 1.5, dashArray: '4,3' },
+    onEachFeature: (feat, layer) => {
+      const num = feat.properties.district;
+      layer.bindPopup(districtPopup('Assembly', num, assemblyOverlap[String(num)]));
+      layer.on('mouseover', () => layer.setStyle({ weight: 3.5 }));
+      layer.on('mouseout', () => layer.setStyle({ weight: 1.5 }));
+    }
+  }).addTo(assemblyLayer);
+
+  countColorLayer.addTo(map);
+});
+
+// ============================================================
+// LAYER PANEL
+// ============================================================
+const layerPanel = L.control({ position: 'topright' });
+layerPanel.onAdd = function () {
+  const div = L.DomUtil.create('div', 'layer-panel');
+  L.DomEvent.disableClickPropagation(div);
+  L.DomEvent.disableScrollPropagation(div);
+  div.innerHTML = `
+    <div class="lp-group">
+      <label class="lp-group-header">County View</label>
+      <div class="lp-sub">
+        <label><input type="radio" name="county-view" id="chk-view-count" value="count" checked> Homeless count (2024 PIT)</label>
+        <label><input type="radio" name="county-view" id="chk-view-threshold" value="threshold"> 60% shelter-capacity threshold</label>
+        <label><input type="radio" name="county-view" id="chk-view-none" value="none"> None</label>
+      </div>
+    </div>
+    <div class="lp-group">
+      <label class="lp-group-header">District Overlays</label>
+      <div class="lp-sub">
+        <label><input type="checkbox" id="chk-senate"> State Senate districts</label>
+        <label><input type="checkbox" id="chk-assembly"> State Assembly districts</label>
+      </div>
+    </div>
+  `;
+  return div;
+};
+layerPanel.addTo(map);
+
+document.querySelectorAll('input[name="county-view"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    if (!radio.checked) return;
+    map.removeLayer(countColorLayer);
+    map.removeLayer(thresholdColorLayer);
+    if (radio.value === 'count') countColorLayer.addTo(map);
+    if (radio.value === 'threshold') thresholdColorLayer.addTo(map);
+  });
+});
+document.getElementById('chk-senate').addEventListener('change', (e) => {
+  if (e.target.checked) senateLayer.addTo(map); else map.removeLayer(senateLayer);
+});
+document.getElementById('chk-assembly').addEventListener('change', (e) => {
+  if (e.target.checked) assemblyLayer.addTo(map); else map.removeLayer(assemblyLayer);
+});
+
+// ============================================================
+// LEGEND
+// ============================================================
+const legend = L.control({ position: 'bottomleft' });
+legend.onAdd = function () {
+  const div = L.DomUtil.create('div', 'legend');
+  div.innerHTML = `
+    <h4>CA Homelessness &amp; Shelter Capacity</h4>
+    <div class="row"><span class="swatch" style="background:rgb(255,180,160);"></span> Lower homeless count</div>
+    <div class="row"><span class="swatch" style="background:rgb(255,55,40);"></span> Higher homeless count</div>
+    <div class="row"><span class="swatch" style="background:#2a9d4a;"></span> Meets 60% shelter-capacity threshold</div>
+    <div class="row"><span class="swatch" style="background:#c0392b;"></span> Below 60% threshold</div>
+    <div class="row"><span class="line" style="border-color:#5b3fa0;"></span> State Senate district</div>
+    <div class="row"><span class="line" style="border-color:#1a73e8; border-top-style:dashed;"></span> State Assembly district</div>
+    <span class="legend-toggle" id="legend-toggle">Show methodology &amp; findings ▸</span>
+    <div class="note collapsed" id="legend-note">
+      <strong>Data:</strong> homeless counts and shelter bed inventory are HUD's official 2024
+      Point-in-Time (PIT) count and Housing Inventory Count (HIC), reported by California's 44
+      Continuums of Care (CoCs) and published at huduser.gov (2024 AHAR Part 1, Dec. 2024).
+      "Emergency/interim shelter beds" = Emergency Shelter + Transitional Housing + Safe Haven
+      beds; it excludes Rapid Re-Housing and Permanent Supportive Housing, which are not
+      shelter. Several rural counties share one multi-county CoC (e.g. Shasta, Siskiyou,
+      Lassen, Plumas, Del Norte, Modoc, and Sierra counties are all one CoC) — HUD does not
+      report sub-CoC county breakdowns, so those counties show identical figures. That's a
+      real reporting limit, not a map error; click any such county for the full list of
+      counties it shares data with.
+      <br><br>
+      <strong>The 60% threshold is this map's own policy framework</strong> — not text from any
+      adopted bill. California's existing shelter zoning law (SB 2 of 2007, expanded by SB 340
+      of 2025-26) requires a jurisdiction to allow emergency shelters by right (no discretionary
+      permit) in a designated zone, sized to its most recent PIT count, unless it can show
+      existing/planned shelter capacity already meets that need. This map argues that line
+      should sit at 60% capacity-vs-need, referencing the benchmark Judge David Carter applied
+      in his orders in <em>LA Alliance for Human Rights v. City/County of Los Angeles</em> (a
+      180-day offer-of-shelter target for 60% of a given area's unsheltered population) — but
+      Judge Carter's order and SB 2/SB 340's zoning mandate are two different legal mechanisms,
+      and nothing currently on the books ties them together at exactly 60%. Treat the green/red
+      threshold layer as this site's argument, not a citation.
+      <br><br>
+      <strong>District overlays:</strong> California's State Senate (40 districts) and Assembly
+      (80 districts) boundaries are the current 2021 Citizens Redistricting Commission cycle
+      (in effect through the 2030 Census), from the CA State Geoportal (Oct. 2024 / Feb. 2025
+      downloads). Since districts rarely align with county lines, each district's popup lists
+      every county it overlaps (by share of district area) and that county's threshold status —
+      "likely exempt," "likely subject to the by-right mandate," or "mixed" when a district
+      spans jurisdictions on both sides of the line.
+      <br><br>
+      <a class="popup-link" href="va-shelter-map.html">&rarr; Map 2: VA Facilities &amp; Veteran Shelter By-Right Siting</a>
+    </div>
+  `;
+  const toggle = div.querySelector('#legend-toggle');
+  const note = div.querySelector('#legend-note');
+  toggle.addEventListener('click', () => {
+    const collapsed = note.classList.toggle('collapsed');
+    toggle.textContent = collapsed ? 'Show methodology & findings ▸' : 'Hide methodology & findings ▾';
+  });
+  return div;
+};
+legend.addTo(map);
+
+</script>
+</body>
+</html>
