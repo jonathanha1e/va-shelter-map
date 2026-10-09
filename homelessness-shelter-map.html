@@ -90,6 +90,8 @@ let countyData = {};
 let countyGeo = null;
 let senateOverlap = {};
 let assemblyOverlap = {};
+let senateMembers = {};
+let assemblyMembers = {};
 
 const countColorLayer = L.layerGroup();
 const thresholdColorLayer = L.layerGroup();
@@ -139,6 +141,23 @@ function districtAssessment(overlapList) {
   return { cls: 'exempt-mixed', text: 'Mixed — depends which jurisdiction a given site falls in (see breakdown below).' };
 }
 
+function legislatorBlock(kind, num) {
+  const members = kind === 'Senate' ? senateMembers : assemblyMembers;
+  const m = members[String(num)];
+  if (!m) return '';
+  const partyAbbrev = m.party && m.party.startsWith('Dem') ? 'D' : (m.party && m.party.startsWith('Rep') ? 'R' : m.party);
+  const title = kind === 'Senate' ? 'Senator' : 'Assemblymember';
+  const contact = m.phone
+    ? `<div class="popup-row">${m.phone} &nbsp;|&nbsp; <a class="popup-link" href="${m.website}" target="_blank" rel="noopener">${m.website}</a></div>`
+    : `<div class="popup-row"><a class="popup-link" href="${m.website}" target="_blank" rel="noopener">${m.website}</a></div>`;
+  return `
+    <div class="popup-row" style="margin:4px 0; padding:6px 8px; background:#f5f3fa; border-radius:4px;">
+      <strong>${title} ${m.firstName} ${m.lastName}</strong> (${partyAbbrev})
+      ${contact}
+    </div>
+  `;
+}
+
 function districtPopup(kind, num, overlapList) {
   const assessment = districtAssessment(overlapList);
   const rows = (overlapList || []).map(o => {
@@ -150,6 +169,7 @@ function districtPopup(kind, num, overlapList) {
   }).join('');
   return `
     <div class="popup-title">${kind} District ${num}</div>
+    ${legislatorBlock(kind, num)}
     <div class="popup-row" style="margin:4px 0;"><span class="${assessment.cls}">${assessment.text}</span></div>
     <div class="popup-row" style="margin-top:6px; color:#444;"><strong>Overlapping counties:</strong></div>
     ${rows}
@@ -163,12 +183,16 @@ Promise.all([
   fetch('ca_assembly.geojson').then(r => r.json()),
   fetch('senate_county_overlap.json').then(r => r.json()),
   fetch('assembly_county_overlap.json').then(r => r.json()),
-  fetch('coc_group_boundaries.geojson').then(r => r.json())
-]).then(([cd, counties, senate, assembly, senateOv, assemblyOv, cocGroups]) => {
+  fetch('coc_group_boundaries.geojson').then(r => r.json()),
+  fetch('senate_members.json').then(r => r.json()),
+  fetch('assembly_members.json').then(r => r.json())
+]).then(([cd, counties, senate, assembly, senateOv, assemblyOv, cocGroups, senateMem, assemblyMem]) => {
   countyData = cd;
   countyGeo = counties;
   senateOverlap = senateOv;
   assemblyOverlap = assemblyOv;
+  senateMembers = senateMem;
+  assemblyMembers = assemblyMem;
 
   L.geoJSON(cocGroups, {
     style: { fillOpacity: 0, color: '#6a3fa0', weight: 3, dashArray: '2,6' },
@@ -350,7 +374,10 @@ legend.onAdd = function () {
       downloads). Since districts rarely align with county lines, each district's popup lists
       every county it overlaps (by share of district area) and that county's threshold status —
       "likely exempt," "likely subject to the by-right mandate," or "mixed" when a district
-      spans jurisdictions on both sides of the line.
+      spans jurisdictions on both sides of the line. Each popup also names the current
+      officeholder (2025-26 session: Senate seats from the Oct. 2024 CA State Geoportal
+      membership dataset, Assembly seats from the 2024-26 dataset), with party and a link to
+      their official district website.
       <br><br>
       <a class="popup-link" href="va-shelter-map.html">&rarr; Map 2: VA Facilities &amp; Veteran Shelter By-Right Siting</a>
     </div>
