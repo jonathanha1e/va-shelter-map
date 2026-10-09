@@ -95,6 +95,7 @@ const countColorLayer = L.layerGroup();
 const thresholdColorLayer = L.layerGroup();
 const senateLayer = L.layerGroup();
 const assemblyLayer = L.layerGroup();
+const cocGroupLayer = L.layerGroup();
 
 function fmt(n) { return n == null ? '—' : n.toLocaleString(); }
 
@@ -107,18 +108,22 @@ function countColor(v, max) {
 function countyPopup(name, d) {
   if (!d) return `<div class="popup-title">${name} County</div><div class="popup-row">No data.</div>`;
   const thresholdLine = d.meets60Threshold
-    ? `<span class="exempt-likely">Meets 60% threshold — shelter likely allowed to remain discretionary here (not automatically by right)</span>`
-    : `<span class="exempt-no">Below 60% threshold — by-right emergency shelter approval is argued to apply here</span>`;
+    ? `<span class="exempt-likely">Meets the 60% threshold — shelter beds can accommodate at least 60% of the average unsheltered count, so by-right approval is not automatically triggered here</span>`
+    : `<span class="exempt-no">Below the 60% threshold — beds cover under 60% of the average unsheltered count, so by-right emergency shelter approval is argued to apply here</span>`;
+  const yearsNote = d.avgUnshelteredYearsUsed < 10
+    ? ` (averaged over ${d.avgUnshelteredYearsUsed} of the last 10 years — some years were excluded, see methodology)`
+    : ' (2015–2024)';
   return `
     <div class="popup-title">${name} County</div>
     ${d.multiCountyCoC ? `<div class="popup-row" style="color:#a66a00;">Part of a multi-county Continuum of Care (${d.cocNames.join('; ')}) — figures below are CoC-wide, shared identically with: ${d.sharedWithCounties.join(', ') || 'none'}.</div>` : `<div class="popup-row" style="color:#555;">${d.cocNames.join('; ')}</div>`}
-    <div class="popup-row"><strong>Homeless count (2024 PIT):</strong> ${fmt(d.homelessTotal)}</div>
-    <div class="popup-row">&nbsp;&nbsp;Sheltered: ${fmt(d.homelessSheltered)} &nbsp;|&nbsp; Unsheltered: ${fmt(d.homelessUnsheltered)}</div>
-    <div class="popup-row"><strong>Emergency/interim shelter beds (2024 HIC):</strong> ${fmt(d.emergencyInterimBeds)}</div>
+    <div class="popup-row"><strong>Homeless count (2024 PIT, total):</strong> ${fmt(d.homelessTotal)}</div>
+    <div class="popup-row">&nbsp;&nbsp;Sheltered: ${fmt(d.homelessSheltered)} &nbsp;|&nbsp; Unsheltered (2024): ${fmt(d.homelessUnsheltered2024)}</div>
+    <div class="popup-row"><strong>Average unsheltered count${yearsNote}:</strong> ${fmt(d.avgUnsheltered10yr)}</div>
+    <div class="popup-row"><strong>Year-round interim shelter beds (2024 HIC):</strong> ${fmt(d.emergencyInterimBeds)}</div>
     <div class="popup-row">&nbsp;&nbsp;Emergency shelter: ${fmt(d.shelterBedsES)} &nbsp;|&nbsp; Transitional housing: ${fmt(d.shelterBedsTH)} &nbsp;|&nbsp; Safe haven: ${fmt(d.shelterBedsSH)}</div>
-    <div class="popup-row"><strong>Capacity vs. need:</strong> ${d.pctCapacityVsHomeless}%</div>
+    <div class="popup-row"><strong>Beds ÷ average unsheltered count:</strong> ${d.pctCapacityVsNeed}%</div>
     <div class="popup-row" style="margin-top:4px;">${thresholdLine}</div>
-    <div class="popup-row" style="margin-top:6px; color:#444;"><strong>Veterans:</strong> ${fmt(d.vetHomelessTotal)} homeless (${fmt(d.vetUnsheltered)} unsheltered), ${fmt(d.vetDedicatedBeds)} dedicated beds — see Map 2 for the VA-facility-level view.</div>
+    <div class="popup-row" style="margin-top:6px; color:#444;"><strong>Veterans:</strong> ${fmt(d.vetHomelessTotal)} homeless (${fmt(d.vetUnsheltered2024)} unsheltered in 2024, ${fmt(d.avgVetUnsheltered10yr)} avg.), ${fmt(d.vetDedicatedBeds)} dedicated beds, ${d.vetPctCapacityVsNeed}% — see Map 2 for the VA-facility-level view.</div>
   `;
 }
 
@@ -140,7 +145,7 @@ function districtPopup(kind, num, overlapList) {
     const pct = Math.round(o.frac * 1000) / 10;
     if (!d) return `<div class="popup-row">${o.county} County (${pct}% of district area) — no data</div>`;
     const status = d.meets60Threshold ? '<span class="exempt-likely">meets 60%</span>' : '<span class="exempt-no">below 60%</span>';
-    return `<div class="popup-row">${o.county} County (${pct}% of district area) — ${d.pctCapacityVsHomeless}% capacity, ${status}</div>`;
+    return `<div class="popup-row">${o.county} County (${pct}% of district area) — ${d.pctCapacityVsNeed}% capacity, ${status}</div>`;
   }).join('');
   return `
     <div class="popup-title">${kind} District ${num}</div>
@@ -156,12 +161,25 @@ Promise.all([
   fetch('ca_senate.geojson').then(r => r.json()),
   fetch('ca_assembly.geojson').then(r => r.json()),
   fetch('senate_county_overlap.json').then(r => r.json()),
-  fetch('assembly_county_overlap.json').then(r => r.json())
-]).then(([cd, counties, senate, assembly, senateOv, assemblyOv]) => {
+  fetch('assembly_county_overlap.json').then(r => r.json()),
+  fetch('coc_group_boundaries.geojson').then(r => r.json())
+]).then(([cd, counties, senate, assembly, senateOv, assemblyOv, cocGroups]) => {
   countyData = cd;
   countyGeo = counties;
   senateOverlap = senateOv;
   assemblyOverlap = assemblyOv;
+
+  L.geoJSON(cocGroups, {
+    style: { fillOpacity: 0, color: '#6a3fa0', weight: 3, dashArray: '2,6' },
+    onEachFeature: (feat, layer) => {
+      layer.bindPopup(`
+        <div class="popup-title">Shared multi-county CoC</div>
+        <div class="popup-row">${feat.properties.cocName}</div>
+        <div class="popup-row" style="margin-top:4px; color:#444;">HUD reports one combined homeless count and shelter-bed figure for all of: <strong>${feat.properties.counties.join(', ')}</strong>. Every county inside this dashed boundary shows the identical number — that's a real reporting limit, not a map error.</div>
+      `);
+    }
+  }).addTo(cocGroupLayer);
+  cocGroupLayer.addTo(map);
 
   const maxHomeless = Math.max(...Object.values(countyData).map(c => c.homelessTotal));
 
@@ -233,10 +251,20 @@ layerPanel.onAdd = function () {
         <label><input type="checkbox" id="chk-assembly"> State Assembly districts</label>
       </div>
     </div>
+    <div class="lp-group">
+      <label class="lp-group-header">Reference</label>
+      <div class="lp-sub">
+        <label><input type="checkbox" id="chk-cocgroup" checked> Shared multi-county CoC boundaries</label>
+      </div>
+    </div>
   `;
   return div;
 };
 layerPanel.addTo(map);
+
+document.getElementById('chk-cocgroup').addEventListener('change', (e) => {
+  if (e.target.checked) cocGroupLayer.addTo(map); else map.removeLayer(cocGroupLayer);
+});
 
 document.querySelectorAll('input[name="county-view"]').forEach(radio => {
   radio.addEventListener('change', () => {
@@ -268,30 +296,34 @@ legend.onAdd = function () {
     <div class="row"><span class="swatch" style="background:#c0392b;"></span> Below 60% threshold</div>
     <div class="row"><span class="line" style="border-color:#5b3fa0;"></span> State Senate district</div>
     <div class="row"><span class="line" style="border-color:#1a73e8; border-top-style:dashed;"></span> State Assembly district</div>
+    <div class="row"><span class="line" style="border-color:#6a3fa0; border-top-style:dotted; border-top-width:3px;"></span> Shared multi-county CoC boundary</div>
     <span class="legend-toggle" id="legend-toggle">Show methodology &amp; findings ▸</span>
     <div class="note collapsed" id="legend-note">
       <strong>Data:</strong> homeless counts and shelter bed inventory are HUD's official 2024
       Point-in-Time (PIT) count and Housing Inventory Count (HIC), reported by California's 44
-      Continuums of Care (CoCs) and published at huduser.gov (2024 AHAR Part 1, Dec. 2024).
-      "Emergency/interim shelter beds" = Emergency Shelter + Transitional Housing + Safe Haven
-      beds; it excludes Rapid Re-Housing and Permanent Supportive Housing, which are not
-      shelter. Several rural counties share one multi-county CoC (e.g. Shasta, Siskiyou,
-      Lassen, Plumas, Del Norte, Modoc, and Sierra counties are all one CoC) — HUD does not
-      report sub-CoC county breakdowns, so those counties show identical figures. That's a
-      real reporting limit, not a map error; click any such county for the full list of
-      counties it shares data with.
+      Continuums of Care (CoCs) and published at huduser.gov (2024 AHAR Part 1, Dec. 2024), plus
+      HUD's historical PIT-by-CoC series back to 2015. "Year-round interim shelter beds" =
+      Emergency Shelter + Transitional Housing + Safe Haven beds; it excludes Rapid Re-Housing
+      and Permanent Supportive Housing, which are not shelter. Several rural counties share one
+      multi-county CoC (e.g. Shasta, Siskiyou, Lassen, Plumas, Del Norte, Modoc, and Sierra
+      counties are all one CoC, outlined with a dotted purple boundary on the map) — HUD does
+      not report sub-CoC county breakdowns, so those counties show identical figures. That's a
+      real reporting limit, not a map error; click any such county, or its dotted boundary, for
+      the full list of counties it shares data with.
       <br><br>
-      <strong>The 60% threshold is this map's own policy framework</strong> — not text from any
-      adopted bill. California's existing shelter zoning law (SB 2 of 2007, expanded by SB 340
-      of 2025-26) requires a jurisdiction to allow emergency shelters by right (no discretionary
-      permit) in a designated zone, sized to its most recent PIT count, unless it can show
-      existing/planned shelter capacity already meets that need. This map argues that line
-      should sit at 60% capacity-vs-need, referencing the benchmark Judge David Carter applied
-      in his orders in <em>LA Alliance for Human Rights v. City/County of Los Angeles</em> (a
-      180-day offer-of-shelter target for 60% of a given area's unsheltered population) — but
-      Judge Carter's order and SB 2/SB 340's zoning mandate are two different legal mechanisms,
-      and nothing currently on the books ties them together at exactly 60%. Treat the green/red
-      threshold layer as this site's argument, not a citation.
+      <strong>The siting formula — this map's exact standard:</strong> a jurisdiction (city or
+      county) is subject to a by-right emergency-shelter-approval mandate when its year-round
+      interim shelter beds, as reported in HUD's annual HIC, can accommodate <strong>fewer than
+      60% of its average unsheltered point-in-time count over the most recent 10 years</strong>
+      (2015–2024 here; years a CoC didn't exist yet, or didn't conduct an unsheltered count —
+      most of California skipped it in January 2021 under a COVID-era HUD waiver — are excluded
+      from that average rather than counted as zero). This is the same 60% benchmark federal
+      Judge David O. Carter has used in homelessness settlements with Orange County cities and
+      the City of Los Angeles (<em>LA Alliance for Human Rights v. City of Los Angeles</em>, 2022
+      Settlement Agreement; Voice of OC, Sept. 2019). The underlying by-right-zoning requirement
+      itself comes from existing California shelter law (SB 2 of 2007, expanded by SB 340 of
+      2025-26); this map's own contribution is applying the 60%-of-average-unsheltered test as
+      the specific pass/fail line.
       <br><br>
       <strong>District overlays:</strong> California's State Senate (40 districts) and Assembly
       (80 districts) boundaries are the current 2021 Citizens Redistricting Commission cycle
