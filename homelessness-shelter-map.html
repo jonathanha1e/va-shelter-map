@@ -35,6 +35,7 @@
   .legend-toggle { cursor: pointer; color: #0056b3; font-size: 11px; margin-top: 4px; display: inline-block; }
   .note.collapsed { display: none; }
   .exempt-likely { color: #1a7a2e; font-weight: 600; }
+  .exempt-rural { color: #0a7a8a; font-weight: 600; }
   .exempt-no { color: #a33; font-weight: 600; }
   .exempt-mixed { color: #a66a00; font-weight: 600; }
 </style>
@@ -98,6 +99,7 @@ const thresholdColorLayer = L.layerGroup();
 const senateLayer = L.layerGroup();
 const assemblyLayer = L.layerGroup();
 const cocGroupLayer = L.layerGroup();
+const ruralCarveoutLayer = L.layerGroup();
 
 function fmt(n) { return n == null ? '—' : n.toLocaleString(); }
 
@@ -109,9 +111,16 @@ function countColor(v, max) {
 
 function countyPopup(name, d) {
   if (!d) return `<div class="popup-title">${name} County</div><div class="popup-row">No data.</div>`;
-  const thresholdLine = d.meets60Threshold
-    ? `<span class="exempt-likely">Meets the 60% threshold — shelter beds can accommodate at least 60% of the average total homeless count, so by-right approval is not automatically triggered here</span>`
-    : `<span class="exempt-no">Below the 60% threshold — beds cover under 60% of the average total homeless count, so by-right emergency shelter approval is argued to apply here</span>`;
+  let thresholdLine;
+  if (d.exemptReason === 'rural_carveout') {
+    thresholdLine = `<span class="exempt-rural">Below the 60% threshold, but exempt via the rural carveout — ${name} County is non-metropolitan per OMB (not part of any Metropolitan Statistical Area), so the by-right mandate does not apply regardless of capacity score</span>`;
+  } else if (d.exemptReason === 'rural_and_meets_threshold') {
+    thresholdLine = `<span class="exempt-likely">Meets the 60% threshold (and is also exempt via the rural carveout, redundantly) — by-right approval is not automatically triggered here</span>`;
+  } else if (d.meets60Threshold) {
+    thresholdLine = `<span class="exempt-likely">Meets the 60% threshold — shelter beds can accommodate at least 60% of the average total homeless count, so by-right approval is not automatically triggered here</span>`;
+  } else {
+    thresholdLine = `<span class="exempt-no">Below the 60% threshold — beds cover under 60% of the average total homeless count, so by-right emergency shelter approval is argued to apply here</span>`;
+  }
   const yearsNote = d.avgTotalYearsUsed < 10
     ? ` (averaged over ${d.avgTotalYearsUsed} of the last 10 years — some years were excluded, see methodology)`
     : ' (2015–2024)';
@@ -134,10 +143,11 @@ function districtAssessment(overlapList) {
   if (!overlapList || !overlapList.length) return { cls: 'exempt-mixed', text: 'No county overlap data.' };
   const withStatus = overlapList.map(o => ({ ...o, d: countyData[o.county] })).filter(o => o.d);
   if (!withStatus.length) return { cls: 'exempt-mixed', text: 'No matching county data.' };
-  const allMeet = withStatus.every(o => o.d.meets60Threshold);
-  const noneMeet = withStatus.every(o => !o.d.meets60Threshold);
-  if (allMeet) return { cls: 'exempt-likely', text: 'Likely exempt — every overlapping jurisdiction meets the 60% threshold.' };
-  if (noneMeet) return { cls: 'exempt-no', text: 'Likely subject to the by-right mandate — no overlapping jurisdiction meets the 60% threshold.' };
+  const allExempt = withStatus.every(o => o.d.finalExempt);
+  const noneExempt = withStatus.every(o => !o.d.finalExempt);
+  const anyRural = withStatus.some(o => o.d.isRuralOMB);
+  if (allExempt) return { cls: 'exempt-likely', text: `Likely exempt — every overlapping jurisdiction meets the 60% threshold${anyRural ? ' or qualifies for the rural carveout' : ''}.` };
+  if (noneExempt) return { cls: 'exempt-no', text: 'Likely subject to the by-right mandate — no overlapping jurisdiction meets the 60% threshold or the rural carveout.' };
   return { cls: 'exempt-mixed', text: 'Mixed — depends which jurisdiction a given site falls in (see breakdown below).' };
 }
 
@@ -164,7 +174,9 @@ function districtPopup(kind, num, overlapList) {
     const d = countyData[o.county];
     const pct = Math.round(o.frac * 1000) / 10;
     if (!d) return `<div class="popup-row">${o.county} County (${pct}% of district area) — no data</div>`;
-    const status = d.meets60Threshold ? '<span class="exempt-likely">meets 60%</span>' : '<span class="exempt-no">below 60%</span>';
+    const status = d.exemptReason === 'rural_carveout' ? '<span class="exempt-rural">rural carveout</span>'
+      : d.meets60Threshold ? '<span class="exempt-likely">meets 60%</span>'
+      : '<span class="exempt-no">below 60%</span>';
     return `<div class="popup-row">${o.county} County (${pct}% of district area) — ${d.pctCapacityVsNeed}% capacity, ${status}</div>`;
   }).join('');
   return `
@@ -206,6 +218,19 @@ Promise.all([
   }).addTo(cocGroupLayer);
   cocGroupLayer.addTo(map);
 
+  L.geoJSON(counties, {
+    filter: feat => countyData[feat.properties.CountyName] && countyData[feat.properties.CountyName].isRuralOMB,
+    style: { fillOpacity: 0, color: '#0a7a8a', weight: 3, dashArray: '1,5' },
+    onEachFeature: (feat, layer) => {
+      layer.bindPopup(`
+        <div class="popup-title">${feat.properties.CountyName} County — Rural Carveout</div>
+        <div class="popup-row">Non-metropolitan per the federal Office of Management and Budget's July 2023 Core Based Statistical Area delineation (not part of any Metropolitan Statistical Area).</div>
+        <div class="popup-row" style="margin-top:4px; color:#444;">Under this map's rural carveout, this county is fully exempt from the by-right shelter mandate regardless of its 60% capacity score.</div>
+      `);
+    }
+  }).addTo(ruralCarveoutLayer);
+  ruralCarveoutLayer.addTo(map);
+
   const maxHomeless = Math.max(...Object.values(countyData).map(c => c.homelessTotal));
 
   L.geoJSON(counties, {
@@ -221,8 +246,10 @@ Promise.all([
   L.geoJSON(counties, {
     style: feat => {
       const d = countyData[feat.properties.CountyName];
-      const meets = d && d.meets60Threshold;
-      return { fillColor: meets ? '#2a9d4a' : '#c0392b', fillOpacity: 0.55, color: '#666', weight: 1 };
+      let fillColor = '#c0392b'; // subject to mandate
+      if (d && d.exemptReason === 'rural_carveout') fillColor = '#1aa3a3'; // exempt via rural carveout only
+      else if (d && d.meets60Threshold) fillColor = '#2a9d4a'; // exempt via meeting the threshold
+      return { fillColor, fillOpacity: 0.55, color: '#666', weight: 1 };
     },
     onEachFeature: (feat, layer) => {
       layer.bindPopup(countyPopup(feat.properties.CountyName, countyData[feat.properties.CountyName]));
@@ -280,6 +307,7 @@ layerPanel.onAdd = function () {
       <label class="lp-group-header">Reference</label>
       <div class="lp-sub">
         <label><input type="checkbox" id="chk-cocgroup" checked> Shared multi-county CoC boundaries</label>
+        <label><input type="checkbox" id="chk-rural" checked> Rural carveout counties (OMB non-metro)</label>
       </div>
     </div>
   `;
@@ -289,6 +317,9 @@ layerPanel.addTo(map);
 
 document.getElementById('chk-cocgroup').addEventListener('change', (e) => {
   if (e.target.checked) cocGroupLayer.addTo(map); else map.removeLayer(cocGroupLayer);
+});
+document.getElementById('chk-rural').addEventListener('change', (e) => {
+  if (e.target.checked) ruralCarveoutLayer.addTo(map); else map.removeLayer(ruralCarveoutLayer);
 });
 
 document.querySelectorAll('input[name="county-view"]').forEach(radio => {
@@ -318,10 +349,12 @@ legend.onAdd = function () {
     <div class="row"><span class="swatch" style="background:rgb(255,180,160);"></span> Lower homeless count</div>
     <div class="row"><span class="swatch" style="background:rgb(255,55,40);"></span> Higher homeless count</div>
     <div class="row"><span class="swatch" style="background:#2a9d4a;"></span> Meets 60% shelter-capacity threshold</div>
-    <div class="row"><span class="swatch" style="background:#c0392b;"></span> Below 60% threshold</div>
+    <div class="row"><span class="swatch" style="background:#1aa3a3;"></span> Exempt via rural carveout (below 60%, but non-metro)</div>
+    <div class="row"><span class="swatch" style="background:#c0392b;"></span> Below 60% threshold, not exempt</div>
     <div class="row"><span class="line" style="border-color:#5b3fa0;"></span> State Senate district</div>
     <div class="row"><span class="line" style="border-color:#1a73e8; border-top-style:dashed;"></span> State Assembly district</div>
     <div class="row"><span class="line" style="border-color:#6a3fa0; border-top-style:dotted; border-top-width:3px;"></span> Shared multi-county CoC boundary</div>
+    <div class="row"><span class="line" style="border-color:#0a7a8a; border-top-style:dotted; border-top-width:3px;"></span> Rural carveout county (OMB non-metro)</div>
     <span class="legend-toggle" id="legend-toggle">Show methodology &amp; findings ▸</span>
     <div class="note collapsed" id="legend-note">
       <strong>Data:</strong> homeless counts and shelter bed inventory are HUD's official 2024
@@ -367,6 +400,20 @@ legend.onAdd = function () {
       anyone not already inside it. A county that "meets 60%" on this map is not a county with
       spare capacity for 60% of its homeless population; it's a county whose total shelter
       system, fully built out, is sized to roughly that share.
+      <br><br>
+      <strong>Rural carveout:</strong> 21 of California's 58 counties are fully exempt from the
+      by-right mandate regardless of their capacity score, because they're non-metropolitan per
+      the federal Office of Management and Budget's July 2023 Core Based Statistical Area
+      delineation (<a class="popup-link" href="https://www2.census.gov/programs-surveys/metro-micro/geographies/reference-files/2023/delineation-files/list1_2023.xlsx" target="_blank" rel="noopener">OMB Bulletin 23-01 / Census delineation file</a>) — meaning no part of the
+      county falls inside a federally designated Metropolitan Statistical Area. That's Alpine,
+      Amador, Calaveras, Colusa, Del Norte, Glenn, Humboldt, Inyo, Lake, Lassen, Mariposa,
+      Mendocino, Modoc, Mono, Nevada, Plumas, Sierra, Siskiyou, Tehama, Trinity, and Tuolumne —
+      outlined with a dotted teal boundary and toggleable under "Reference." Note this is a
+      different cut than the multi-county-CoC grouping above: Shasta County, for example, is
+      part of that 7-county shared CoC but is itself metropolitan (Redding) and so is NOT
+      rural-carveout-exempt — its neighbors in that CoC mostly are. A county exempted this way
+      shows teal on the threshold map even though its raw score is below 60%; its popup always
+      shows both the real number and the carveout reason.
       <br><br>
       <strong>District overlays:</strong> California's State Senate (40 districts) and Assembly
       (80 districts) boundaries are the current 2021 Citizens Redistricting Commission cycle
