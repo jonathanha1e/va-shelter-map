@@ -100,6 +100,26 @@ const senateLayer = L.layerGroup();
 const assemblyLayer = L.layerGroup();
 const cocGroupLayer = L.layerGroup();
 const ruralCarveoutLayer = L.layerGroup();
+let thresholdGeoJsonLayer = null; // set once counties load; restyled live when the % changes
+
+// Adjustable comparison threshold — 60% is this site's default/recommended
+// reading of the siting formula, but 50% and 70% are offered side-by-side
+// so you can see how sensitive the "likely exempt / likely subject"
+// picture is to exactly where that line gets drawn. Changing this never
+// touches the underlying data (pctCapacityVsNeed, isRuralOMB, etc.) —
+// it only changes where the pass/fail line falls.
+let currentThresholdPct = 60;
+
+function computeStatus(d, thresholdPct) {
+  const meets = d.pctCapacityVsNeed >= thresholdPct;
+  const rural = !!d.isRuralOMB;
+  const exempt = meets || rural;
+  let reason = 'none';
+  if (rural && !meets) reason = 'rural_carveout';
+  else if (rural && meets) reason = 'rural_and_meets_threshold';
+  else if (meets) reason = 'meets_threshold';
+  return { meets, rural, exempt, reason };
+}
 
 function fmt(n) { return n == null ? '—' : n.toLocaleString(); }
 
@@ -111,15 +131,17 @@ function countColor(v, max) {
 
 function countyPopup(name, d) {
   if (!d) return `<div class="popup-title">${name} County</div><div class="popup-row">No data.</div>`;
+  const pct = currentThresholdPct;
+  const status = computeStatus(d, pct);
   let thresholdLine;
-  if (d.exemptReason === 'rural_carveout') {
-    thresholdLine = `<span class="exempt-rural">Below the 60% threshold, but exempt via the rural carveout — ${name} County is non-metropolitan per OMB (not part of any Metropolitan Statistical Area), so the by-right mandate does not apply regardless of capacity score</span>`;
-  } else if (d.exemptReason === 'rural_and_meets_threshold') {
-    thresholdLine = `<span class="exempt-likely">Meets the 60% threshold (and is also exempt via the rural carveout, redundantly) — by-right approval is not automatically triggered here</span>`;
-  } else if (d.meets60Threshold) {
-    thresholdLine = `<span class="exempt-likely">Meets the 60% threshold — shelter beds can accommodate at least 60% of the average total homeless count, so by-right approval is not automatically triggered here</span>`;
+  if (status.reason === 'rural_carveout') {
+    thresholdLine = `<span class="exempt-rural">Below the ${pct}% threshold, but exempt via the rural carveout — ${name} County is non-metropolitan per OMB (not part of any Metropolitan Statistical Area), so the by-right mandate does not apply regardless of capacity score</span>`;
+  } else if (status.reason === 'rural_and_meets_threshold') {
+    thresholdLine = `<span class="exempt-likely">Meets the ${pct}% threshold (and is also exempt via the rural carveout, redundantly) — by-right approval is not automatically triggered here</span>`;
+  } else if (status.meets) {
+    thresholdLine = `<span class="exempt-likely">Meets the ${pct}% threshold — shelter beds can accommodate at least ${pct}% of the average total homeless count, so by-right approval is not automatically triggered here</span>`;
   } else {
-    thresholdLine = `<span class="exempt-no">Below the 60% threshold — beds cover under 60% of the average total homeless count, so by-right emergency shelter approval is argued to apply here</span>`;
+    thresholdLine = `<span class="exempt-no">Below the ${pct}% threshold — beds cover under ${pct}% of the average total homeless count, so by-right emergency shelter approval is argued to apply here</span>`;
   }
   const yearsNote = d.avgTotalYearsUsed < 10
     ? ` (averaged over ${d.avgTotalYearsUsed} of the last 10 years — some years were excluded, see methodology)`
@@ -140,14 +162,15 @@ function countyPopup(name, d) {
 }
 
 function districtAssessment(overlapList) {
+  const pct = currentThresholdPct;
   if (!overlapList || !overlapList.length) return { cls: 'exempt-mixed', text: 'No county overlap data.' };
-  const withStatus = overlapList.map(o => ({ ...o, d: countyData[o.county] })).filter(o => o.d);
+  const withStatus = overlapList.map(o => ({ ...o, status: countyData[o.county] && computeStatus(countyData[o.county], pct) })).filter(o => o.status);
   if (!withStatus.length) return { cls: 'exempt-mixed', text: 'No matching county data.' };
-  const allExempt = withStatus.every(o => o.d.finalExempt);
-  const noneExempt = withStatus.every(o => !o.d.finalExempt);
-  const anyRural = withStatus.some(o => o.d.isRuralOMB);
-  if (allExempt) return { cls: 'exempt-likely', text: `Likely exempt — every overlapping jurisdiction meets the 60% threshold${anyRural ? ' or qualifies for the rural carveout' : ''}.` };
-  if (noneExempt) return { cls: 'exempt-no', text: 'Likely subject to the by-right mandate — no overlapping jurisdiction meets the 60% threshold or the rural carveout.' };
+  const allExempt = withStatus.every(o => o.status.exempt);
+  const noneExempt = withStatus.every(o => !o.status.exempt);
+  const anyRural = withStatus.some(o => o.status.rural);
+  if (allExempt) return { cls: 'exempt-likely', text: `Likely exempt — every overlapping jurisdiction meets the ${pct}% threshold${anyRural ? ' or qualifies for the rural carveout' : ''}.` };
+  if (noneExempt) return { cls: 'exempt-no', text: `Likely subject to the by-right mandate — no overlapping jurisdiction meets the ${pct}% threshold or the rural carveout.` };
   return { cls: 'exempt-mixed', text: 'Mixed — depends which jurisdiction a given site falls in (see breakdown below).' };
 }
 
@@ -169,15 +192,17 @@ function legislatorBlock(kind, num) {
 }
 
 function districtPopup(kind, num, overlapList) {
+  const threshPct = currentThresholdPct;
   const assessment = districtAssessment(overlapList);
   const rows = (overlapList || []).map(o => {
     const d = countyData[o.county];
-    const pct = Math.round(o.frac * 1000) / 10;
-    if (!d) return `<div class="popup-row">${o.county} County (${pct}% of district area) — no data</div>`;
-    const status = d.exemptReason === 'rural_carveout' ? '<span class="exempt-rural">rural carveout</span>'
-      : d.meets60Threshold ? '<span class="exempt-likely">meets 60%</span>'
-      : '<span class="exempt-no">below 60%</span>';
-    return `<div class="popup-row">${o.county} County (${pct}% of district area) — ${d.pctCapacityVsNeed}% capacity, ${status}</div>`;
+    const areaPct = Math.round(o.frac * 1000) / 10;
+    if (!d) return `<div class="popup-row">${o.county} County (${areaPct}% of district area) — no data</div>`;
+    const st = computeStatus(d, threshPct);
+    const status = st.reason === 'rural_carveout' ? '<span class="exempt-rural">rural carveout</span>'
+      : st.meets ? `<span class="exempt-likely">meets ${threshPct}%</span>`
+      : `<span class="exempt-no">below ${threshPct}%</span>`;
+    return `<div class="popup-row">${o.county} County (${areaPct}% of district area) — ${d.pctCapacityVsNeed}% capacity, ${status}</div>`;
   }).join('');
   return `
     <div class="popup-title">${kind} District ${num}</div>
@@ -239,20 +264,23 @@ Promise.all([
       return { fillColor: d ? countColor(d.homelessTotal, maxHomeless) : '#eee', fillOpacity: 0.7, color: '#888', weight: 1 };
     },
     onEachFeature: (feat, layer) => {
-      layer.bindPopup(countyPopup(feat.properties.CountyName, countyData[feat.properties.CountyName]));
+      layer.bindPopup(() => countyPopup(feat.properties.CountyName, countyData[feat.properties.CountyName]));
     }
   }).addTo(countColorLayer);
 
-  L.geoJSON(counties, {
+  thresholdGeoJsonLayer = L.geoJSON(counties, {
     style: feat => {
       const d = countyData[feat.properties.CountyName];
       let fillColor = '#c0392b'; // subject to mandate
-      if (d && d.exemptReason === 'rural_carveout') fillColor = '#1aa3a3'; // exempt via rural carveout only
-      else if (d && d.meets60Threshold) fillColor = '#2a9d4a'; // exempt via meeting the threshold
+      if (d) {
+        const st = computeStatus(d, currentThresholdPct);
+        if (st.reason === 'rural_carveout') fillColor = '#1aa3a3'; // exempt via rural carveout only
+        else if (st.meets) fillColor = '#2a9d4a'; // exempt via meeting the threshold
+      }
       return { fillColor, fillOpacity: 0.55, color: '#666', weight: 1 };
     },
     onEachFeature: (feat, layer) => {
-      layer.bindPopup(countyPopup(feat.properties.CountyName, countyData[feat.properties.CountyName]));
+      layer.bindPopup(() => countyPopup(feat.properties.CountyName, countyData[feat.properties.CountyName]));
     }
   }).addTo(thresholdColorLayer);
 
@@ -260,7 +288,7 @@ Promise.all([
     style: { fillOpacity: 0, color: '#5b3fa0', weight: 2 },
     onEachFeature: (feat, layer) => {
       const num = feat.properties.district;
-      layer.bindPopup(districtPopup('Senate', num, senateOverlap[String(num)]));
+      layer.bindPopup(() => districtPopup('Senate', num, senateOverlap[String(num)]));
       layer.on('mouseover', () => layer.setStyle({ weight: 4 }));
       layer.on('mouseout', () => layer.setStyle({ weight: 2 }));
     }
@@ -270,7 +298,7 @@ Promise.all([
     style: { fillOpacity: 0, color: '#1a73e8', weight: 1.5, dashArray: '4,3' },
     onEachFeature: (feat, layer) => {
       const num = feat.properties.district;
-      layer.bindPopup(districtPopup('Assembly', num, assemblyOverlap[String(num)]));
+      layer.bindPopup(() => districtPopup('Assembly', num, assemblyOverlap[String(num)]));
       layer.on('mouseover', () => layer.setStyle({ weight: 3.5 }));
       layer.on('mouseout', () => layer.setStyle({ weight: 1.5 }));
     }
@@ -292,8 +320,16 @@ layerPanel.onAdd = function () {
       <label class="lp-group-header">County View</label>
       <div class="lp-sub">
         <label><input type="radio" name="county-view" id="chk-view-count" value="count" checked> Homeless count (2024 PIT)</label>
-        <label><input type="radio" name="county-view" id="chk-view-threshold" value="threshold"> 60% shelter-capacity threshold</label>
+        <label><input type="radio" name="county-view" id="chk-view-threshold" value="threshold"> Shelter-capacity threshold</label>
         <label><input type="radio" name="county-view" id="chk-view-none" value="none"> None</label>
+      </div>
+    </div>
+    <div class="lp-group">
+      <label class="lp-group-header">Threshold %</label>
+      <div class="lp-sub">
+        <label><input type="radio" name="threshold-pct" value="50"> 50%</label>
+        <label><input type="radio" name="threshold-pct" value="60" checked> 60% (default)</label>
+        <label><input type="radio" name="threshold-pct" value="70"> 70%</label>
       </div>
     </div>
     <div class="lp-group">
@@ -331,6 +367,25 @@ document.querySelectorAll('input[name="county-view"]').forEach(radio => {
     if (radio.value === 'threshold') thresholdColorLayer.addTo(map);
   });
 });
+document.querySelectorAll('input[name="threshold-pct"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    if (!radio.checked) return;
+    currentThresholdPct = parseInt(radio.value, 10);
+    if (thresholdGeoJsonLayer) {
+      thresholdGeoJsonLayer.setStyle(feat => {
+        const d = countyData[feat.properties.CountyName];
+        let fillColor = '#c0392b';
+        if (d) {
+          const st = computeStatus(d, currentThresholdPct);
+          if (st.reason === 'rural_carveout') fillColor = '#1aa3a3';
+          else if (st.meets) fillColor = '#2a9d4a';
+        }
+        return { fillColor, fillOpacity: 0.55, color: '#666', weight: 1 };
+      });
+    }
+    document.querySelectorAll('.legend-pct-label').forEach(el => { el.textContent = currentThresholdPct + '%'; });
+  });
+});
 document.getElementById('chk-senate').addEventListener('change', (e) => {
   if (e.target.checked) senateLayer.addTo(map); else map.removeLayer(senateLayer);
 });
@@ -348,9 +403,9 @@ legend.onAdd = function () {
     <h4>CA Homelessness &amp; Shelter Capacity</h4>
     <div class="row"><span class="swatch" style="background:rgb(255,180,160);"></span> Lower homeless count</div>
     <div class="row"><span class="swatch" style="background:rgb(255,55,40);"></span> Higher homeless count</div>
-    <div class="row"><span class="swatch" style="background:#2a9d4a;"></span> Meets 60% shelter-capacity threshold</div>
-    <div class="row"><span class="swatch" style="background:#1aa3a3;"></span> Exempt via rural carveout (below 60%, but non-metro)</div>
-    <div class="row"><span class="swatch" style="background:#c0392b;"></span> Below 60% threshold, not exempt</div>
+    <div class="row"><span class="swatch" style="background:#2a9d4a;"></span> Meets <span class="legend-pct-label">60%</span> shelter-capacity threshold</div>
+    <div class="row"><span class="swatch" style="background:#1aa3a3;"></span> Exempt via rural carveout (below <span class="legend-pct-label">60%</span>, but non-metro)</div>
+    <div class="row"><span class="swatch" style="background:#c0392b;"></span> Below <span class="legend-pct-label">60%</span> threshold, not exempt</div>
     <div class="row"><span class="line" style="border-color:#5b3fa0;"></span> State Senate district</div>
     <div class="row"><span class="line" style="border-color:#1a73e8; border-top-style:dashed;"></span> State Assembly district</div>
     <div class="row"><span class="line" style="border-color:#6a3fa0; border-top-style:dotted; border-top-width:3px;"></span> Shared multi-county CoC boundary</div>
@@ -377,6 +432,13 @@ legend.onAdd = function () {
       conduct an unsheltered count — most of California skipped it in January 2021 under a
       COVID-era HUD waiver, which makes that year's total figure equally unusable — are
       excluded from the average rather than counted as zero or as a true total).
+      <br><br>
+      <strong>The 60% line is adjustable — use the "Threshold %" control</strong> in the panel
+      to compare 50%, 60% (this site's default), and 70% side by side. Every county's
+      underlying numbers (beds, average homeless count, the resulting %) never change — only
+      where the pass/fail cutoff falls changes, both on the map's colors and in every popup.
+      Rural-carveout counties stay exempt at any threshold, since that exemption isn't based
+      on the capacity percentage at all.
       <br><br>
       <strong>Why total, not unsheltered — a deliberate departure from the source litigation:</strong>
       the 60% figure itself comes from federal Judge David O. Carter's homelessness settlements
