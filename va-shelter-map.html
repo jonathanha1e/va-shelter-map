@@ -238,31 +238,41 @@ const realTrackGeometry = {
 // physically identical to a BART station, if built in Fresno or Riverside
 // County, would NOT be an SB 79 TOD stop under the statute as written.
 // ============================================================
+// Re-verified Oct 2026 against each agency's own official GTFS schedule feed
+// (BART, Muni/SFMTA, MTS, LA Metro rail) plus, for the one not-yet-open
+// station, each planned station's own sourced coordinates (see the D Line
+// Extension entries further down). Distances are straight-line from the
+// facility's own geocoded point to the official station point. Earlier
+// passes at this list had several wrong anchors and several guessed
+// "verify with real geocoding" distances that turned out to be wrong when
+// actually checked — e.g. Downtown LA's true nearest stop is Little
+// Tokyo/Arts District (not Union Station), San Diego VA Domiciliary's is
+// Washington Street (not Old Town Transit Center, which is 1.25mi away),
+// and SF Downtown VA Clinic's is the T Line's Yerba Buena/Moscone stop
+// (not 4th & King). Those are now corrected below.
 const transitStops = [
   { name: "VA Medical Center Station (San Diego Trolley, Blue Line)", tier: "SB 79 Tier 2 — Light Rail (San Diego Co. ✓ urban transit county)",
-    lat: 32.8692, lng: -117.2140, note: "Adjacent to VA San Diego campus; built specifically to serve it. WITHIN 0.5mi." },
-  { name: "Expo/Sepulveda Station (LA Metro E Line)", tier: "SB 79 Tier 2 — Light Rail (LA Co. ✓ urban transit county)",
-    lat: 34.0263, lng: -118.4467, note: "~1 mile from VA Greater LA (West LA) — OUTSIDE 0.5-mile radius." },
-  { name: "Union Station (LA Metro B/D Line = heavy rail; also Metrolink, Amtrak)", tier: "SB 79 Tier 1 — Heavy Rail (LA Co. ✓ urban transit county)",
-    lat: 34.0556, lng: -118.2364, note: "~0.3–0.4 mi from Downtown LA VA Clinic (351 E Temple St) — WITHIN 0.5mi, verify with real geocoding." },
-  { name: "Old Town Transit Center (Trolley = light rail; Coaster = commuter rail, frequency unconfirmed)", tier: "SB 79 Tier 2 confirmed via Trolley (San Diego Co. ✓ urban transit county)",
-    lat: 32.7552, lng: -117.1995, note: "Same compact Old Town district as San Diego VA Domiciliary/Aspire Center (2121 San Diego Ave) — WITHIN 0.5mi, verify with real geocoding." },
-  { name: "4th and King Station (Muni T-Third = light rail; Caltrain terminus, frequency unconfirmed for Tier 1)", tier: "SB 79 Tier 2 confirmed via Muni (SF Co. ✓ urban transit county)",
-    lat: 37.7764, lng: -122.3944, note: "A few blocks from SF Downtown VA Clinic (401 3rd St) — WITHIN 0.5mi, verify with real geocoding." },
+    lat: 32.87425324, lng: -117.22981838, note: "0.168 mi from VA San Diego (Jennifer Moreno VAMC) — built specifically to serve it. WITHIN 0.5mi (MTS official GTFS)." },
+  { name: "Little Tokyo / Arts District Station (LA Metro A &amp; E Lines)", tier: "SB 79 Tier 2 — Light Rail (LA Co. ✓ urban transit county)",
+    lat: 34.04884524, lng: -118.2387567, note: "0.184 mi from Los Angeles VA Clinic (Downtown, 351 E Temple St) — WITHIN 0.5mi (LA Metro official rail GTFS). Not Union Station, which is farther." },
+  { name: "Washington Street Station (San Diego Trolley, Blue &amp; Green Lines)", tier: "SB 79 Tier 2 — Light Rail (San Diego Co. ✓ urban transit county)",
+    lat: 32.74172394, lng: -117.18446791, note: "0.444 mi from San Diego VA Domiciliary (Aspire Center, 2121 San Diego Ave) — WITHIN 0.5mi (MTS official GTFS). Not Old Town Transit Center, which is 1.25mi away." },
+  { name: "Rio Vista Station (San Diego Trolley, Green Line)", tier: "SB 79 Tier 2 — Light Rail (San Diego Co. ✓ urban transit county)",
+    lat: 32.77362089, lng: -117.14169885, note: "0.328 mi from Rio VA Clinic (8989 Rio San Diego Dr) — WITHIN 0.5mi (MTS official GTFS). Green Line, not Blue — a 2021 line restructuring moved this station off the Blue Line." },
+  { name: "Yerba Buena/Moscone Station (Muni T Line, Central Subway)", tier: "SB 79 Tier 2 — Light Rail (SF Co. ✓ urban transit county)",
+    lat: 37.782358, lng: -122.401551, note: "0.242 mi from SF Downtown VA Clinic (CRRC, 401 3rd St) — WITHIN 0.5mi (SFMTA official GTFS). Not 4th &amp; King." },
+  { name: "The Embarcadero &amp; Green St (Muni F Line, Market &amp; Wharves streetcar)", tier: "SB 79 Tier 2 — Light Rail (SF Co. ✓ urban transit county)",
+    lat: 37.801264, lng: -122.399369, note: "0.151 mi from San Francisco Vet Center (850 Battery St) — WITHIN 0.5mi (SFMTA official GTFS)." },
   { name: "H Street Station (San Diego Trolley, Blue Line)", tier: "SB 79 Tier 2 — Light Rail (San Diego Co. ✓ urban transit county)",
-    lat: 32.6295, lng: -117.0946, note: "Same street as Chula Vista VA Clinic (353 H St) but several blocks away — BORDERLINE, could be just outside 0.5mi. Verify." },
-  { name: "19th Street Oakland Station (BART)", tier: "SB 79 Tier 1 — Heavy Rail (Alameda Co. ✓ urban transit county)",
-    lat: 37.8079, lng: -122.2690, note: "~0.3–0.4 mi from Oakland VA Clinic (2221 MLK Jr. Way) and Oakland 21st St Clinic (525 21st St) — LIKELY WITHIN 0.5mi for both, verify with real geocoding." },
-  { name: "San Bruno Station (BART)", tier: "SB 79 Tier 1 — Heavy Rail (San Mateo Co. ✓ urban transit county)",
-    lat: 37.6383, lng: -122.4165, note: "San Bruno VA Clinic (1001 Sneath Ln) is BORDERLINE — nearby addresses on Sneath Ln run roughly 0.5–1 mi from this station depending on exact position. Verify." },
-  { name: "California Ave Station (Caltrain)", tier: "SB 79 Tier 2/3 depending on frequency (Santa Clara Co. ✓ urban transit county)",
-    lat: 37.4291, lng: -122.1425, note: "~1.5+ mi from VA Palo Alto Medical Center (3801 Miranda Ave) — OUTSIDE 0.5-mile radius." },
-  { name: "Menlo Park Station (Caltrain)", tier: "SB 79 Tier 2/3 depending on frequency (San Mateo Co. ✓ urban transit county)",
-    lat: 37.4547, lng: -122.1817, note: "VA Menlo Park Division (795 Willow Rd) is roughly 0.5–1 mi away — BORDERLINE, verify with real geocoding." },
-  { name: "Civic Center/UN Plaza Station (BART + Muni Metro, multiple lines)", tier: "SB 79 Tier 1 (BART) — Heavy Rail (SF Co. ✓ urban transit county)",
-    lat: 37.7799, lng: -122.4135, note: "SF Vet Center (505 Polk St) is a few blocks away in the compact Civic Center district — LIKELY WITHIN 0.5mi, verify with real geocoding." },
-  { name: "Sorrento Valley Station (NCTD Coaster commuter rail)", tier: "Tier uncertain — Coaster runs roughly hourly at this stop, close to Tier 3's 24-trains/day threshold but not confirmed (San Diego Co. ✓ urban transit county)",
-    lat: 32.9030, lng: -117.2250, note: "Same road as Sorrento Valley VA Clinic (10455 Sorrento Valley Rd) — BORDERLINE on distance (~0.5-0.8mi) AND on whether frequency clears the Tier 3 bar. Verify both." }
+    lat: 32.63017791, lng: -117.09557712, note: "0.987 mi from Chula Vista VA Clinic (353 H St) — checked precisely: just OUTSIDE 0.5mi (MTS official GTFS)." },
+  { name: "19th Street Oakland (BART)", tier: "SB 79 Tier 1 — Heavy Rail (Alameda Co. ✓ urban transit county)",
+    lat: 37.808078, lng: -122.268758, note: "0.353 mi from Oakland VA Clinic and Oakland 21st Street VA Clinic (2221 MLK Jr. Way) — WITHIN 0.5mi (BART official GTFS)." },
+  { name: "San Bruno (BART)", tier: "SB 79 Tier 1 — Heavy Rail (San Mateo Co. ✓ urban transit county)",
+    lat: 37.63773, lng: -122.41633, note: "0.559 mi from San Bruno VA Clinic (1001 Sneath Ln) — checked precisely: just OUTSIDE 0.5mi (BART official GTFS)." },
+  { name: "Fremont (BART)", tier: "SB 79 Tier 1 — Heavy Rail (Alameda Co. ✓ urban transit county)",
+    lat: 37.55748, lng: -121.97662, note: "0.549 mi from Fremont VA Clinic (39199 Liberty St) — checked precisely: just OUTSIDE 0.5mi (BART official GTFS)." },
+  { name: "Westwood/VA Hospital (LA Metro D Line Extension — PLANNED, opening Fall 2027)", tier: "SB 79 Tier 1 — Heavy Rail, not yet open (LA Co. ✓ urban transit county)",
+    lat: 34.05444, lng: -118.45361, note: "0.311 mi from VA Greater Los Angeles (West LA) — WITHIN 0.5mi once open. Built specifically to serve this facility (coordinates per the station's official project documentation)." }
 ];
 
 // ============================================================
@@ -416,7 +426,43 @@ const laMetroStations = [
   ["Pico","A — Light Rail",34.04074,-118.26612],
   ["Little Tokyo/Arts District","A — Light Rail",34.04885,-118.23876],
   ["Chinatown","A — Light Rail",34.06386,-118.23584],
-  ["Lincoln/Cypress","A — Light Rail",34.08095,-118.22043],
+  ["Lincoln Heights/Cypress Park","A — Light Rail",34.080949,-118.220429],
+  ["San Pedro Street","A — Light Rail",34.026807,-118.255505],
+  ["Grand Ave Arts/Bunker Hill","A &amp; E — Light Rail",34.05472448,-118.2515307],
+  ["Historic Broadway","A &amp; E — Light Rail",34.05215607,-118.2463211],
+  ["Firestone","A — Light Rail",33.959611,-118.243205],
+  ["Florence","A — Light Rail",33.97374,-118.243271],
+  ["Slauson","A — Light Rail",33.98876,-118.243398],
+  ["Vernon","A — Light Rail",34.00292,-118.243303],
+  ["Heritage Square/Arroyo","A — Light Rail",34.087227,-118.213213],
+  ["Southwest Museum","A — Light Rail",34.098243,-118.206712],
+  ["Fillmore","A — Light Rail",34.133521,-118.148126],
+  ["Del Mar","A — Light Rail",34.14191,-118.148214],
+  ["Memorial Park","A — Light Rail",34.148356,-118.147512],
+  ["Lake","A — Light Rail",34.151806,-118.13139],
+  ["Allen","A — Light Rail",34.152417,-118.114348],
+  ["Duarte/City of Hope","A — Light Rail",34.132518,-117.96768],
+  ["Irwindale","A — Light Rail",34.129048,-117.932506],
+  ["APU/Citrus College","A — Light Rail",34.136814,-117.891636],
+  ["Lakewood Blvd","C (Green) — Light Rail",33.91307,-118.1406],
+  ["Lynwood","C (Green) — Light Rail",33.92488,-118.209945],
+  ["Vermont/Athens","C (Green) — Light Rail",33.928683,-118.291733],
+  ["Aviation/Imperial","C (Green) — Light Rail",33.929621,-118.377134],
+  ["Douglas","K (Crenshaw) — Light Rail",33.905299,-118.383113],
+  ["Mariposa","K (Crenshaw) — Light Rail",33.9232,-118.387572],
+  ["Fairview Heights","K (Crenshaw) — Light Rail",33.97525155,-118.3360716],
+  ["26th Street/Bergamot","E (Expo) — Light Rail",34.027995,-118.46912],
+  ["Westwood/Rancho Park","E (Expo) — Light Rail",34.036816,-118.424576],
+  ["Expo/La Brea","E (Expo) — Light Rail",34.024803,-118.355159],
+  ["Farmdale","E (Expo) — Light Rail",34.023981,-118.346095],
+  ["LATTC/Ortho Institute","E (Expo) — Light Rail",34.029112,-118.273603],
+  ["Pico/Aliso","E (Expo) — Light Rail",34.047634,-118.22594],
+  ["Mariachi Plaza/Boyle Heights","E (Expo) — Light Rail",34.047215,-118.219648],
+  ["Soto","E (Expo) — Light Rail",34.043747,-118.210061],
+  ["Indiana","E (Expo) — Light Rail",34.0343,-118.192182],
+  ["Maravilla","E (Expo) — Light Rail",34.033319,-118.16814],
+  ["East LA Civic Center","E (Expo) — Light Rail",34.033364,-118.161206],
+  ["Atlantic","E (Expo) — Light Rail",34.033398,-118.154469],
   ["Highland Park","A — Light Rail",34.11118,-118.19261],
   ["South Pasadena","A — Light Rail",34.11519,-118.15789],
   ["Sierra Madre Villa","A — Light Rail",34.14775,-118.08121],
@@ -430,7 +476,6 @@ const laMetroStations = [
   ["Crenshaw","C (Green) — Light Rail",33.9252,-118.32655],
   ["Harbor Freeway","C (Green) — Light Rail",33.92871,-118.2811],
   ["Avalon","C (Green) — Light Rail",33.92747,-118.26522],
-  ["Long Beach Blvd","C (Green) — Light Rail",33.9229,-118.213], // UNVERIFIED — not found under this name in current statewide dataset (likely renamed/removed in the 2022 C/K-Line restructuring); kept prior estimate rather than a wrong 17km-off match
   ["Norwalk","C (Green) — Light Rail",33.91403,-118.10472],
   ["Downtown Santa Monica","E (Expo) — Light Rail",34.01401,-118.49138],
   ["17th St/SMC","E (Expo) — Light Rail",34.02315,-118.48037],
@@ -455,43 +500,79 @@ const laMetroStations = [
 // ============================================================
 // DATA — San Diego Trolley (Blue, Orange, Green Lines). All within San
 // Diego County, an SB 79 urban transit county — all lines are light rail,
-// SB 79 Tier 2 throughout. Same reference-quality caveat as above.
+// SB 79 Tier 2 throughout. Blue and Green Line stations below are pulled
+// directly from MTS's official published GTFS feed
+// (https://www.sdmts.com/google_transit_files/google_transit.zip,
+// fetched Oct 2026) — exact official stop_name and stop_lat/stop_lon,
+// not estimates. This replaces an earlier version of this array that had
+// the Blue Line in the wrong order, was missing the Mid-Coast extension's
+// UCSD-area stations entirely, and wrongly listed Fashion Valley/Hazard
+// Center/Rio Vista/Morena-Linda Vista as Blue Line — MTS actually moved
+// that whole Mission Valley segment onto the Green Line when the Mid-Coast
+// extension opened in Nov. 2021, restructuring the Blue Line to run
+// Old Town → Tecolote Road → UTC directly along the coast instead.
+// Orange Line stations are NOT yet re-verified against the GTFS feed —
+// treat as reference-quality pending that check (none of them are
+// relevant to any facility's by-right determination, so they weren't
+// prioritized).
 // ============================================================
 const sdTrolleyStations = [
-  ["San Ysidro","Blue Line",32.54457,-117.02954],
-  ["Iris Avenue","Blue Line",32.56964,-117.06707],
-  ["Palm Avenue","Blue Line",32.58462,-117.08381],
-  ["Palomar Street","Blue Line",32.60316,-117.08508],
-  ["H Street","Blue Line",32.63004,-117.09557],
-  ["E Street","Blue Line",32.63897,-117.09906],
-  ["Bayfront/E Street","Blue Line",32.63897,-117.09906],
-  ["City College","Blue Line",32.71626,-117.1542],
-  ["Civic Center","Blue Line",32.71674,-117.16245],
-  ["Fifth Avenue","Blue Line",32.71676,-117.1597],
-  ["Gaslamp Quarter","Blue Line",32.70685,-117.15968],
-  ["Santa Fe Depot (Old Town/County Center)","Blue Line",32.71732,-117.16982],
-  ["Old Town Transit Center","Blue Line",32.7552,-117.1995], // reverted — "Santa Fe Depot" coords were wrongly substituted here; these are two different stations ~4.7km apart, kept original verified estimate
-  ["Washington St","Blue Line",32.74163,-117.18438],
-  ["Fashion Valley","Blue Line",32.76546,-117.16903],
-  ["Hazard Center","Blue Line",32.77025,-117.15828],
-  ["Rio Vista","Blue Line",32.77363,-117.14183],
-  ["Morena/Linda Vista","Blue Line",32.76356,-117.1967],
-  ["Balboa Ave","Blue Line",32.8058,-117.21406],
-  ["Clairemont Dr","Blue Line",32.79002,-117.20616],
-  ["Tecolote Rd","Blue Line",32.76986,-117.20508],
-  ["UTC","Blue Line",32.8692,-117.21401],
-  ["VA Medical Center","Blue Line",32.8742,-117.22987],
-  ["Nobel Drive","Blue Line",32.86691,-117.23042],
+  ["San Ysidro","Blue Line",32.54456598,-117.02953904],
+  ["Beyer Blvd","Blue Line",32.55765602,-117.04706184],
+  ["Iris Avenue","Blue Line",32.56976200,-117.06717616],
+  ["Palm Avenue","Blue Line",32.58477987,-117.08375293],
+  ["Palomar Street","Blue Line",32.60329399,-117.08508185],
+  ["H Street","Blue Line",32.63017791,-117.09557712],
+  ["E Street","Blue Line",32.63910499,-117.09905693],
+  ["24th Street","Blue Line",32.66196491,-117.10800607],
+  ["8th Street","Blue Line",32.67501911,-117.11309508],
+  ["Pacific Fleet","Blue Line",32.68609889,-117.12479089],
+  ["Harborside","Blue Line",32.69132590,-117.13286390],
+  ["Barrio Logan","Blue Line",32.69812698,-117.14666504],
+  ["12th & Imperial","Blue Line",32.70587009,-117.15321790],
+  ["Park & Market","Blue Line",32.71105999,-117.15372103],
+  ["City College","Blue Line",32.71628902,-117.15417292],
+  ["Fifth Avenue","Blue Line",32.71679000,-117.15967791],
+  ["Civic Center","Blue Line",32.71677298,-117.16242896],
+  ["America Plaza","Blue Line",32.71662690,-117.16881390],
+  ["Santa Fe Depot","Blue Line",32.71732388,-117.16977900],
+  ["County Center/Little Italy","Blue Line",32.72149387,-117.16989795],
+  ["Middletown","Blue Line",32.73378587,-117.17492298],
+  ["Washington Street","Blue Line",32.74172394,-117.18446791],
+  ["Old Town","Blue Line",32.75490800,-117.19948716],
+  ["Tecolote Road","Blue Line",32.76991399,-117.20506166],
+  ["Clairemont Drive","Blue Line",32.79006453,-117.20612915],
+  ["Balboa Avenue","Blue Line",32.80585769,-117.21406638],
+  ["Nobel Drive","Blue Line",32.86696566,-117.23038762],
+  ["VA Medical Center","Blue Line",32.87425324,-117.22981838],
+  ["UCSD Central Campus","Blue Line",32.87844073,-117.23177898],
+  ["UCSD Health La Jolla","Blue Line",32.88181636,-117.22349207],
+  ["Executive Drive","Blue Line",32.87413569,-117.21404976],
+  ["UTC","Blue Line",32.86920431,-117.21401071],
   ["12th & Imperial Transit Center","Orange Line",32.70583,-117.15327],
-  ["Barrio Logan","Orange Line",32.69801,-117.14656],
-  ["Grantville","Orange Line",32.78047,-117.09747],
+  ["Barrio Logan Orange","Orange Line",32.69801,-117.14656],
+  ["Grantville Orange","Orange Line",32.78047,-117.09747],
   ["La Mesa Blvd","Orange Line",32.76502,-117.02055],
   ["El Cajon Transit Center","Orange Line",32.79226,-116.97615],
   ["Santee Town Center","Orange Line",32.84156,-116.98113],
-  ["Fenton Parkway","Green Line",32.77832,-117.12712],
-  ["SDSU Transit Center","Green Line",32.77322,-117.07051],
-  ["Grossmont Transit Center","Green Line",32.78163,-117.01137],
-  ["Arnele Ave","Green Line",32.80458,-116.97573]
+  ["Gaslamp Quarter","Green Line",32.70694200,-117.15976288],
+  ["Convention Center","Green Line",32.70898098,-117.16346306],
+  ["Seaport Village","Green Line",32.71200095,-117.16862004],
+  ["Morena/Linda Vista","Green Line",32.76352707,-117.19655802],
+  ["Fashion Valley","Green Line",32.76545309,-117.16890515],
+  ["Hazard Center","Green Line",32.77025712,-117.15815189],
+  ["Mission Valley Center","Green Line",32.77108307,-117.14985611],
+  ["Rio Vista","Green Line",32.77362089,-117.14169885],
+  ["Fenton Parkway","Green Line",32.77837004,-117.12700808],
+  ["Stadium","Green Line",32.78092904,-117.11949198],
+  ["Mission San Diego","Green Line",32.78081391,-117.11097904],
+  ["Union Grantville","Green Line",32.78039787,-117.09738402],
+  ["SDSU","Green Line",32.77316493,-117.07037198],
+  ["UCSD Health East","Green Line",32.77730904,-117.05670693],
+  ["70th Street","Green Line",32.77214700,-117.04229510],
+  ["Grossmont","Green Line",32.78164207,-117.01126702],
+  ["Amaya Drive","Green Line",32.78541311,-117.00160600],
+  ["El Cajon","Green Line",32.79206489,-116.97613899]
 ];
 
 // Sacramento RT, VTA, and Muni Metro station points — pulled from the same
@@ -970,26 +1051,28 @@ const mts215Stations = [
 // station literally named "Westwood/VA Hospital," built specifically to
 // serve VA Greater Los Angeles (West LA). Per Metro and news reporting as
 // of Aug 2026, Section 1 opened May 8, 2026; Section 2 (Century City,
-// Beverly Hills) is targeted spring 2027; Section 3 (UCLA, VA Hospital) is
-// targeted fall 2027. If Section 3 opens on schedule, VA Greater LA (West
-// LA) — currently ~1 mile from the nearest qualifying transit — would gain
-// a Tier 1 heavy-rail TOD stop essentially on campus. This is worth
-// tracking closely; a bill drafted today could reference this station by
-// name with a delayed operative date tied to its opening.
+// Beverly Drive) is targeted spring 2027; Section 3 (UCLA, VA Hospital) is
+// targeted fall 2027. Coordinates for all four unopened stations below are
+// each station's own official figure (also the same figures used in the
+// by-right veteran shelter zone layer further down) — re-sourced Oct 2026
+// after an earlier pass at this array had Westwood/VA Hospital off by
+// about 0.6 miles, which was enough to make the facility look ~1 mile from
+// the nearest qualifying transit instead of its real distance, 0.311 mi
+// (WITHIN 0.5mi). That's corrected now.
 // ============================================================
 const plannedStations = [
   { name: "Westwood/VA Hospital", agency: "LA Metro D Line (Purple) — Section 3", status: "Under construction",
-    opening: "Targeted fall 2027", tier: "Heavy Rail — would be SB 79 Tier 1", lat: 34.0625, lng: -118.4695,
-    note: "Terminus of the D Line extension, built specifically to serve VA Greater LA (West LA) — this is THE station to watch for your bill." },
+    opening: "Targeted fall 2027", tier: "Heavy Rail — would be SB 79 Tier 1", lat: 34.05444, lng: -118.45361,
+    note: "Terminus of the D Line extension, built specifically to serve VA Greater LA (West LA) — 0.311 mi away, WITHIN 0.5mi. This is THE station to watch for your bill." },
   { name: "Westwood/UCLA", agency: "LA Metro D Line (Purple) — Section 3", status: "Under construction",
-    opening: "Targeted fall 2027", tier: "Heavy Rail — would be SB 79 Tier 1", lat: 34.0641, lng: -118.4457,
-    note: "Same Section 3 segment as Westwood/VA Hospital." },
-  { name: "Century City/Constellation", agency: "LA Metro D Line (Purple) — Section 2", status: "Under construction",
-    opening: "Targeted spring 2027", tier: "Heavy Rail — would be SB 79 Tier 1", lat: 34.0587, lng: -118.4152,
+    opening: "Targeted fall 2027", tier: "Heavy Rail — would be SB 79 Tier 1", lat: 34.05861, lng: -118.44611,
+    note: "Same Section 3 segment as Westwood/VA Hospital, one stop east." },
+  { name: "Century City", agency: "LA Metro D Line (Purple) — Section 2", status: "Under construction",
+    opening: "Targeted spring 2027", tier: "Heavy Rail — would be SB 79 Tier 1", lat: 34.05972, lng: -118.41500,
     note: "Section 2, opens before Section 3." },
-  { name: "Wilshire/Rodeo (Beverly Hills)", agency: "LA Metro D Line (Purple) — Section 2", status: "Under construction",
-    opening: "Targeted spring 2027", tier: "Heavy Rail — would be SB 79 Tier 1", lat: 34.0670, lng: -118.4004,
-    note: "Section 2, opens before Section 3." },
+  { name: "Beverly Drive", agency: "LA Metro D Line (Purple) — Section 2", status: "Under construction",
+    opening: "Targeted spring 2027", tier: "Heavy Rail — would be SB 79 Tier 1", lat: 34.06694, lng: -118.39833,
+    note: "Section 2, opens before Section 3. Official station name is \"Beverly Drive,\" not \"Wilshire/Rodeo.\"" },
   { name: "Van Nuys G Line (ESFV LRT terminus)", agency: "East San Fernando Valley Light Rail — Phase 1", status: "Under construction (major construction began July 2026)",
     opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 — Light Rail", lat: 34.1867, lng: -118.4489,
     note: "Southern terminus of the new Van Nuys Blvd light rail line, connecting into the existing G Line. This is the first Metro rail project in the San Fernando Valley since 2000 — a genuinely big deal for VA facility access up there." },
@@ -1306,15 +1389,26 @@ const lineSequences = [
   { line: "LA Metro B (Red)", stations: seq("lametro", ["Union Station","Civic Center/Grand Park","Pershing Square","7th St/Metro Center","Westlake/MacArthur Park","Wilshire/Vermont","Vermont/Beverly","Vermont/Santa Monica","Vermont/Sunset","Hollywood/Western","Hollywood/Vine","Hollywood/Highland","Universal City/Studio City","North Hollywood"]) },
   { line: "LA Metro D (Purple, incl. planned extension)", stations: [
       ...seq("lametro", ["Union Station","Civic Center/Grand Park","Pershing Square","7th St/Metro Center","Westlake/MacArthur Park","Wilshire/Vermont","Wilshire/Normandie","Wilshire/Western","Wilshire/La Brea","Wilshire/Fairfax","Wilshire/La Cienega"]),
-      ...seq("planned", ["Wilshire/Rodeo (Beverly Hills)","Century City/Constellation","Westwood/UCLA","Westwood/VA Hospital"])
+      ...seq("planned", ["Beverly Drive","Century City","Westwood/UCLA","Westwood/VA Hospital"])
     ] },
-  { line: "LA Metro A (Blue+Gold)", stations: seq("lametro", ["Downtown Long Beach","Pacific Ave","Anaheim St","Pacific Coast Hwy","Willow St","Wardlow","Del Amo","Artesia","Compton","Willowbrook/Rosa Parks","103rd St/Watts Towers","Grand/LATTC","Washington","Pico","7th St/Metro Center","Little Tokyo/Arts District","Union Station","Chinatown","Lincoln/Cypress","Highland Park","South Pasadena","Sierra Madre Villa","Arcadia","Monrovia","Azusa Downtown"]) },
-  { line: "LA Metro C (Green)", stations: seq("lametro", ["Redondo Beach","El Segundo","Aviation/LAX","Hawthorne/Lennox","Crenshaw","Harbor Freeway","Avalon","Long Beach Blvd","Norwalk"]) },
-  { line: "LA Metro E (Expo)", stations: seq("lametro", ["Downtown Santa Monica","17th St/SMC","Expo/Bundy","Expo/Sepulveda","Palms","Culver City","La Cienega/Jefferson","Expo/Crenshaw","Expo/Western","Expo/Vermont","Expo Park/USC","Jefferson/USC","Pico","7th St/Metro Center"]) },
-  { line: "LA Metro K (Crenshaw)", stations: seq("lametro", ["Expo/Crenshaw","Martin Luther King Jr","Leimert Park","Hyde Park","Downtown Inglewood","Westchester/Veterans","Aviation/Century"]) },
-  { line: "SD Trolley Blue", stations: seq("sdtrolley", ["San Ysidro","Iris Avenue","Palm Avenue","Palomar Street","H Street","E Street","Bayfront/E Street","City College","Civic Center","Fifth Avenue","Gaslamp Quarter","Santa Fe Depot (Old Town/County Center)","Old Town Transit Center","Washington St","Fashion Valley","Hazard Center","Rio Vista","Morena/Linda Vista","Balboa Ave","Clairemont Dr","Tecolote Rd","UTC","VA Medical Center","Nobel Drive"]) },
-  { line: "SD Trolley Orange", stations: seq("sdtrolley", ["12th & Imperial Transit Center","Barrio Logan","Grantville","La Mesa Blvd","El Cajon Transit Center","Santee Town Center"]) },
-  { line: "SD Trolley Green", stations: seq("sdtrolley", ["Old Town Transit Center","Fenton Parkway","SDSU Transit Center","Grossmont Transit Center","Arnele Ave"]) }
+  // LA Metro A and E Lines below are pulled from Metro's own official rail
+  // GTFS feed (https://gitlab.com/LACMTA/gtfs_rail, fetched Oct 2026) — the
+  // prior version of both sequences was missing several real stations
+  // (A Line: San Pedro Street, Grand Ave Arts/Bunker Hill, Historic
+  // Broadway; E Line: that same downtown segment plus the entire eastward
+  // extension to East LA added in the 2022 rail network restructuring).
+  { line: "LA Metro A (Blue+Gold)", stations: seq("lametro", ["Downtown Long Beach","Pacific Ave","Anaheim Street","Pacific Coast Hwy","Willow Street","Wardlow","Del Amo","Artesia","Compton","Willowbrook/Rosa Parks","103rd Street/Watts Towers","Firestone","Florence","Slauson","Vernon","Washington","San Pedro Street","Grand/LATTC","Pico","7th St/Metro Center","Grand Ave Arts/Bunker Hill","Historic Broadway","Little Tokyo/Arts District","Union Station","Chinatown","Lincoln Heights/Cypress Park","Heritage Square/Arroyo","Southwest Museum","Highland Park","South Pasadena","Fillmore","Del Mar","Memorial Park","Lake","Allen","Sierra Madre Villa","Arcadia","Monrovia","Duarte/City of Hope","Irwindale","Azusa Downtown","APU/Citrus College"]) },
+  { line: "LA Metro C (Green)", stations: seq("lametro", ["Norwalk","Lakewood Blvd","Lynwood","Willowbrook/Rosa Parks","Avalon","Harbor Freeway","Vermont/Athens","Crenshaw","Hawthorne/Lennox","Aviation/Imperial","Aviation/Century","LAX/Metro Transit Center"]) },
+  { line: "LA Metro E (Expo)", stations: seq("lametro", ["Downtown Santa Monica","17th St/SMC","26th Street/Bergamot","Expo/Bundy","Expo/Sepulveda","Westwood/Rancho Park","Palms","Culver City","La Cienega/Jefferson","Expo/La Brea","Farmdale","Expo/Crenshaw","Expo/Western","Expo/Vermont","Expo Park/USC","Jefferson/USC","LATTC/Ortho Institute","Pico","7th St/Metro Center","Grand Ave Arts/Bunker Hill","Historic Broadway","Little Tokyo/Arts District","Pico/Aliso","Mariachi Plaza/Boyle Heights","Soto","Indiana","Maravilla","East LA Civic Center","Atlantic"]) },
+  { line: "LA Metro K (Crenshaw)", stations: seq("lametro", ["Redondo Beach","Douglas","El Segundo","Mariposa","Aviation/Century","LAX/Metro Transit Center","Westchester/Veterans","Downtown Inglewood","Fairview Heights","Hyde Park","Leimert Park","Martin Luther King Jr","Expo/Crenshaw"]) },
+  // SD Trolley Blue and Green Lines below are pulled directly from MTS's
+  // official GTFS feed (fetched Oct 2026) — see the note above
+  // sdTrolleyStations for what this corrects (wrong Blue Line order,
+  // missing Mid-Coast stations, Mission Valley stations wrongly on Blue
+  // instead of Green).
+  { line: "SD Trolley Blue", stations: seq("sdtrolley", ["San Ysidro","Beyer Blvd","Iris Avenue","Palm Avenue","Palomar Street","H Street","E Street","24th Street","8th Street","Pacific Fleet","Harborside","Barrio Logan","12th & Imperial","Park & Market","City College","Fifth Avenue","Civic Center","America Plaza","Santa Fe Depot","County Center/Little Italy","Middletown","Washington Street","Old Town","Tecolote Road","Clairemont Drive","Balboa Avenue","Nobel Drive","VA Medical Center","UCSD Central Campus","UCSD Health La Jolla","Executive Drive","UTC"]) },
+  { line: "SD Trolley Orange", stations: seq("sdtrolley", ["12th & Imperial Transit Center","Barrio Logan Orange","Grantville Orange","La Mesa Blvd","El Cajon Transit Center","Santee Town Center"]) },
+  { line: "SD Trolley Green", stations: seq("sdtrolley", ["Gaslamp Quarter","Convention Center","Seaport Village","Santa Fe Depot","County Center/Little Italy","Middletown","Washington Street","Old Town","Morena/Linda Vista","Fashion Valley","Hazard Center","Mission Valley Center","Rio Vista","Fenton Parkway","Stadium","Mission San Diego","Union Grantville","SDSU","UCSD Health East","70th Street","Grossmont","Amaya Drive","El Cajon"]) }
 ];
 
 function haversineMiles(lat1,lng1,lat2,lng2) {
@@ -1442,39 +1536,76 @@ const accessibility7Layer = accessibility7.layer;
 //
 // SB 79 BY-RIGHT VETERAN SHELTER ZONE (this site's own siting-geometry
 // argument, layered on top of the formula above, not a separate legal
-// trigger): for a facility (a) in a county that FAILS the 60% test above,
-// (b) inside an SB 79 urban transit county, AND (c) within 0.5 miles of
-// its nearest major transit stop, this layer extends a by-right-argument
-// radius out to the 3 NEXT stations on that line (NOT the nearest stop
-// itself — only the adjacent ones), reusing the same real station
-// sequences as the Accessibility layers above.
+// trigger): for a facility (a) in a county that FAILS the veteran 60%
+// test above, (b) inside an SB 79 urban transit county, AND (c) within
+// 0.5 miles of its nearest open-or-planned major transit stop, a 0.5-mile
+// by-right radius covers that anchor stop PLUS the 3 adjacent stations on
+// that line in each direction (a one-seat ride of up to 4 stops total,
+// anchor included) — matching how a veteran could actually travel from
+// home station to this facility's doorstep without transferring.
+//
+// Every entry below was individually verified Oct 2026 against each
+// agency's own official GTFS feed (BART, SFMTA/Muni, MTS, LA Metro rail)
+// or, for the one not-yet-open station (Westwood/VA Hospital), that
+// station's own official project coordinates — see the data sections
+// above for each agency's source. This is NOT the output of a generic
+// nearest-station search: it replaces an earlier version of this layer
+// that had gotten several of these wrong, including treating Rio Vista
+// Station as Blue Line (it's Green — MTS moved it in the 2021 Mid-Coast
+// restructuring), anchoring San Diego VA Domiciliary to Old Town Transit
+// Center (1.25 mi away — the real nearest stop, Washington Street
+// Station, is 0.44 mi), anchoring Downtown LA VA Clinic to Union Station
+// (Little Tokyo/Arts District is closer, at 0.18 mi), and placing
+// Westwood/VA Hospital itself far enough off that VA Greater LA looked
+// like it was a mile from transit instead of the real 0.31 mi. A handful
+// of facilities checked out as genuinely just OUTSIDE 0.5 mi and are
+// correctly excluded: Fremont VA Clinic (0.55 mi to BART Fremont), San
+// Bruno VA Clinic (0.56 mi to BART San Bruno), Chula Vista VA Clinic
+// (0.99 mi to the Trolley's H Street Station).
 // ============================================================
 const BY_RIGHT_MAX_DIST_MILES = 0.5;
 const byRightHalfMileLayer = L.layerGroup();
 const vetChoroplethLayer = L.layerGroup();
 
-fetch('county_data.json').then(r => r.json()).then(countyData => {
-  const byRightFacilities = facilityNearestStation.filter(({ facility, nearest }) => {
-    const d = countyData[facility.county];
-    return facility.sb79County && nearest && nearest.dist <= BY_RIGHT_MAX_DIST_MILES && d && !d.vetMeets60Threshold;
-  });
+const VERIFIED_BY_RIGHT_DATA = [
+  {"facility":"SF Vet Center","line":"Muni F Line (Market & Wharves streetcar)","anchor":"The Embarcadero & Green St","county":"San Francisco","anchorDist":0.151,"stations":[{"name":"The Embarcadero & Ferry Building","lat":37.79489,"lng":-122.393552,"stops":3,"isAnchor":false},{"name":"The Embarcadero & Washington St","lat":37.797085,"lng":-122.39567,"stops":2,"isAnchor":false},{"name":"The Embarcadero & Broadway","lat":37.799552,"lng":-122.397869,"stops":1,"isAnchor":false},{"name":"The Embarcadero & Green St","lat":37.801264,"lng":-122.399369,"stops":0,"isAnchor":true},{"name":"The Embarcadero & Greenwich St","lat":37.803263,"lng":-122.401113,"stops":1,"isAnchor":false},{"name":"Embarcadero & Sansome St","lat":37.805146,"lng":-122.403233,"stops":2,"isAnchor":false},{"name":"The Embarcadero & Bay St","lat":37.806945,"lng":-122.406278,"stops":3,"isAnchor":false}]},
+  {"facility":"VA San Diego (Jennifer Moreno VAMC)","line":"MTS Blue Line","anchor":"VA Medical Center Station","county":"San Diego","anchorDist":0.168,"stations":[{"name":"Clairemont Drive Station","lat":32.79006453,"lng":-117.20612915,"stops":3,"isAnchor":false},{"name":"Balboa Avenue Station","lat":32.80585769,"lng":-117.21406638,"stops":2,"isAnchor":false},{"name":"Nobel Drive Station","lat":32.86696566,"lng":-117.23038762,"stops":1,"isAnchor":false},{"name":"VA Medical Center Station","lat":32.87425324,"lng":-117.22981838,"stops":0,"isAnchor":true},{"name":"UCSD Central Campus Station","lat":32.87844073,"lng":-117.23177898,"stops":1,"isAnchor":false},{"name":"UCSD Health La Jolla Station","lat":32.88181636,"lng":-117.22349207,"stops":2,"isAnchor":false},{"name":"Executive Drive Station","lat":32.87413569,"lng":-117.21404976,"stops":3,"isAnchor":false}]},
+  {"facility":"Los Angeles VA Clinic (Downtown)","line":"LA Metro A Line","anchor":"Little Tokyo / Arts District Station","county":"Los Angeles","anchorDist":0.184,"stations":[{"name":"Pico Station","lat":34.040735,"lng":-118.266118,"stops":3,"isAnchor":false},{"name":"Grand Ave Arts / Bunker Hill Station","lat":34.05472448,"lng":-118.2515307,"stops":2,"isAnchor":false},{"name":"Historic Broadway Station","lat":34.05215607,"lng":-118.2463211,"stops":1,"isAnchor":false},{"name":"Little Tokyo / Arts District Station","lat":34.04884524,"lng":-118.2387567,"stops":0,"isAnchor":true},{"name":"Union Station - Metro A-Line","lat":34.056061,"lng":-118.234759,"stops":1,"isAnchor":false},{"name":"Chinatown Station","lat":34.063861,"lng":-118.23584,"stops":2,"isAnchor":false}]},
+  {"facility":"Los Angeles VA Clinic (Downtown)","line":"LA Metro E Line","anchor":"Little Tokyo / Arts District Station","county":"Los Angeles","anchorDist":0.184,"stations":[{"name":"7th Street / Metro Center Station - Metro A & E Lines","lat":34.04861,"lng":-118.258822,"stops":3,"isAnchor":false},{"name":"Grand Ave Arts / Bunker Hill Station","lat":34.05472448,"lng":-118.2515307,"stops":2,"isAnchor":false},{"name":"Historic Broadway Station","lat":34.05215607,"lng":-118.2463211,"stops":1,"isAnchor":false},{"name":"Little Tokyo / Arts District Station","lat":34.04884524,"lng":-118.2387567,"stops":0,"isAnchor":true},{"name":"Pico / Aliso Station","lat":34.047634,"lng":-118.22594,"stops":1,"isAnchor":false},{"name":"Mariachi Plaza / Boyle Heights Station","lat":34.047215,"lng":-118.219648,"stops":2,"isAnchor":false},{"name":"Soto Station","lat":34.043747,"lng":-118.210061,"stops":3,"isAnchor":false}]},
+  {"facility":"SF Downtown VA Clinic (CRRC)","line":"Muni T Line (Central Subway)","anchor":"Yerba Buena/Moscone Station Northbound","county":"San Francisco","anchorDist":0.242,"stations":[{"name":"Third Street & Mission Rock St","lat":37.772984,"lng":-122.389683,"stops":3,"isAnchor":false},{"name":"4th St & King St","lat":37.776278,"lng":-122.393864,"stops":2,"isAnchor":false},{"name":"Fourth Street & Brannan Northbound","lat":37.778403,"lng":-122.39659,"stops":1,"isAnchor":false},{"name":"Yerba Buena/Moscone Station Northbound","lat":37.782358,"lng":-122.401551,"stops":0,"isAnchor":true},{"name":"Union Square/Market St Station Northbound","lat":37.787151,"lng":-122.406477,"stops":1,"isAnchor":false},{"name":"Chinatown - Rose Pak Station","lat":37.794807,"lng":-122.408078,"stops":2,"isAnchor":false}]},
+  {"facility":"Rio VA Clinic","line":"MTS Green Line","anchor":"Rio Vista Station","county":"San Diego","anchorDist":0.328,"stations":[{"name":"Fashion Valley Station","lat":32.76545309,"lng":-117.16890515,"stops":3,"isAnchor":false},{"name":"Hazard Center Station","lat":32.77025712,"lng":-117.15815189,"stops":2,"isAnchor":false},{"name":"Mission Valley Center Station","lat":32.77108307,"lng":-117.14985611,"stops":1,"isAnchor":false},{"name":"Rio Vista Station","lat":32.77362089,"lng":-117.14169885,"stops":0,"isAnchor":true},{"name":"Fenton Parkway Station","lat":32.77837004,"lng":-117.12700808,"stops":1,"isAnchor":false},{"name":"Stadium Station","lat":32.78092904,"lng":-117.11949198,"stops":2,"isAnchor":false},{"name":"Mission San Diego Station","lat":32.78081391,"lng":-117.11097904,"stops":3,"isAnchor":false}]},
+  {"facility":"Oakland VA Clinic","line":"BART Yellow Line (East Bay core)","anchor":"19th Street Oakland","county":"Alameda","anchorDist":0.353,"stations":[{"name":"Orinda","lat":37.878481,"lng":-122.183667,"stops":3,"isAnchor":false},{"name":"Rockridge","lat":37.844755,"lng":-122.251235,"stops":2,"isAnchor":false},{"name":"MacArthur","lat":37.828803,"lng":-122.267105,"stops":1,"isAnchor":false},{"name":"19th Street Oakland","lat":37.808078,"lng":-122.268758,"stops":0,"isAnchor":true},{"name":"12th Street / Oakland City Center","lat":37.803482,"lng":-122.27163,"stops":1,"isAnchor":false},{"name":"West Oakland","lat":37.804888,"lng":-122.295151,"stops":2,"isAnchor":false},{"name":"Embarcadero","lat":37.792762,"lng":-122.397037,"stops":3,"isAnchor":false}]},
+  {"facility":"Oakland 21st Street VA Clinic","line":"BART Yellow Line (East Bay core)","anchor":"19th Street Oakland","county":"Alameda","anchorDist":0.353,"stations":[{"name":"Orinda","lat":37.878481,"lng":-122.183667,"stops":3,"isAnchor":false},{"name":"Rockridge","lat":37.844755,"lng":-122.251235,"stops":2,"isAnchor":false},{"name":"MacArthur","lat":37.828803,"lng":-122.267105,"stops":1,"isAnchor":false},{"name":"19th Street Oakland","lat":37.808078,"lng":-122.268758,"stops":0,"isAnchor":true},{"name":"12th Street / Oakland City Center","lat":37.803482,"lng":-122.27163,"stops":1,"isAnchor":false},{"name":"West Oakland","lat":37.804888,"lng":-122.295151,"stops":2,"isAnchor":false},{"name":"Embarcadero","lat":37.792762,"lng":-122.397037,"stops":3,"isAnchor":false}]},
+  {"facility":"San Diego VA Domiciliary (Aspire Center)","line":"MTS Blue Line","anchor":"Washington Street Station","county":"San Diego","anchorDist":0.444,"stations":[{"name":"Santa Fe Depot","lat":32.71732388,"lng":-117.169779,"stops":3,"isAnchor":false},{"name":"County Center/Little Italy Station","lat":32.72149387,"lng":-117.16989795,"stops":2,"isAnchor":false},{"name":"Middletown Station","lat":32.73378587,"lng":-117.17492298,"stops":1,"isAnchor":false},{"name":"Washington Street Station","lat":32.74172394,"lng":-117.18446791,"stops":0,"isAnchor":true},{"name":"Old Town Station","lat":32.754908,"lng":-117.19948716,"stops":1,"isAnchor":false},{"name":"Tecolote Road Station","lat":32.76991399,"lng":-117.20506166,"stops":2,"isAnchor":false},{"name":"Clairemont Drive Station","lat":32.79006453,"lng":-117.20612915,"stops":3,"isAnchor":false}]},
+  {"facility":"San Diego VA Domiciliary (Aspire Center)","line":"MTS Green Line","anchor":"Washington Street Station","county":"San Diego","anchorDist":0.444,"stations":[{"name":"Santa Fe Depot","lat":32.71732388,"lng":-117.169779,"stops":3,"isAnchor":false},{"name":"County Center/Little Italy Station","lat":32.72149387,"lng":-117.16989795,"stops":2,"isAnchor":false},{"name":"Middletown Station","lat":32.73378587,"lng":-117.17492298,"stops":1,"isAnchor":false},{"name":"Washington Street Station","lat":32.74172394,"lng":-117.18446791,"stops":0,"isAnchor":true},{"name":"Old Town Station","lat":32.754908,"lng":-117.19948716,"stops":1,"isAnchor":false},{"name":"Morena/Linda Vista Station","lat":32.76352707,"lng":-117.19655802,"stops":2,"isAnchor":false},{"name":"Fashion Valley Station","lat":32.76545309,"lng":-117.16890515,"stops":3,"isAnchor":false}]},
+  {"facility":"VA Greater Los Angeles (West LA)","line":"LA Metro D Line Extension (Section 2-3, PLANNED, opening 2027)","anchor":"Westwood/VA Hospital (PLANNED, terminus)","county":"Los Angeles","anchorDist":0.311,"stations":[{"name":"Beverly Drive (PLANNED)","lat":34.06694,"lng":-118.39833,"stops":3,"isAnchor":false},{"name":"Century City (PLANNED)","lat":34.05972,"lng":-118.415,"stops":2,"isAnchor":false},{"name":"Westwood/UCLA (PLANNED)","lat":34.05861,"lng":-118.44611,"stops":1,"isAnchor":false},{"name":"Westwood/VA Hospital (PLANNED, terminus)","lat":34.05444,"lng":-118.45361,"stops":0,"isAnchor":true}]}
+];
 
-  byRightFacilities.forEach(({ facility, nearest }) => {
-    const adjacent = stationsWithinNStops(nearest, 3); // offset 0 (the nearest stop) is excluded by design
-    adjacent.forEach(st => {
+fetch('county_data.json').then(r => r.json()).then(countyData => {
+  const drawnCoords = new Set();
+  VERIFIED_BY_RIGHT_DATA.forEach(entry => {
+    const d = countyData[entry.county];
+    if (!d || d.vetMeets60Threshold) return; // county meets the veteran 60% standard — no by-right trigger here
+    entry.stations.forEach(st => {
+      const key = st.lat.toFixed(5) + ',' + st.lng.toFixed(5);
+      if (drawnCoords.has(key)) return;
+      drawnCoords.add(key);
+      const isPlanned = /PLANNED/.test(st.name);
       L.circle([st.lat, st.lng], {
         radius: BY_RIGHT_MAX_DIST_MILES * METERS_PER_MILE,
-        color: '#1a7a2e', weight: 1.5, fillColor: '#1a7a2e', fillOpacity: 0.08
+        color: st.isAnchor ? '#0a5c1e' : '#1a7a2e', weight: st.isAnchor ? 2.5 : 1.5,
+        dashArray: isPlanned ? '6,4' : null,
+        fillColor: '#1a7a2e', fillOpacity: st.isAnchor ? 0.14 : 0.08
       }).bindPopup(`
-        <div class="popup-title">${st.name}${st.planned ? ' (PLANNED)' : ''}</div>
+        <div class="popup-title">${st.name}</div>
         <div class="popup-tag">By-right veteran shelter zone — analysis</div>
-        <div class="popup-row">${st.stops} stop${st.stops === 1 ? '' : 's'} from <strong>${nearest.name}</strong> on the ${st.line}, the nearest major transit stop to <strong>${facility.name}</strong> (${nearest.dist.toFixed(2)} mi away).</div>
-        <div class="popup-row" style="margin-top:4px; color:#444;"><strong>${facility.county}</strong> County fails the 60% veteran shelter-capacity standard (${countyData[facility.county].vetPctCapacityVsNeed}% — see legend), which is what actually triggers by-right approval here. The transit-stop radius is this site's own argument about where that zone should extend, not settled law.</div>
+        <div class="popup-row">${st.isAnchor
+          ? `Anchor stop for <strong>${entry.facility}</strong> — ${entry.anchorDist.toFixed(2)} mi away, on the ${entry.line}.`
+          : `${st.stops} stop${st.stops === 1 ? '' : 's'} from <strong>${entry.anchor}</strong> on the ${entry.line}, the anchor stop for <strong>${entry.facility}</strong>.`}</div>
+        ${isPlanned ? `<div class="popup-row" style="color:#a66a00;">Not yet open — see the Planned/under-construction layer for status.</div>` : ''}
+        <div class="popup-row" style="margin-top:4px; color:#444;"><strong>${entry.county}</strong> County fails the veteran 60% shelter-capacity standard (${d.vetPctCapacityVsNeed}% — see legend), which is what actually triggers by-right approval here. The transit-stop radius is this site's own argument about where that zone should extend, not settled law. Station location and line adjacency verified against official agency GTFS data (or, for planned stations, the station's own project documentation).</div>
       `).addTo(byRightHalfMileLayer);
     });
-    L.circleMarker([nearest.lat, nearest.lng], {
-      radius: 6, color: '#1a7a2e', weight: 2, fillColor: '#fff', fillOpacity: 1
-    }).bindTooltip(`${nearest.name} — nearest major transit stop to ${facility.name} (anchor, not itself a by-right ring)`, { direction: 'top' }).addTo(byRightHalfMileLayer);
   });
 
   fetch('ca_counties.geojson').then(r => r.json()).then(counties => {
@@ -1820,12 +1951,32 @@ legend.onAdd = function () {
       <strong>By-right veteran shelter zone (transit layer):</strong> the green rings are
       <em>this site's own siting-geometry argument</em>, layered on top of the standard
       above, not a separate legal trigger. A facility only gets this layer if (a) its county
-      fails the 60% standard above, (b) the facility sits in an SB 79 urban transit county,
-      and (c) it's within 0.5 miles of a real major transit stop — in which case the by-right
-      zone is argued to extend to the 3 adjacent stations on that line (not the nearest stop
-      itself). The veteran homelessness/bed-capacity choropleth uses the same HUD PIT
-      (veteran subpopulation, 2015-2024 history) and HIC ("Dedicated Veteran Beds") data as
-      Map 1 — see that map for the full CoC-to-county crosswalk and its caveats.
+      fails the veteran 60% standard above, (b) the facility sits in an SB 79 urban transit
+      county, and (c) it's within 0.5 miles of a real, open-or-planned major transit stop —
+      in which case the by-right zone covers that anchor stop plus the 3 adjacent stations
+      on that line in each direction (a one-seat ride of up to 4 stops, anchor included).
+      Nine facilities currently qualify: SF Vet Center, VA San Diego, the Downtown LA VA
+      Clinic, SF Downtown VA Clinic, Rio VA Clinic, both Oakland clinics, the San Diego VA
+      Domiciliary, and VA Greater Los Angeles (West LA) — that last one via the
+      Westwood/VA Hospital station on the D Line extension, currently under construction and
+      targeted to open fall 2027.
+      <br><br>
+      Every one of those nine was individually checked against the relevant transit agency's
+      own official GTFS schedule feed (BART, SFMTA/Muni, MTS, LA Metro rail — each fetched
+      directly from the agency, Oct 2026) rather than estimated, and three close calls were
+      checked and confirmed to fall just outside 0.5 miles rather than included on a guess:
+      Fremont VA Clinic (0.55 mi to BART Fremont), San Bruno VA Clinic (0.56 mi to BART San
+      Bruno), and Chula Vista VA Clinic (0.99 mi to the Trolley's H Street Station). This
+      replaced an earlier pass at this layer that had gotten several specifics wrong —
+      including the Rio Vista Trolley stop's line (Green, not Blue — MTS moved it there in a
+      2021 restructuring), San Diego VA Domiciliary's and Downtown LA VA Clinic's actual
+      nearest stations, and the not-yet-open Westwood/VA Hospital station's coordinates,
+      which had been off by enough to make that facility look about a mile from transit
+      instead of its real 0.31 miles.
+      <br><br>
+      The veteran homelessness/bed-capacity choropleth uses the same HUD PIT (veteran
+      subpopulation, 2015-2024 history) and HIC ("Dedicated Veteran Beds") data as Map 1 —
+      see that map for the full CoC-to-county crosswalk and its caveats.
     </div>
   `;
   const toggle = div.querySelector('#legend-toggle');
