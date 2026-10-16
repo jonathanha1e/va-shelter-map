@@ -2,45 +2,45 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>California VA Facilities — Shelter By-Right Siting Map</title>
+<title>California VA Facilities - Shelter By-Right Siting Map</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
 <style>
-  html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  html, body { margin: 0; padding: 0; height: 100%; font-family: Verdana, Arial, Helvetica, sans-serif; }
   #map { height: 100vh; width: 100vw; }
   .legend {
-    background: white; padding: 12px 14px; border-radius: 8px;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.3); font-size: 13px; line-height: 1.5;
+    background: #fdfdfd; padding: 10px 12px; border: 1px solid #999;
+    font-size: 12px; line-height: 1.5;
     max-width: 270px; max-height: 80vh; overflow-y: auto;
   }
-  .legend h4 { margin: 0 0 6px 0; font-size: 14px; }
+  .legend h4 { margin: 0 0 6px 0; font-size: 13px; border-bottom: 1px solid #999; padding-bottom: 4px; }
   .legend .row { display: flex; align-items: center; margin: 3px 0; }
-  .swatch { width: 14px; height: 14px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.3);}
-  .ring { width: 14px; height: 14px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; border: 2px solid; background: transparent; }
-  .note { font-size: 11px; color: #555; margin-top: 8px; border-top: 1px solid #ddd; padding-top: 6px; }
-  .popup-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
-  .popup-tag { display: inline-block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.03em; background: #eee; padding: 1px 6px; border-radius: 3px; margin-bottom: 6px; }
+  .swatch { width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; border: 1px solid #333; }
+  .ring { width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; border: 2px solid; background: transparent; }
+  .note { font-size: 11px; color: #333; margin-top: 8px; border-top: 1px solid #ccc; padding-top: 6px; }
+  .popup-title { font-weight: bold; font-size: 13px; margin-bottom: 4px; }
+  .popup-tag { display: inline-block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.03em; background: #eee; border: 1px solid #ccc; padding: 1px 6px; margin-bottom: 6px; }
   .popup-row { font-size: 12px; margin: 2px 0; }
-  a.popup-link { color: #0056b3; }
+  a.popup-link { color: #0000ee; }
   .leaflet-control-layers { max-height: 80vh; overflow-y: auto; font-size: 13px; }
   .layer-panel {
-    background: white; padding: 10px 12px; border-radius: 8px;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.3); font-size: 12.5px; line-height: 1.5;
+    background: #fdfdfd; padding: 8px 10px; border: 1px solid #999;
+    font-size: 12px; line-height: 1.5;
     max-width: 260px; max-height: 85vh; overflow-y: auto;
   }
-  .lp-group { margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 6px; }
+  .lp-group { margin-bottom: 8px; border-bottom: 1px solid #ccc; padding-bottom: 6px; }
   .lp-group:last-child { border-bottom: none; }
-  .lp-group-header { display: block; font-weight: 600; cursor: pointer; margin-bottom: 3px; }
-  .lp-sub { margin-left: 18px; }
-  .lp-sub label { display: block; font-weight: 400; cursor: pointer; margin: 2px 0; }
-  #search-box { width: 100%; box-sizing: border-box; padding: 4px 6px; font-size: 12.5px; border: 1px solid #ccc; border-radius: 4px; margin-top: 2px; }
-  #search-go { margin-top: 4px; font-size: 12px; padding: 3px 8px; border-radius: 4px; border: 1px solid #ccc; background: #f5f5f5; cursor: pointer; }
-  #search-go:hover { background: #eee; }
-  #reset-view-btn { width: 100%; margin-top: 6px; font-size: 12.5px; padding: 5px 8px; border-radius: 4px; border: 1px solid #ccc; background: #f5f5f5; cursor: pointer; }
-  #reset-view-btn:hover { background: #eee; }
-  .legend-toggle { cursor: pointer; color: #0056b3; font-size: 11px; margin-top: 4px; display: inline-block; }
+  .lp-group-header { display: block; font-weight: bold; cursor: pointer; margin-bottom: 3px; }
+  .lp-sub { margin-left: 16px; }
+  .lp-sub label { display: block; font-weight: normal; cursor: pointer; margin: 2px 0; }
+  #search-box { width: 100%; box-sizing: border-box; padding: 3px 5px; font-size: 12px; border: 1px solid #999; margin-top: 2px; }
+  #search-go { margin-top: 4px; font-size: 12px; padding: 2px 8px; border: 1px solid #999; background: #e8e8e8; cursor: pointer; }
+  #search-go:hover { background: #ddd; }
+  #reset-view-btn { width: 100%; margin-top: 6px; font-size: 12px; padding: 4px 8px; border: 1px solid #999; background: #e8e8e8; cursor: pointer; }
+  #reset-view-btn:hover { background: #ddd; }
+  .legend-toggle { cursor: pointer; color: #0000ee; font-size: 11px; margin-top: 4px; display: inline-block; }
   .note.collapsed { display: none; }
 
 </style>
@@ -54,23 +54,23 @@
 <script>
 
 // ============================================================
-// DATA — CALIFORNIA VETERAN FACILITIES
+// DATA - CALIFORNIA VETERAN FACILITIES
 // Addresses are pulled directly from each health care system's official
 // "Locations" page on va.gov (or cem.va.gov for national cemeteries).
 // Coordinates are HARDCODED best-effort placements (not run through a live
-// geocoding API) — accurate enough to see the statewide pattern, but not
+// geocoding API) - accurate enough to see the statewide pattern, but not
 // survey-grade. Spot-check anything you're relying on for an actual filing,
 // especially the CBOCs at suite/building-number or military-base addresses.
 // category: "VA Medical Center" | "CBOC" | "Vet Center"
 //
 // county / sb79County: SB 79 (Gov. Code §65912.155–162) ONLY creates TOD
-// tiers inside "urban transit counties" — counties with 15+ passenger rail
+// tiers inside "urban transit counties" - counties with 15+ passenger rail
 // stations. As of the July 2026 operative date that's: Alameda, Los Angeles,
 // Sacramento, San Diego, San Francisco, San Mateo, and Santa Clara (Orange
 // County is expected to qualify once the OC Streetcar's station count is
 // counted, but isn't confirmed as of this map). A facility outside these
 // seven counties CANNOT have an SB 79 TOD stop nearby, no matter how good
-// the local transit is — sb79County: false means that, full stop.
+// the local transit is - sb79County: false means that, full stop.
 // ============================================================
 const facilities = [
   { name: "Martinez VA Medical Center", category: "VA Medical Center", county: "Contra Costa", sb79County: false, lat: 37.99523917, lng: -122.11528524, address: "150 Muir Road, Martinez, CA 94553-4668", url: "https://www.va.gov/northern-california-health-care/locations/martinez-va-medical-center/", note: "VA Northern California HCS. [coords/address verified against VA Facilities API]" },
@@ -146,29 +146,29 @@ const facilities = [
   { name: "Sorrento Valley VA Clinic", category: "CBOC", county: "San Diego", sb79County: true, lat: 32.89503489, lng: -117.21714903, address: "10455 Sorrento Valley Road, San Diego, CA 92121-1622", url: "https://www.va.gov/san-diego-health-care/locations/", note: "VA San Diego HCS. [coords/address verified against VA Facilities API]" },
   { name: "Los Angeles Vet Center", category: "Vet Center", county: "Los Angeles", sb79County: true, lat: 33.89252405, lng: -118.29319652, address: "1045 W. Redondo Beach Blvd, Gardena, CA 90247-4129", url: "https://www.va.gov/find-locations/", note: "Readjustment counseling. [coords/address verified against VA Facilities API]" },
   { name: "East Los Angeles Vet Center", category: "Vet Center", county: "Los Angeles", sb79County: true, lat: 34.05133194, lng: -118.16231485, address: "1000 Corporate Center Drive, Monterey Park, CA 91754", url: "https://www.va.gov/find-locations/", note: "Readjustment counseling; city-level only, exact address not confirmed. [coords/address verified against VA Facilities API]" },
-  { name: "San Diego Vet Center", category: "Vet Center", county: "San Diego", sb79County: true, lat: 32.740776, lng: -117.2133765, address: "2790 Truxtun Road, San Diego, CA 92106", url: "https://www.va.gov/san-diego-vet-center/", note: "CORRECTED — prior entry had wrong address. In Point Loma/Liberty Station, accessible via MTS bus. [coords/address verified against VA Facilities API]" },
+  { name: "San Diego Vet Center", category: "Vet Center", county: "San Diego", sb79County: true, lat: 32.740776, lng: -117.2133765, address: "2790 Truxtun Road, San Diego, CA 92106", url: "https://www.va.gov/san-diego-vet-center/", note: "CORRECTED - prior entry had wrong address. In Point Loma/Liberty Station, accessible via MTS bus. [coords/address verified against VA Facilities API]" },
   { name: "San Francisco Vet Center", category: "Vet Center", county: "San Francisco", sb79County: true, lat: 37.79935812, lng: -122.40118864, address: "850 Battery St., San Francisco, CA 94111", url: "https://www.va.gov/find-locations/", note: "Readjustment counseling. [coords/address verified against VA Facilities API]" },
-  { name: "Sacramento Vet Center", category: "Vet Center", county: "Sacramento", sb79County: true, lat: 38.586177, lng: -121.41612, address: "1111 Howe Avenue, Sacramento, CA 95825-8541", url: "https://www.va.gov/sacramento-vet-center/", note: "CORRECTED — prior entry had wrong address. [coords/address verified against VA Facilities API]" },
+  { name: "Sacramento Vet Center", category: "Vet Center", county: "Sacramento", sb79County: true, lat: 38.586177, lng: -121.41612, address: "1111 Howe Avenue, Sacramento, CA 95825-8541", url: "https://www.va.gov/sacramento-vet-center/", note: "CORRECTED - prior entry had wrong address. [coords/address verified against VA Facilities API]" },
   { name: "Fresno Vet Center", category: "Vet Center", county: "Fresno", sb79County: false, lat: 36.811494, lng: -119.7639135, address: "1320 East Shaw Avenue, Fresno, CA 93710", url: "https://www.va.gov/find-locations/", note: "Readjustment counseling. [coords/address verified against VA Facilities API]" },
   { name: "Antelope Valley Vet Center", category: "Vet Center", county: "Los Angeles", sb79County: true, lat: 34.590222, lng: -118.1442015, address: "38925 Trade Center Drive, Palmdale, CA 93551", url: "https://www.va.gov/find-locations/", note: "LA County qualifies for SB 79, but no fixed rail near Palmdale. [coords/address verified against VA Facilities API]" },
   { name: "Chatsworth Vet Center", category: "Vet Center", county: "Los Angeles", sb79County: true, lat: 34.256952, lng: -118.5905385, address: "20946 Devonshire Street, Chatsworth, CA 91311", url: "https://www.va.gov/find-locations/", note: "LA County qualifies for SB 79; check proximity to Metrolink Ventura County Line. [coords/address verified against VA Facilities API]" },
-  { name: "Sepulveda Vet Center", category: "Vet Center", county: "Los Angeles", sb79County: true, lat: 34.2298, lng: -118.4695, address: "16111 Plummer Street, North Hills, CA 91343", url: "https://www.va.gov/find-locations/", note: "Co-located with Sepulveda Ambulatory Care Center — same address. NOT FOUND in current VA Facilities API live data — may have closed, merged, or changed status; verify before relying on this." },
-  { name: "West Los Angeles Vet Center (Culver City)", category: "Vet Center", county: "Los Angeles", sb79County: true, lat: 33.98604774, lng: -118.38480144, address: "5730 Uplander Way, Culver City, CA 90230-6615", url: "https://www.va.gov/find-locations/", note: "City-center estimate — exact street address not confirmed. [coords/address verified against VA Facilities API]" },
+  { name: "Sepulveda Vet Center", category: "Vet Center", county: "Los Angeles", sb79County: true, lat: 34.2298, lng: -118.4695, address: "16111 Plummer Street, North Hills, CA 91343", url: "https://www.va.gov/find-locations/", note: "Co-located with Sepulveda Ambulatory Care Center - same address. NOT FOUND in current VA Facilities API live data - may have closed, merged, or changed status; verify before relying on this." },
+  { name: "West Los Angeles Vet Center (Culver City)", category: "Vet Center", county: "Los Angeles", sb79County: true, lat: 33.98604774, lng: -118.38480144, address: "5730 Uplander Way, Culver City, CA 90230-6615", url: "https://www.va.gov/find-locations/", note: "City-center estimate - exact street address not confirmed. [coords/address verified against VA Facilities API]" },
   { name: "Chula Vista Vet Center", category: "Vet Center", county: "San Diego", sb79County: true, lat: 32.65933895, lng: -117.0304825, address: "180 Otay Lakes Road, Bonita, CA 91902-2439", url: "https://www.va.gov/find-locations/", note: "San Diego County qualifies for SB 79. [coords/address verified against VA Facilities API]" },
-  { name: "San Marcos Vet Center", category: "Vet Center", county: "San Diego", sb79County: true, lat: 33.14090659, lng: -117.1597907, address: "1 Civic Center Drive, San Marcos, CA 92069-2934", url: "https://www.va.gov/find-locations/", note: "San Diego County qualifies for SB 79 — near San Marcos Civic Center Sprinter station, worth checking distance. [coords/address verified against VA Facilities API]" },
-  { name: "Peninsula Vet Center (Menlo Park)", category: "Vet Center", county: "San Mateo", sb79County: true, lat: 37.466676, lng: -122.160384, address: "795 Willow Road, Menlo Park, CA 94025", url: "https://www.va.gov/find-locations/", note: "San Mateo County qualifies for SB 79 — same general area as VA Menlo Park Division. [coords/address verified against VA Facilities API]" },
-  { name: "Oakland Vet Center", category: "Vet Center", county: "Alameda", sb79County: true, lat: 37.768221, lng: -122.17608, address: "7200 Bancroft Ave, Oakland, CA 94605", url: "https://www.va.gov/find-locations/", note: "Alameda County qualifies for SB 79 — check proximity to BART/AC Transit Tempo. [coords/address verified against VA Facilities API]" },
+  { name: "San Marcos Vet Center", category: "Vet Center", county: "San Diego", sb79County: true, lat: 33.14090659, lng: -117.1597907, address: "1 Civic Center Drive, San Marcos, CA 92069-2934", url: "https://www.va.gov/find-locations/", note: "San Diego County qualifies for SB 79 - near San Marcos Civic Center Sprinter station, worth checking distance. [coords/address verified against VA Facilities API]" },
+  { name: "Peninsula Vet Center (Menlo Park)", category: "Vet Center", county: "San Mateo", sb79County: true, lat: 37.466676, lng: -122.160384, address: "795 Willow Road, Menlo Park, CA 94025", url: "https://www.va.gov/find-locations/", note: "San Mateo County qualifies for SB 79 - same general area as VA Menlo Park Division. [coords/address verified against VA Facilities API]" },
+  { name: "Oakland Vet Center", category: "Vet Center", county: "Alameda", sb79County: true, lat: 37.768221, lng: -122.17608, address: "7200 Bancroft Ave, Oakland, CA 94605", url: "https://www.va.gov/find-locations/", note: "Alameda County qualifies for SB 79 - check proximity to BART/AC Transit Tempo. [coords/address verified against VA Facilities API]" },
   { name: "San Jose Vet Center", category: "Vet Center", county: "Santa Clara", sb79County: true, lat: 37.26833126, lng: -121.78593385, address: "5855 Silver Creek Valley Place, San Jose, CA 95138", url: "https://www.va.gov/find-locations/", note: "Santa Clara County qualifies for SB 79. [coords/address verified against VA Facilities API]" },
-  { name: "Citrus Heights Vet Center", category: "Vet Center", county: "Sacramento", sb79County: true, lat: 38.669265, lng: -121.2714135, address: "5650 Sunrise Boulevard, Citrus Heights, CA 95610", url: "https://www.va.gov/find-locations/", note: "Sacramento County qualifies for SB 79 — check proximity to Sacramento RT. [coords/address verified against VA Facilities API]" },
-  { name: "Bakersfield Vet Center", category: "Vet Center", county: "Kern", sb79County: false, lat: 35.3841847, lng: -119.01394501, address: "1110 Golden State Avenue, Bakersfield, CA 93301-2416", url: "https://www.va.gov/find-locations/", note: "City-center estimate — exact street address not confirmed. Kern County does not qualify for SB 79. [coords/address verified against VA Facilities API]" },
+  { name: "Citrus Heights Vet Center", category: "Vet Center", county: "Sacramento", sb79County: true, lat: 38.669265, lng: -121.2714135, address: "5650 Sunrise Boulevard, Citrus Heights, CA 95610", url: "https://www.va.gov/find-locations/", note: "Sacramento County qualifies for SB 79 - check proximity to Sacramento RT. [coords/address verified against VA Facilities API]" },
+  { name: "Bakersfield Vet Center", category: "Vet Center", county: "Kern", sb79County: false, lat: 35.3841847, lng: -119.01394501, address: "1110 Golden State Avenue, Bakersfield, CA 93301-2416", url: "https://www.va.gov/find-locations/", note: "City-center estimate - exact street address not confirmed. Kern County does not qualify for SB 79. [coords/address verified against VA Facilities API]" },
   { name: "Santa Cruz County Vet Center (Capitola)", category: "Vet Center", county: "Santa Cruz", sb79County: false, lat: 36.970596, lng: -121.9641795, address: "1350 41st Avenue, Capitola, CA 95010", url: "https://www.va.gov/find-locations/", note: "City-center estimate. Santa Cruz County does not qualify for SB 79. [coords/address verified against VA Facilities API]" },
   { name: "Chico Vet Center", category: "Vet Center", county: "Butte", sb79County: false, lat: 39.75190264, lng: -121.85263623, address: "250 Cohasset Road, Chico, CA 95926", url: "https://www.va.gov/find-locations/", note: "Butte County does not qualify for SB 79. [coords/address verified against VA Facilities API]" },
   { name: "Concord Vet Center", category: "Vet Center", county: "Contra Costa", sb79County: false, lat: 37.969614, lng: -122.051853, address: "1333 Willow Pass Road, Concord, CA 94520-7931", url: "https://www.va.gov/find-locations/", note: "Contra Costa County does not currently qualify for SB 79. [coords/address verified against VA Facilities API]" },
   { name: "Corona Vet Center", category: "Vet Center", county: "Riverside", sb79County: false, lat: 33.85976421, lng: -117.55276351, address: "800 Magnolia Avenue, Corona, CA 92879", url: "https://www.va.gov/find-locations/", note: "Riverside County does not qualify for SB 79. [coords/address verified against VA Facilities API]" },
   { name: "Eureka Vet Center", category: "Vet Center", county: "Humboldt", sb79County: false, lat: 40.78227558, lng: -124.16247631, address: "2830 G Street, Eureka, CA 95501", url: "https://www.va.gov/find-locations/", note: "Humboldt County does not qualify for SB 79. [coords/address verified against VA Facilities API]" },
   { name: "Solano County Vet Center Outstation (Fairfield)", category: "Vet Center", county: "Solano", sb79County: false, lat: 38.230442, lng: -122.124008, address: "420 Executive Ct, Fairfield, CA 94534-5360", url: "https://www.va.gov/find-locations/", note: "Solano County does not qualify for SB 79. Managed by Concord Vet Center. [coords/address verified against VA Facilities API]" },
-  { name: "North Orange County Vet Center (Garden Grove)", category: "Vet Center", county: "Orange", sb79County: false, lat: 33.78216007, lng: -117.8982788, address: "12453 Lewis Street, Garden Grove, CA 92840", url: "https://www.va.gov/find-locations/", note: "City-center estimate. Orange County SB 79 status is pending — recheck. [coords/address verified against VA Facilities API]" },
-  { name: "South Orange County Vet Center (Mission Viejo)", category: "Vet Center", county: "Orange", sb79County: false, lat: 33.564924, lng: -117.6593715, address: "26431 Crown Valley Parkway, Mission Viejo, CA 92691", url: "https://www.va.gov/find-locations/", note: "City-center estimate. Orange County SB 79 status is pending — recheck. [coords/address verified against VA Facilities API]" },
+  { name: "North Orange County Vet Center (Garden Grove)", category: "Vet Center", county: "Orange", sb79County: false, lat: 33.78216007, lng: -117.8982788, address: "12453 Lewis Street, Garden Grove, CA 92840", url: "https://www.va.gov/find-locations/", note: "City-center estimate. Orange County SB 79 status is pending - recheck. [coords/address verified against VA Facilities API]" },
+  { name: "South Orange County Vet Center (Mission Viejo)", category: "Vet Center", county: "Orange", sb79County: false, lat: 33.564924, lng: -117.6593715, address: "26431 Crown Valley Parkway, Mission Viejo, CA 92691", url: "https://www.va.gov/find-locations/", note: "City-center estimate. Orange County SB 79 status is pending - recheck. [coords/address verified against VA Facilities API]" },
   { name: "Delta Vet Center (Manteca)", category: "Vet Center", county: "San Joaquin", sb79County: false, lat: 37.79638396, lng: -121.19688553, address: "1327 Historical Plaza Way, Manteca, CA 95336", url: "https://www.va.gov/find-locations/", note: "City-center estimate. San Joaquin County does not qualify for SB 79. [coords/address verified against VA Facilities API]" },
   { name: "North Bay Vet Center (Rohnert Park)", category: "Vet Center", county: "Sonoma", sb79County: false, lat: 38.352825, lng: -122.7100995, address: "6010 Commerce Blvd., Rohnert Park, CA 94928-5007", url: "https://www.va.gov/find-locations/", note: "Sonoma County does not qualify for SB 79. [coords/address verified against VA Facilities API]" },
   { name: "San Bernardino Vet Center", category: "Vet Center", county: "San Bernardino", sb79County: false, lat: 34.06876656, lng: -117.27732913, address: "356 East Vanderbilt Way, San Bernardino, CA 92408", url: "https://www.va.gov/san-bernardino-vet-center/", note: "San Bernardino County does not qualify for SB 79. Has a Fontana satellite resource center too. [coords/address verified against VA Facilities API]" },
@@ -176,15 +176,15 @@ const facilities = [
   { name: "Temecula Vet Center", category: "Vet Center", county: "Riverside", sb79County: false, lat: 33.52843747, lng: -117.16000597, address: "40935 County Center Drive, Temecula, CA 92591", url: "https://www.va.gov/find-locations/", note: "City-center estimate. Riverside County does not qualify for SB 79. [coords/address verified against VA Facilities API]" },
   { name: "Ventura Vet Center", category: "Vet Center", county: "Ventura", sb79County: false, lat: 34.27951861, lng: -119.28882008, address: "790 East Santa Clara Avenue, Ventura, CA 93001", url: "https://www.va.gov/ventura-vet-center/", note: "Ventura County does not qualify for SB 79. [coords/address verified against VA Facilities API]" },
   { name: "High Desert Vet Center (Victorville)", category: "Vet Center", county: "San Bernardino", sb79County: false, lat: 34.52481, lng: -117.329211, address: "15095 Amargosa Road, Victorville, CA 92394", url: "https://www.va.gov/find-locations/", note: "City-center estimate. San Bernardino County does not qualify for SB 79. [coords/address verified against VA Facilities API]" },
-  { name: "Santa Maria Vet Center Outstation", category: "Vet Center", county: "Santa Barbara", sb79County: false, lat: 34.9530, lng: -120.4357, address: "Santa Maria, CA", url: "https://www.va.gov/find-locations/", note: "City-center estimate. Santa Barbara County does not qualify for SB 79. NOT FOUND in current VA Facilities API live data — may have closed, merged, or changed status; verify before relying on this." },
-  { name: "Modesto Vet Center", category: "Vet Center", county: "Stanislaus", sb79County: false, lat: 37.6600, lng: -121.0000, address: "1219 North Carpenter Road, Suite 11-12, Modesto, CA 95351", url: "https://www.va.gov/find-locations/", note: "Stanislaus County does not qualify for SB 79. NOT FOUND in current VA Facilities API live data — may have closed, merged, or changed status; verify before relying on this." },
-  { name: "North Loma Linda VA Clinic", category: "CBOC", county: "San Bernardino", sb79County: false, lat: 34.06501057, lng: -117.24020721, address: "10391 Corporate Drive, Redlands, CA 92374-4509", url: "https://www.va.gov/loma-linda-health-care/", note: "City-center estimate — was missing entirely from prior facility list. San Bernardino County does not qualify for SB 79. [coords/address verified against VA Facilities API]" },
-  { name: "Diamond View VA Clinic (South Lake Tahoe)", category: "CBOC", county: "El Dorado", sb79County: false, lat: 40.40584984, lng: -120.62556908, address: "110 Bella Way, Susanville, CA 96130-9102", url: "https://www.va.gov/reno-health-care/", note: "City-center estimate — was missing entirely; administratively under the Reno NV VA hub. El Dorado County does not qualify for SB 79. [coords/address verified against VA Facilities API]" },
-  { name: "Cypress Avenue VA Clinic", category: "CBOC", county: "Shasta", sb79County: false, lat: 40.57438449, lng: -122.38047136, address: "760 Cypress Avenue, Redding, CA 96001-2732", url: "https://www.va.gov/northern-california-health-care/", note: "Was missing entirely — found via VA Facilities API cross-reference. Shasta County does not qualify for SB 79." },
+  { name: "Santa Maria Vet Center Outstation", category: "Vet Center", county: "Santa Barbara", sb79County: false, lat: 34.9530, lng: -120.4357, address: "Santa Maria, CA", url: "https://www.va.gov/find-locations/", note: "City-center estimate. Santa Barbara County does not qualify for SB 79. NOT FOUND in current VA Facilities API live data - may have closed, merged, or changed status; verify before relying on this." },
+  { name: "Modesto Vet Center", category: "Vet Center", county: "Stanislaus", sb79County: false, lat: 37.6600, lng: -121.0000, address: "1219 North Carpenter Road, Suite 11-12, Modesto, CA 95351", url: "https://www.va.gov/find-locations/", note: "Stanislaus County does not qualify for SB 79. NOT FOUND in current VA Facilities API live data - may have closed, merged, or changed status; verify before relying on this." },
+  { name: "North Loma Linda VA Clinic", category: "CBOC", county: "San Bernardino", sb79County: false, lat: 34.06501057, lng: -117.24020721, address: "10391 Corporate Drive, Redlands, CA 92374-4509", url: "https://www.va.gov/loma-linda-health-care/", note: "City-center estimate - was missing entirely from prior facility list. San Bernardino County does not qualify for SB 79. [coords/address verified against VA Facilities API]" },
+  { name: "Diamond View VA Clinic (South Lake Tahoe)", category: "CBOC", county: "El Dorado", sb79County: false, lat: 40.40584984, lng: -120.62556908, address: "110 Bella Way, Susanville, CA 96130-9102", url: "https://www.va.gov/reno-health-care/", note: "City-center estimate - was missing entirely; administratively under the Reno NV VA hub. El Dorado County does not qualify for SB 79. [coords/address verified against VA Facilities API]" },
+  { name: "Cypress Avenue VA Clinic", category: "CBOC", county: "Shasta", sb79County: false, lat: 40.57438449, lng: -122.38047136, address: "760 Cypress Avenue, Redding, CA 96001-2732", url: "https://www.va.gov/northern-california-health-care/", note: "Was missing entirely - found via VA Facilities API cross-reference. Shasta County does not qualify for SB 79." },
 ];
 
 // ============================================================
-// DATA — TRANSIT STOPS, classified using SB 79's ACTUAL statutory tiers
+// DATA - TRANSIT STOPS, classified using SB 79's ACTUAL statutory tiers
 // (Gov. Code §65912.156, subds. (m)-(o)), verified against Gov. Code §65912.156
 // bill text and secondary legal summaries (Allen Matkins, Buchalter,
 // California YIMBY). These are the real definitions, not paraphrases:
@@ -204,7 +204,7 @@ const facilities = [
 //     (≥24 trains/day) or ferry service.
 //
 // ============================================================
-// REAL TRACK GEOMETRY — actual curved line paths, not straight segments
+// REAL TRACK GEOMETRY - actual curved line paths, not straight segments
 // between stations. Sources: BART from a public dataset (deck.gl-data,
 // originally BART's own GIS); LA Metro rail lines from Metro's official
 // GIS shapefiles (developer.metro.net/gis-data), parsed from shapefile to
@@ -212,7 +212,7 @@ const facilities = [
 // Caltrain centerline from the SamTrans/Caltrain ArcGIS feature service;
 // San Diego Trolley from SanGIS's countywide transit routes GeoJSON,
 // filtered to MTS light-rail routes 510/520/530 (Blue/Orange/Green).
-// LA Metro's B&D shapefile predates the current D Line extension — the
+// LA Metro's B&D shapefile predates the current D Line extension - the
 // planned Century City/UCLA/VA Hospital segment is drawn separately in
 // the "planned" layer since it isn't built track yet.
 // ============================================================
@@ -234,7 +234,7 @@ const realTrackGeometry = {
 };
 
 // CRITICAL GATE: none of this applies outside an "urban transit county"
-// (15+ passenger rail stations) — see facility data notes above. A stop
+// (15+ passenger rail stations) - see facility data notes above. A stop
 // physically identical to a BART station, if built in Fresno or Riverside
 // County, would NOT be an SB 79 TOD stop under the statute as written.
 // ============================================================
@@ -245,41 +245,41 @@ const realTrackGeometry = {
 // facility's own geocoded point to the official station point. Earlier
 // passes at this list had several wrong anchors and several guessed
 // "verify with real geocoding" distances that turned out to be wrong when
-// actually checked — e.g. Downtown LA's true nearest stop is Little
+// actually checked - e.g. Downtown LA's true nearest stop is Little
 // Tokyo/Arts District (not Union Station), San Diego VA Domiciliary's is
 // Washington Street (not Old Town Transit Center, which is 1.25mi away),
 // and SF Downtown VA Clinic's is the T Line's Yerba Buena/Moscone stop
 // (not 4th & King). Those are now corrected below.
 const transitStops = [
-  { name: "VA Medical Center Station (San Diego Trolley, Blue Line)", tier: "SB 79 Tier 2 — Light Rail (San Diego Co. ✓ urban transit county)",
-    lat: 32.87425324, lng: -117.22981838, note: "0.168 mi from VA San Diego (Jennifer Moreno VAMC) — built specifically to serve it. WITHIN 0.5mi (MTS official GTFS)." },
-  { name: "Little Tokyo / Arts District Station (LA Metro A &amp; E Lines)", tier: "SB 79 Tier 2 — Light Rail (LA Co. ✓ urban transit county)",
-    lat: 34.04884524, lng: -118.2387567, note: "0.184 mi from Los Angeles VA Clinic (Downtown, 351 E Temple St) — WITHIN 0.5mi (LA Metro official rail GTFS). Not Union Station, which is farther." },
-  { name: "Washington Street Station (San Diego Trolley, Blue &amp; Green Lines)", tier: "SB 79 Tier 2 — Light Rail (San Diego Co. ✓ urban transit county)",
-    lat: 32.74172394, lng: -117.18446791, note: "0.444 mi from San Diego VA Domiciliary (Aspire Center, 2121 San Diego Ave) — WITHIN 0.5mi (MTS official GTFS). Not Old Town Transit Center, which is 1.25mi away." },
-  { name: "Rio Vista Station (San Diego Trolley, Green Line)", tier: "SB 79 Tier 2 — Light Rail (San Diego Co. ✓ urban transit county)",
-    lat: 32.77362089, lng: -117.14169885, note: "0.328 mi from Rio VA Clinic (8989 Rio San Diego Dr) — WITHIN 0.5mi (MTS official GTFS). Green Line, not Blue — a 2021 line restructuring moved this station off the Blue Line." },
-  { name: "Yerba Buena/Moscone Station (Muni T Line, Central Subway)", tier: "SB 79 Tier 2 — Light Rail (SF Co. ✓ urban transit county)",
-    lat: 37.782358, lng: -122.401551, note: "0.242 mi from SF Downtown VA Clinic (CRRC, 401 3rd St) — WITHIN 0.5mi (SFMTA official GTFS). Not 4th &amp; King." },
-  { name: "The Embarcadero &amp; Green St (Muni F Line, Market &amp; Wharves streetcar)", tier: "SB 79 Tier 2 — Light Rail (SF Co. ✓ urban transit county)",
-    lat: 37.801264, lng: -122.399369, note: "0.151 mi from San Francisco Vet Center (850 Battery St) — WITHIN 0.5mi (SFMTA official GTFS)." },
-  { name: "H Street Station (San Diego Trolley, Blue Line)", tier: "SB 79 Tier 2 — Light Rail (San Diego Co. ✓ urban transit county)",
-    lat: 32.63017791, lng: -117.09557712, note: "0.987 mi from Chula Vista VA Clinic (353 H St) — checked precisely: just OUTSIDE 0.5mi (MTS official GTFS)." },
-  { name: "19th Street Oakland (BART)", tier: "SB 79 Tier 1 — Heavy Rail (Alameda Co. ✓ urban transit county)",
-    lat: 37.808078, lng: -122.268758, note: "0.353 mi from Oakland VA Clinic and Oakland 21st Street VA Clinic (2221 MLK Jr. Way) — WITHIN 0.5mi (BART official GTFS)." },
-  { name: "San Bruno (BART)", tier: "SB 79 Tier 1 — Heavy Rail (San Mateo Co. ✓ urban transit county)",
-    lat: 37.63773, lng: -122.41633, note: "0.559 mi from San Bruno VA Clinic (1001 Sneath Ln) — checked precisely: just OUTSIDE 0.5mi (BART official GTFS)." },
-  { name: "Fremont (BART)", tier: "SB 79 Tier 1 — Heavy Rail (Alameda Co. ✓ urban transit county)",
-    lat: 37.55748, lng: -121.97662, note: "0.549 mi from Fremont VA Clinic (39199 Liberty St) — checked precisely: just OUTSIDE 0.5mi (BART official GTFS)." },
-  { name: "Westwood/VA Hospital (LA Metro D Line Extension — PLANNED, opening Fall 2027)", tier: "SB 79 Tier 1 — Heavy Rail, not yet open (LA Co. ✓ urban transit county)",
-    lat: 34.05444, lng: -118.45361, note: "0.311 mi from VA Greater Los Angeles (West LA) — WITHIN 0.5mi once open. Built specifically to serve this facility (coordinates per the station's official project documentation)." }
+  { name: "VA Medical Center Station (San Diego Trolley, Blue Line)", tier: "SB 79 Tier 2 - Light Rail (San Diego Co. ✓ urban transit county)",
+    lat: 32.87425324, lng: -117.22981838, note: "0.168 mi from VA San Diego (Jennifer Moreno VAMC) - built specifically to serve it. WITHIN 0.5mi (MTS official GTFS)." },
+  { name: "Little Tokyo / Arts District Station (LA Metro A &amp; E Lines)", tier: "SB 79 Tier 2 - Light Rail (LA Co. ✓ urban transit county)",
+    lat: 34.04884524, lng: -118.2387567, note: "0.184 mi from Los Angeles VA Clinic (Downtown, 351 E Temple St) - WITHIN 0.5mi (LA Metro official rail GTFS). Not Union Station, which is farther." },
+  { name: "Washington Street Station (San Diego Trolley, Blue &amp; Green Lines)", tier: "SB 79 Tier 2 - Light Rail (San Diego Co. ✓ urban transit county)",
+    lat: 32.74172394, lng: -117.18446791, note: "0.444 mi from San Diego VA Domiciliary (Aspire Center, 2121 San Diego Ave) - WITHIN 0.5mi (MTS official GTFS). Not Old Town Transit Center, which is 1.25mi away." },
+  { name: "Rio Vista Station (San Diego Trolley, Green Line)", tier: "SB 79 Tier 2 - Light Rail (San Diego Co. ✓ urban transit county)",
+    lat: 32.77362089, lng: -117.14169885, note: "0.328 mi from Rio VA Clinic (8989 Rio San Diego Dr) - WITHIN 0.5mi (MTS official GTFS). Green Line, not Blue - a 2021 line restructuring moved this station off the Blue Line." },
+  { name: "Yerba Buena/Moscone Station (Muni T Line, Central Subway)", tier: "SB 79 Tier 2 - Light Rail (SF Co. ✓ urban transit county)",
+    lat: 37.782358, lng: -122.401551, note: "0.242 mi from SF Downtown VA Clinic (CRRC, 401 3rd St) - WITHIN 0.5mi (SFMTA official GTFS). Not 4th &amp; King." },
+  { name: "The Embarcadero &amp; Green St (Muni F Line, Market &amp; Wharves streetcar)", tier: "SB 79 Tier 2 - Light Rail (SF Co. ✓ urban transit county)",
+    lat: 37.801264, lng: -122.399369, note: "0.151 mi from San Francisco Vet Center (850 Battery St) - WITHIN 0.5mi (SFMTA official GTFS)." },
+  { name: "H Street Station (San Diego Trolley, Blue Line)", tier: "SB 79 Tier 2 - Light Rail (San Diego Co. ✓ urban transit county)",
+    lat: 32.63017791, lng: -117.09557712, note: "0.987 mi from Chula Vista VA Clinic (353 H St) - checked precisely: just OUTSIDE 0.5mi (MTS official GTFS)." },
+  { name: "19th Street Oakland (BART)", tier: "SB 79 Tier 1 - Heavy Rail (Alameda Co. ✓ urban transit county)",
+    lat: 37.808078, lng: -122.268758, note: "0.353 mi from Oakland VA Clinic and Oakland 21st Street VA Clinic (2221 MLK Jr. Way) - WITHIN 0.5mi (BART official GTFS)." },
+  { name: "San Bruno (BART)", tier: "SB 79 Tier 1 - Heavy Rail (San Mateo Co. ✓ urban transit county)",
+    lat: 37.63773, lng: -122.41633, note: "0.559 mi from San Bruno VA Clinic (1001 Sneath Ln) - checked precisely: just OUTSIDE 0.5mi (BART official GTFS)." },
+  { name: "Fremont (BART)", tier: "SB 79 Tier 1 - Heavy Rail (Alameda Co. ✓ urban transit county)",
+    lat: 37.55748, lng: -121.97662, note: "0.549 mi from Fremont VA Clinic (39199 Liberty St) - checked precisely: just OUTSIDE 0.5mi (BART official GTFS)." },
+  { name: "Westwood/VA Hospital (LA Metro D Line Extension - PLANNED, opening Fall 2027)", tier: "SB 79 Tier 1 - Heavy Rail, not yet open (LA Co. ✓ urban transit county)",
+    lat: 34.05444, lng: -118.45361, note: "0.311 mi from VA Greater Los Angeles (West LA) - WITHIN 0.5mi once open. Built specifically to serve this facility (coordinates per the station's official project documentation)." }
 ];
 
 // ============================================================
-// DATA — BART (Bay Area Rapid Transit). Heavy rail = SB 79 Tier 1, but ONLY
+// DATA - BART (Bay Area Rapid Transit). Heavy rail = SB 79 Tier 1, but ONLY
 // where the station's county is an urban transit county. Many BART stations
 // sit in Contra Costa County, which is NOT on the urban-transit-county list
-// — those stations are heavy rail in every physical sense but cannot be an
+// - those stations are heavy rail in every physical sense but cannot be an
 // SB 79 TOD stop. Coordinates are a mix of Wikipedia-verified station
 // entries and best-effort estimates; treat as reference-quality, not
 // survey-grade.
@@ -338,12 +338,12 @@ const bartStations = [
 ];
 
 // ============================================================
-// DATA — Caltrain (SF Peninsula + South Bay commuter rail). Runs entirely
-// through San Francisco, San Mateo, and Santa Clara counties — all three
+// DATA - Caltrain (SF Peninsula + South Bay commuter rail). Runs entirely
+// through San Francisco, San Mateo, and Santa Clara counties - all three
 // are SB 79 urban transit counties, so the county gate is not the issue
 // here. What's NOT verified: each station's actual daily train count,
 // which determines whether it clears the Tier 2 (≥48/day) or Tier 3
-// (≥24/day) thresholds — busier core stations (Palo Alto, Mountain View,
+// (≥24/day) thresholds - busier core stations (Palo Alto, Mountain View,
 // San Jose Diridon) are more likely to qualify than smaller stops. Shown
 // as "commuter rail, tier TBD" rather than assigning a specific tier.
 // ============================================================
@@ -354,7 +354,7 @@ const caltrainStations = [
   ["South San Francisco",37.65594,-122.40498],
   ["San Bruno",37.63048,-122.41165],
   ["Millbrae",37.59984,-122.38674],
-  ["Broadway",37.5836,-122.3676], // unverified — not in official statewide stops dataset, kept as original estimate
+  ["Broadway",37.5836,-122.3676], // unverified - not in official statewide stops dataset, kept as original estimate
   ["Burlingame",37.5802,-122.34499],
   ["San Mateo",37.56819,-122.32397],
   ["Hayward Park",37.55297,-122.30948],
@@ -381,137 +381,137 @@ const caltrainStations = [
 ];
 
 // ============================================================
-// DATA — LA Metro Rail. All lines run within Los Angeles County, which IS
-// an SB 79 urban transit county — no county-gate issue here, unlike BART.
+// DATA - LA Metro Rail. All lines run within Los Angeles County, which IS
+// an SB 79 urban transit county - no county-gate issue here, unlike BART.
 // What varies is the STATUTORY TIER: B and D Lines are heavy rail subway
 // (SB 79 Tier 1); A, C, E, and K Lines are light rail (SB 79 Tier 2).
 // Coordinates are reference-quality estimates from general knowledge, not
-// individually geocoded — the D Line's westward extension (Century
+// individually geocoded - the D Line's westward extension (Century
 // City/Constellation, Westwood/UCLA) was still completing service phase-in
 // as of this map's research and should be verified for current status.
 // ============================================================
 const laMetroStations = [
-  ["Union Station","B (Red) — Heavy Rail",34.0562,-118.23425],
-  ["Civic Center/Grand Park","B (Red) — Heavy Rail",34.0549,-118.24606],
-  ["Pershing Square","B (Red) — Heavy Rail",34.04932,-118.25126],
-  ["7th St/Metro Center","B (Red) — Heavy Rail",34.04863,-118.25868],
-  ["Westlake/MacArthur Park","B (Red) — Heavy Rail",34.05637,-118.27488],
-  ["Wilshire/Vermont","B (Red) — Heavy Rail",34.0627,-118.29008],
-  ["Vermont/Beverly","B (Red) — Heavy Rail",34.07653,-118.29169],
-  ["Vermont/Santa Monica","B (Red) — Heavy Rail",34.08991,-118.29173],
-  ["Vermont/Sunset","B (Red) — Heavy Rail",34.09771,-118.29176],
-  ["Hollywood/Western","B (Red) — Heavy Rail",34.10174,-118.30812],
-  ["Hollywood/Vine","B (Red) — Heavy Rail",34.10163,-118.32518],
-  ["Hollywood/Highland","B (Red) — Heavy Rail",34.10155,-118.33855],
-  ["Universal City/Studio City","B (Red) — Heavy Rail",34.14,-118.3627],
-  ["North Hollywood","B (Red) — Heavy Rail",34.1685,-118.37681],
-  ["Wilshire/Normandie","D (Purple) — Heavy Rail",34.06175,-118.30146],
-  ["Wilshire/Western","D (Purple) — Heavy Rail",34.06169,-118.30876],
-  ["Wilshire/La Brea","D (Purple) — Heavy Rail",34.06221,-118.34345],
-  ["Wilshire/Fairfax","D (Purple) — Heavy Rail",34.06297,-118.36117],
-  ["Wilshire/La Cienega","D (Purple) — Heavy Rail",34.06483,-118.3747],
-  ["Downtown Long Beach","A — Light Rail",33.76807,-118.19292],
-  ["Pacific Ave","A — Light Rail",33.77226,-118.1937],
-  ["Anaheim St","A — Light Rail",33.78183,-118.18938],
-  ["Pacific Coast Hwy","A — Light Rail",33.78909,-118.18938],
-  ["Willow St","A — Light Rail",33.80708,-118.18983],
-  ["Wardlow","A — Light Rail",33.81986,-118.19609],
-  ["Del Amo","A — Light Rail",33.84822,-118.21102],
-  ["Artesia","A — Light Rail",33.87608,-118.2225],
-  ["Compton","A — Light Rail",33.89749,-118.22425],
-  ["Willowbrook/Rosa Parks","A — Light Rail",33.92805,-118.23755],
-  ["103rd St/Watts Towers","A — Light Rail",33.94222,-118.24316],
-  ["Grand/LATTC","A — Light Rail",34.03315,-118.26933],
-  ["Washington","A — Light Rail",34.01965,-118.24308],
-  ["Pico","A — Light Rail",34.04074,-118.26612],
-  ["Little Tokyo/Arts District","A — Light Rail",34.04885,-118.23876],
-  ["Chinatown","A — Light Rail",34.06386,-118.23584],
-  ["Lincoln Heights/Cypress Park","A — Light Rail",34.080949,-118.220429],
-  ["San Pedro Street","A — Light Rail",34.026807,-118.255505],
-  ["Grand Ave Arts/Bunker Hill","A &amp; E — Light Rail",34.05472448,-118.2515307],
-  ["Historic Broadway","A &amp; E — Light Rail",34.05215607,-118.2463211],
-  ["Firestone","A — Light Rail",33.959611,-118.243205],
-  ["Florence","A — Light Rail",33.97374,-118.243271],
-  ["Slauson","A — Light Rail",33.98876,-118.243398],
-  ["Vernon","A — Light Rail",34.00292,-118.243303],
-  ["Heritage Square/Arroyo","A — Light Rail",34.087227,-118.213213],
-  ["Southwest Museum","A — Light Rail",34.098243,-118.206712],
-  ["Fillmore","A — Light Rail",34.133521,-118.148126],
-  ["Del Mar","A — Light Rail",34.14191,-118.148214],
-  ["Memorial Park","A — Light Rail",34.148356,-118.147512],
-  ["Lake","A — Light Rail",34.151806,-118.13139],
-  ["Allen","A — Light Rail",34.152417,-118.114348],
-  ["Duarte/City of Hope","A — Light Rail",34.132518,-117.96768],
-  ["Irwindale","A — Light Rail",34.129048,-117.932506],
-  ["APU/Citrus College","A — Light Rail",34.136814,-117.891636],
-  ["Lakewood Blvd","C (Green) — Light Rail",33.91307,-118.1406],
-  ["Lynwood","C (Green) — Light Rail",33.92488,-118.209945],
-  ["Vermont/Athens","C (Green) — Light Rail",33.928683,-118.291733],
-  ["Aviation/Imperial","C (Green) — Light Rail",33.929621,-118.377134],
-  ["Douglas","K (Crenshaw) — Light Rail",33.905299,-118.383113],
-  ["Mariposa","K (Crenshaw) — Light Rail",33.9232,-118.387572],
-  ["Fairview Heights","K (Crenshaw) — Light Rail",33.97525155,-118.3360716],
-  ["26th Street/Bergamot","E (Expo) — Light Rail",34.027995,-118.46912],
-  ["Westwood/Rancho Park","E (Expo) — Light Rail",34.036816,-118.424576],
-  ["Expo/La Brea","E (Expo) — Light Rail",34.024803,-118.355159],
-  ["Farmdale","E (Expo) — Light Rail",34.023981,-118.346095],
-  ["LATTC/Ortho Institute","E (Expo) — Light Rail",34.029112,-118.273603],
-  ["Pico/Aliso","E (Expo) — Light Rail",34.047634,-118.22594],
-  ["Mariachi Plaza/Boyle Heights","E (Expo) — Light Rail",34.047215,-118.219648],
-  ["Soto","E (Expo) — Light Rail",34.043747,-118.210061],
-  ["Indiana","E (Expo) — Light Rail",34.0343,-118.192182],
-  ["Maravilla","E (Expo) — Light Rail",34.033319,-118.16814],
-  ["East LA Civic Center","E (Expo) — Light Rail",34.033364,-118.161206],
-  ["Atlantic","E (Expo) — Light Rail",34.033398,-118.154469],
-  ["Highland Park","A — Light Rail",34.11118,-118.19261],
-  ["South Pasadena","A — Light Rail",34.11519,-118.15789],
-  ["Sierra Madre Villa","A — Light Rail",34.14775,-118.08121],
-  ["Arcadia","A — Light Rail",34.14286,-118.0292],
-  ["Monrovia","A — Light Rail",34.13316,-118.00347],
-  ["Azusa Downtown","A — Light Rail",34.13586,-117.90663],
-  ["Redondo Beach","C (Green) — Light Rail",33.89464,-118.3692],
-  ["El Segundo","C (Green) — Light Rail",33.91606,-118.38654],
-  ["Aviation/LAX","C (Green) — Light Rail",33.92962,-118.37713],
-  ["Hawthorne/Lennox","C (Green) — Light Rail",33.93341,-118.3516],
-  ["Crenshaw","C (Green) — Light Rail",33.9252,-118.32655],
-  ["Harbor Freeway","C (Green) — Light Rail",33.92871,-118.2811],
-  ["Avalon","C (Green) — Light Rail",33.92747,-118.26522],
-  ["Norwalk","C (Green) — Light Rail",33.91403,-118.10472],
-  ["Downtown Santa Monica","E (Expo) — Light Rail",34.01401,-118.49138],
-  ["17th St/SMC","E (Expo) — Light Rail",34.02315,-118.48037],
-  ["Expo/Bundy","E (Expo) — Light Rail",34.03171,-118.4529],
-  ["Expo/Sepulveda","E (Expo) — Light Rail",34.03541,-118.43423],
-  ["Palms","E (Expo) — Light Rail",34.02932,-118.40426],
-  ["Culver City","E (Expo) — Light Rail",34.0279,-118.38899],
-  ["La Cienega/Jefferson","E (Expo) — Light Rail",34.02635,-118.37212],
-  ["Expo/Crenshaw","E (Expo) — Light Rail",34.02253,-118.33508],
-  ["Expo/Western","E (Expo) — Light Rail",34.01833,-118.30891],
-  ["Expo/Vermont","E (Expo) — Light Rail",34.01825,-118.29154],
-  ["Expo Park/USC","E (Expo) — Light Rail",34.01823,-118.28573],
-  ["Jefferson/USC","E (Expo) — Light Rail",34.02212,-118.27812],
-  ["Martin Luther King Jr","K (Crenshaw) — Light Rail",34.00956,-118.33536],
-  ["Leimert Park","K (Crenshaw) — Light Rail",34.00391,-118.33202],
-  ["Hyde Park","K (Crenshaw) — Light Rail",33.98819,-118.33082],
-  ["Downtown Inglewood","K (Crenshaw) — Light Rail",33.96716,-118.3515],
-  ["Westchester/Veterans","K (Crenshaw) — Light Rail",33.96203,-118.37438],
-  ["Aviation/Century","K (Crenshaw) — Light Rail",33.94557,-118.37868]
+  ["Union Station","B (Red) - Heavy Rail",34.0562,-118.23425],
+  ["Civic Center/Grand Park","B (Red) - Heavy Rail",34.0549,-118.24606],
+  ["Pershing Square","B (Red) - Heavy Rail",34.04932,-118.25126],
+  ["7th St/Metro Center","B (Red) - Heavy Rail",34.04863,-118.25868],
+  ["Westlake/MacArthur Park","B (Red) - Heavy Rail",34.05637,-118.27488],
+  ["Wilshire/Vermont","B (Red) - Heavy Rail",34.0627,-118.29008],
+  ["Vermont/Beverly","B (Red) - Heavy Rail",34.07653,-118.29169],
+  ["Vermont/Santa Monica","B (Red) - Heavy Rail",34.08991,-118.29173],
+  ["Vermont/Sunset","B (Red) - Heavy Rail",34.09771,-118.29176],
+  ["Hollywood/Western","B (Red) - Heavy Rail",34.10174,-118.30812],
+  ["Hollywood/Vine","B (Red) - Heavy Rail",34.10163,-118.32518],
+  ["Hollywood/Highland","B (Red) - Heavy Rail",34.10155,-118.33855],
+  ["Universal City/Studio City","B (Red) - Heavy Rail",34.14,-118.3627],
+  ["North Hollywood","B (Red) - Heavy Rail",34.1685,-118.37681],
+  ["Wilshire/Normandie","D (Purple) - Heavy Rail",34.06175,-118.30146],
+  ["Wilshire/Western","D (Purple) - Heavy Rail",34.06169,-118.30876],
+  ["Wilshire/La Brea","D (Purple) - Heavy Rail",34.06221,-118.34345],
+  ["Wilshire/Fairfax","D (Purple) - Heavy Rail",34.06297,-118.36117],
+  ["Wilshire/La Cienega","D (Purple) - Heavy Rail",34.06483,-118.3747],
+  ["Downtown Long Beach","A - Light Rail",33.76807,-118.19292],
+  ["Pacific Ave","A - Light Rail",33.77226,-118.1937],
+  ["Anaheim St","A - Light Rail",33.78183,-118.18938],
+  ["Pacific Coast Hwy","A - Light Rail",33.78909,-118.18938],
+  ["Willow St","A - Light Rail",33.80708,-118.18983],
+  ["Wardlow","A - Light Rail",33.81986,-118.19609],
+  ["Del Amo","A - Light Rail",33.84822,-118.21102],
+  ["Artesia","A - Light Rail",33.87608,-118.2225],
+  ["Compton","A - Light Rail",33.89749,-118.22425],
+  ["Willowbrook/Rosa Parks","A - Light Rail",33.92805,-118.23755],
+  ["103rd St/Watts Towers","A - Light Rail",33.94222,-118.24316],
+  ["Grand/LATTC","A - Light Rail",34.03315,-118.26933],
+  ["Washington","A - Light Rail",34.01965,-118.24308],
+  ["Pico","A - Light Rail",34.04074,-118.26612],
+  ["Little Tokyo/Arts District","A - Light Rail",34.04885,-118.23876],
+  ["Chinatown","A - Light Rail",34.06386,-118.23584],
+  ["Lincoln Heights/Cypress Park","A - Light Rail",34.080949,-118.220429],
+  ["San Pedro Street","A - Light Rail",34.026807,-118.255505],
+  ["Grand Ave Arts/Bunker Hill","A &amp; E - Light Rail",34.05472448,-118.2515307],
+  ["Historic Broadway","A &amp; E - Light Rail",34.05215607,-118.2463211],
+  ["Firestone","A - Light Rail",33.959611,-118.243205],
+  ["Florence","A - Light Rail",33.97374,-118.243271],
+  ["Slauson","A - Light Rail",33.98876,-118.243398],
+  ["Vernon","A - Light Rail",34.00292,-118.243303],
+  ["Heritage Square/Arroyo","A - Light Rail",34.087227,-118.213213],
+  ["Southwest Museum","A - Light Rail",34.098243,-118.206712],
+  ["Fillmore","A - Light Rail",34.133521,-118.148126],
+  ["Del Mar","A - Light Rail",34.14191,-118.148214],
+  ["Memorial Park","A - Light Rail",34.148356,-118.147512],
+  ["Lake","A - Light Rail",34.151806,-118.13139],
+  ["Allen","A - Light Rail",34.152417,-118.114348],
+  ["Duarte/City of Hope","A - Light Rail",34.132518,-117.96768],
+  ["Irwindale","A - Light Rail",34.129048,-117.932506],
+  ["APU/Citrus College","A - Light Rail",34.136814,-117.891636],
+  ["Lakewood Blvd","C (Green) - Light Rail",33.91307,-118.1406],
+  ["Lynwood","C (Green) - Light Rail",33.92488,-118.209945],
+  ["Vermont/Athens","C (Green) - Light Rail",33.928683,-118.291733],
+  ["Aviation/Imperial","C (Green) - Light Rail",33.929621,-118.377134],
+  ["Douglas","K (Crenshaw) - Light Rail",33.905299,-118.383113],
+  ["Mariposa","K (Crenshaw) - Light Rail",33.9232,-118.387572],
+  ["Fairview Heights","K (Crenshaw) - Light Rail",33.97525155,-118.3360716],
+  ["26th Street/Bergamot","E (Expo) - Light Rail",34.027995,-118.46912],
+  ["Westwood/Rancho Park","E (Expo) - Light Rail",34.036816,-118.424576],
+  ["Expo/La Brea","E (Expo) - Light Rail",34.024803,-118.355159],
+  ["Farmdale","E (Expo) - Light Rail",34.023981,-118.346095],
+  ["LATTC/Ortho Institute","E (Expo) - Light Rail",34.029112,-118.273603],
+  ["Pico/Aliso","E (Expo) - Light Rail",34.047634,-118.22594],
+  ["Mariachi Plaza/Boyle Heights","E (Expo) - Light Rail",34.047215,-118.219648],
+  ["Soto","E (Expo) - Light Rail",34.043747,-118.210061],
+  ["Indiana","E (Expo) - Light Rail",34.0343,-118.192182],
+  ["Maravilla","E (Expo) - Light Rail",34.033319,-118.16814],
+  ["East LA Civic Center","E (Expo) - Light Rail",34.033364,-118.161206],
+  ["Atlantic","E (Expo) - Light Rail",34.033398,-118.154469],
+  ["Highland Park","A - Light Rail",34.11118,-118.19261],
+  ["South Pasadena","A - Light Rail",34.11519,-118.15789],
+  ["Sierra Madre Villa","A - Light Rail",34.14775,-118.08121],
+  ["Arcadia","A - Light Rail",34.14286,-118.0292],
+  ["Monrovia","A - Light Rail",34.13316,-118.00347],
+  ["Azusa Downtown","A - Light Rail",34.13586,-117.90663],
+  ["Redondo Beach","C (Green) - Light Rail",33.89464,-118.3692],
+  ["El Segundo","C (Green) - Light Rail",33.91606,-118.38654],
+  ["Aviation/LAX","C (Green) - Light Rail",33.92962,-118.37713],
+  ["Hawthorne/Lennox","C (Green) - Light Rail",33.93341,-118.3516],
+  ["Crenshaw","C (Green) - Light Rail",33.9252,-118.32655],
+  ["Harbor Freeway","C (Green) - Light Rail",33.92871,-118.2811],
+  ["Avalon","C (Green) - Light Rail",33.92747,-118.26522],
+  ["Norwalk","C (Green) - Light Rail",33.91403,-118.10472],
+  ["Downtown Santa Monica","E (Expo) - Light Rail",34.01401,-118.49138],
+  ["17th St/SMC","E (Expo) - Light Rail",34.02315,-118.48037],
+  ["Expo/Bundy","E (Expo) - Light Rail",34.03171,-118.4529],
+  ["Expo/Sepulveda","E (Expo) - Light Rail",34.03541,-118.43423],
+  ["Palms","E (Expo) - Light Rail",34.02932,-118.40426],
+  ["Culver City","E (Expo) - Light Rail",34.0279,-118.38899],
+  ["La Cienega/Jefferson","E (Expo) - Light Rail",34.02635,-118.37212],
+  ["Expo/Crenshaw","E (Expo) - Light Rail",34.02253,-118.33508],
+  ["Expo/Western","E (Expo) - Light Rail",34.01833,-118.30891],
+  ["Expo/Vermont","E (Expo) - Light Rail",34.01825,-118.29154],
+  ["Expo Park/USC","E (Expo) - Light Rail",34.01823,-118.28573],
+  ["Jefferson/USC","E (Expo) - Light Rail",34.02212,-118.27812],
+  ["Martin Luther King Jr","K (Crenshaw) - Light Rail",34.00956,-118.33536],
+  ["Leimert Park","K (Crenshaw) - Light Rail",34.00391,-118.33202],
+  ["Hyde Park","K (Crenshaw) - Light Rail",33.98819,-118.33082],
+  ["Downtown Inglewood","K (Crenshaw) - Light Rail",33.96716,-118.3515],
+  ["Westchester/Veterans","K (Crenshaw) - Light Rail",33.96203,-118.37438],
+  ["Aviation/Century","K (Crenshaw) - Light Rail",33.94557,-118.37868]
 ];
 
 // ============================================================
-// DATA — San Diego Trolley (Blue, Orange, Green Lines). All within San
-// Diego County, an SB 79 urban transit county — all lines are light rail,
+// DATA - San Diego Trolley (Blue, Orange, Green Lines). All within San
+// Diego County, an SB 79 urban transit county - all lines are light rail,
 // SB 79 Tier 2 throughout. Blue and Green Line stations below are pulled
 // directly from MTS's official published GTFS feed
 // (https://www.sdmts.com/google_transit_files/google_transit.zip,
-// fetched Oct 2026) — exact official stop_name and stop_lat/stop_lon,
+// fetched Oct 2026) - exact official stop_name and stop_lat/stop_lon,
 // not estimates. This replaces an earlier version of this array that had
 // the Blue Line in the wrong order, was missing the Mid-Coast extension's
 // UCSD-area stations entirely, and wrongly listed Fashion Valley/Hazard
-// Center/Rio Vista/Morena-Linda Vista as Blue Line — MTS actually moved
+// Center/Rio Vista/Morena-Linda Vista as Blue Line - MTS actually moved
 // that whole Mission Valley segment onto the Green Line when the Mid-Coast
 // extension opened in Nov. 2021, restructuring the Blue Line to run
 // Old Town → Tecolote Road → UTC directly along the coast instead.
-// Orange Line stations are NOT yet re-verified against the GTFS feed —
+// Orange Line stations are NOT yet re-verified against the GTFS feed -
 // treat as reference-quality pending that check (none of them are
 // relevant to any facility's by-right determination, so they weren't
 // prioritized).
@@ -575,11 +575,11 @@ const sdTrolleyStations = [
   ["El Cajon","Green Line",32.79206489,-116.97613899]
 ];
 
-// Sacramento RT, VTA, and Muni Metro station points — pulled from the same
+// Sacramento RT, VTA, and Muni Metro station points - pulled from the same
 // authoritative statewide source as everything else, but added LATE (these
 // three systems previously had line geometry with ZERO station markers,
 // which is exactly the kind of gap that shouldn't exist on a map informing
-// housing decisions for veterans — flagged and fixed).
+// housing decisions for veterans - flagged and fixed).
 const sacRTStations = [
   ["Roseville Road","Sacramento RT",38.63824,-121.40205],
   ["29th Street","Sacramento RT",38.5645,-121.47105],
@@ -1041,8 +1041,8 @@ const mts215Stations = [
 ];
 
 // ============================================================
-// DATA — PLANNED / UNDER-CONSTRUCTION STOPS, all agencies. These do not
-// exist yet — some are funded and under active construction with firm
+// DATA - PLANNED / UNDER-CONSTRUCTION STOPS, all agencies. These do not
+// exist yet - some are funded and under active construction with firm
 // opening dates, others are early-stage proposals that may never be built
 // or could change mode/alignment before opening. Status and confidence are
 // noted per station; treat "proposed" items as directional, not reliable.
@@ -1054,76 +1054,76 @@ const mts215Stations = [
 // Beverly Drive) is targeted spring 2027; Section 3 (UCLA, VA Hospital) is
 // targeted fall 2027. Coordinates for all four unopened stations below are
 // each station's own official figure (also the same figures used in the
-// by-right veteran shelter zone layer further down) — re-sourced Oct 2026
+// by-right veteran shelter zone layer further down) - re-sourced Oct 2026
 // after an earlier pass at this array had Westwood/VA Hospital off by
 // about 0.6 miles, which was enough to make the facility look ~1 mile from
 // the nearest qualifying transit instead of its real distance, 0.311 mi
 // (WITHIN 0.5mi). That's corrected now.
 // ============================================================
 const plannedStations = [
-  { name: "Westwood/VA Hospital", agency: "LA Metro D Line (Purple) — Section 3", status: "Under construction",
-    opening: "Targeted fall 2027", tier: "Heavy Rail — would be SB 79 Tier 1", lat: 34.05444, lng: -118.45361,
-    note: "Terminus of the D Line extension, built specifically to serve VA Greater LA (West LA) — 0.311 mi away, WITHIN 0.5mi. This is THE station to watch for your bill." },
-  { name: "Westwood/UCLA", agency: "LA Metro D Line (Purple) — Section 3", status: "Under construction",
-    opening: "Targeted fall 2027", tier: "Heavy Rail — would be SB 79 Tier 1", lat: 34.05861, lng: -118.44611,
+  { name: "Westwood/VA Hospital", agency: "LA Metro D Line (Purple) - Section 3", status: "Under construction",
+    opening: "Targeted fall 2027", tier: "Heavy Rail - would be SB 79 Tier 1", lat: 34.05444, lng: -118.45361,
+    note: "Terminus of the D Line extension, built specifically to serve VA Greater LA (West LA) - 0.311 mi away, WITHIN 0.5mi. This is THE station to watch for your bill." },
+  { name: "Westwood/UCLA", agency: "LA Metro D Line (Purple) - Section 3", status: "Under construction",
+    opening: "Targeted fall 2027", tier: "Heavy Rail - would be SB 79 Tier 1", lat: 34.05861, lng: -118.44611,
     note: "Same Section 3 segment as Westwood/VA Hospital, one stop east." },
-  { name: "Century City", agency: "LA Metro D Line (Purple) — Section 2", status: "Under construction",
-    opening: "Targeted spring 2027", tier: "Heavy Rail — would be SB 79 Tier 1", lat: 34.05972, lng: -118.41500,
+  { name: "Century City", agency: "LA Metro D Line (Purple) - Section 2", status: "Under construction",
+    opening: "Targeted spring 2027", tier: "Heavy Rail - would be SB 79 Tier 1", lat: 34.05972, lng: -118.41500,
     note: "Section 2, opens before Section 3." },
-  { name: "Beverly Drive", agency: "LA Metro D Line (Purple) — Section 2", status: "Under construction",
-    opening: "Targeted spring 2027", tier: "Heavy Rail — would be SB 79 Tier 1", lat: 34.06694, lng: -118.39833,
+  { name: "Beverly Drive", agency: "LA Metro D Line (Purple) - Section 2", status: "Under construction",
+    opening: "Targeted spring 2027", tier: "Heavy Rail - would be SB 79 Tier 1", lat: 34.06694, lng: -118.39833,
     note: "Section 2, opens before Section 3. Official station name is \"Beverly Drive,\" not \"Wilshire/Rodeo.\"" },
-  { name: "Van Nuys G Line (ESFV LRT terminus)", agency: "East San Fernando Valley Light Rail — Phase 1", status: "Under construction (major construction began July 2026)",
-    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 — Light Rail", lat: 34.1867, lng: -118.4489,
-    note: "Southern terminus of the new Van Nuys Blvd light rail line, connecting into the existing G Line. This is the first Metro rail project in the San Fernando Valley since 2000 — a genuinely big deal for VA facility access up there." },
-  { name: "Victory (ESFV LRT)", agency: "East San Fernando Valley Light Rail — Phase 1", status: "Under construction",
-    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 — Light Rail", lat: 34.1928, lng: -118.4489,
-    note: "Schematic position along Van Nuys Blvd — exact station siting not yet verified against final design." },
-  { name: "Vanowen (ESFV LRT)", agency: "East San Fernando Valley Light Rail — Phase 1", status: "Under construction",
-    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 — Light Rail", lat: 34.1975, lng: -118.4489,
+  { name: "Van Nuys G Line (ESFV LRT terminus)", agency: "East San Fernando Valley Light Rail - Phase 1", status: "Under construction (major construction began July 2026)",
+    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 - Light Rail", lat: 34.1867, lng: -118.4489,
+    note: "Southern terminus of the new Van Nuys Blvd light rail line, connecting into the existing G Line. This is the first Metro rail project in the San Fernando Valley since 2000 - a genuinely big deal for VA facility access up there." },
+  { name: "Victory (ESFV LRT)", agency: "East San Fernando Valley Light Rail - Phase 1", status: "Under construction",
+    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 - Light Rail", lat: 34.1928, lng: -118.4489,
+    note: "Schematic position along Van Nuys Blvd - exact station siting not yet verified against final design." },
+  { name: "Vanowen (ESFV LRT)", agency: "East San Fernando Valley Light Rail - Phase 1", status: "Under construction",
+    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 - Light Rail", lat: 34.1975, lng: -118.4489,
     note: "Schematic position along Van Nuys Blvd." },
-  { name: "Sherman Way (ESFV LRT)", agency: "East San Fernando Valley Light Rail — Phase 1", status: "Under construction",
-    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 — Light Rail", lat: 34.2020, lng: -118.4489,
+  { name: "Sherman Way (ESFV LRT)", agency: "East San Fernando Valley Light Rail - Phase 1", status: "Under construction",
+    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 - Light Rail", lat: 34.2020, lng: -118.4489,
     note: "Schematic position along Van Nuys Blvd." },
-  { name: "Van Nuys Metrolink (ESFV LRT)", agency: "East San Fernando Valley Light Rail — Phase 1", status: "Under construction",
-    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 — Light Rail", lat: 34.2093, lng: -118.4489,
+  { name: "Van Nuys Metrolink (ESFV LRT)", agency: "East San Fernando Valley Light Rail - Phase 1", status: "Under construction",
+    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 - Light Rail", lat: 34.2093, lng: -118.4489,
     note: "Transfer point to existing Metrolink Ventura County Line, Amtrak, and the future Sepulveda Transit Corridor." },
-  { name: "Roscoe (ESFV LRT)", agency: "East San Fernando Valley Light Rail — Phase 1", status: "Under construction",
-    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 — Light Rail", lat: 34.2160, lng: -118.4489,
+  { name: "Roscoe (ESFV LRT)", agency: "East San Fernando Valley Light Rail - Phase 1", status: "Under construction",
+    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 - Light Rail", lat: 34.2160, lng: -118.4489,
     note: "Schematic position along Van Nuys Blvd." },
-  { name: "Nordhoff (ESFV LRT)", agency: "East San Fernando Valley Light Rail — Phase 1", status: "Under construction",
-    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 — Light Rail", lat: 34.2230, lng: -118.4489,
+  { name: "Nordhoff (ESFV LRT)", agency: "East San Fernando Valley Light Rail - Phase 1", status: "Under construction",
+    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 - Light Rail", lat: 34.2230, lng: -118.4489,
     note: "Schematic position along Van Nuys Blvd." },
-  { name: "Woodman (ESFV LRT)", agency: "East San Fernando Valley Light Rail — Phase 1", status: "Under construction",
-    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 — Light Rail", lat: 34.2280, lng: -118.4460,
-    note: "Schematic position — Panorama City area." },
-  { name: "Arleta (ESFV LRT)", agency: "East San Fernando Valley Light Rail — Phase 1", status: "Under construction",
-    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 — Light Rail", lat: 34.2400, lng: -118.4400,
-    note: "Schematic position — Arleta area." },
-  { name: "Laurel Canyon (ESFV LRT)", agency: "East San Fernando Valley Light Rail — Phase 1", status: "Under construction",
-    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 — Light Rail", lat: 34.2550, lng: -118.4350,
+  { name: "Woodman (ESFV LRT)", agency: "East San Fernando Valley Light Rail - Phase 1", status: "Under construction",
+    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 - Light Rail", lat: 34.2280, lng: -118.4460,
+    note: "Schematic position - Panorama City area." },
+  { name: "Arleta (ESFV LRT)", agency: "East San Fernando Valley Light Rail - Phase 1", status: "Under construction",
+    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 - Light Rail", lat: 34.2400, lng: -118.4400,
+    note: "Schematic position - Arleta area." },
+  { name: "Laurel Canyon (ESFV LRT)", agency: "East San Fernando Valley Light Rail - Phase 1", status: "Under construction",
+    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 - Light Rail", lat: 34.2550, lng: -118.4350,
     note: "Schematic position." },
-  { name: "Van Nuys/San Fernando (ESFV LRT Phase 1 terminus)", agency: "East San Fernando Valley Light Rail — Phase 1", status: "Under construction",
-    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 — Light Rail", lat: 34.2750, lng: -118.4300,
-    note: "Phase 1 terminus. A studied Phase 2 (2.5 more miles, 3 more stations) would extend to Sylmar/San Fernando Metrolink — not yet funded/under construction, not included here." },
-  { name: "Ventura Blvd (Sepulveda Corridor)", agency: "Sepulveda Transit Corridor — Phase 1 IOS", status: "Planning/environmental review — mode (heavy rail vs. monorail) still being finalized, not yet under construction",
-    opening: "Targeted 2033 (early-stage; treat as directional, not reliable)", tier: "Would likely be SB 79 Tier 1 if heavy rail, Tier 2 if monorail/light — TBD", lat: 34.1500, lng: -118.4489,
-    note: "Sherman Oaks. Would connect the Valley to Westwood/UCLA and the future VA Hospital D-Line stop — a huge deal if it happens, but this is the least mature project on this map." },
-  { name: "UCLA (Sepulveda Corridor)", agency: "Sepulveda Transit Corridor — Phase 1 IOS", status: "Planning/environmental review, mode TBD",
+  { name: "Van Nuys/San Fernando (ESFV LRT Phase 1 terminus)", agency: "East San Fernando Valley Light Rail - Phase 1", status: "Under construction",
+    opening: "Est. 2028–2031", tier: "Would be SB 79 Tier 2 - Light Rail", lat: 34.2750, lng: -118.4300,
+    note: "Phase 1 terminus. A studied Phase 2 (2.5 more miles, 3 more stations) would extend to Sylmar/San Fernando Metrolink - not yet funded/under construction, not included here." },
+  { name: "Ventura Blvd (Sepulveda Corridor)", agency: "Sepulveda Transit Corridor - Phase 1 IOS", status: "Planning/environmental review - mode (heavy rail vs. monorail) still being finalized, not yet under construction",
+    opening: "Targeted 2033 (early-stage; treat as directional, not reliable)", tier: "Would likely be SB 79 Tier 1 if heavy rail, Tier 2 if monorail/light - TBD", lat: 34.1500, lng: -118.4489,
+    note: "Sherman Oaks. Would connect the Valley to Westwood/UCLA and the future VA Hospital D-Line stop - a huge deal if it happens, but this is the least mature project on this map." },
+  { name: "UCLA (Sepulveda Corridor)", agency: "Sepulveda Transit Corridor - Phase 1 IOS", status: "Planning/environmental review, mode TBD",
     opening: "Targeted 2033 (early-stage)", tier: "TBD pending mode selection", lat: 34.0700, lng: -118.4450,
     note: "Would connect directly to the D Line's Westwood/UCLA stop, linking the Valley all the way to VA Greater LA (West LA)." },
-  { name: "Downtown San Jose", agency: "BART Silicon Valley — Phase II", status: "Under construction",
-    opening: "Est. early 2030s (subject to delay)", tier: "Heavy Rail — would be SB 79 Tier 1", lat: 37.3346, lng: -121.8907,
-    note: "Santa Clara County already qualifies for SB 79 — this doesn't change county status, just adds heavy-rail density near San Jose VA Clinic's broader area." },
-  { name: "Alum Rock/28th St", agency: "BART Silicon Valley — Phase II", status: "Under construction",
-    opening: "Est. early 2030s (subject to delay)", tier: "Heavy Rail — would be SB 79 Tier 1", lat: 37.3487, lng: -121.8556,
+  { name: "Downtown San Jose", agency: "BART Silicon Valley - Phase II", status: "Under construction",
+    opening: "Est. early 2030s (subject to delay)", tier: "Heavy Rail - would be SB 79 Tier 1", lat: 37.3346, lng: -121.8907,
+    note: "Santa Clara County already qualifies for SB 79 - this doesn't change county status, just adds heavy-rail density near San Jose VA Clinic's broader area." },
+  { name: "Alum Rock/28th St", agency: "BART Silicon Valley - Phase II", status: "Under construction",
+    opening: "Est. early 2030s (subject to delay)", tier: "Heavy Rail - would be SB 79 Tier 1", lat: 37.3487, lng: -121.8556,
     note: "Santa Clara County already qualifies for SB 79." },
-  { name: "Santa Clara", agency: "BART Silicon Valley — Phase II", status: "Under construction",
-    opening: "Est. early 2030s (subject to delay)", tier: "Heavy Rail — would be SB 79 Tier 1", lat: 37.3527, lng: -121.9358,
+  { name: "Santa Clara", agency: "BART Silicon Valley - Phase II", status: "Under construction",
+    opening: "Est. early 2030s (subject to delay)", tier: "Heavy Rail - would be SB 79 Tier 1", lat: 37.3527, lng: -121.9358,
     note: "Santa Clara County already qualifies for SB 79." },
-  { name: "Kearny Mesa (Purple Line, station location TBD)", agency: "San Diego Trolley — proposed Purple Line", status: "Early planning only — mode changed from light rail to commuter rail in 2021, no funding secured",
-    opening: "Proposed 2035 (Sorrento Mesa segment) / 2050 (full line) — highly uncertain", tier: "Uncertain (commuter rail, tier TBD)", lat: 32.8296, lng: -117.1425,
-    note: "Directly relevant to Kearny Mesa VA Clinic if it ever gets built — but this is a 2050-horizon proposal, not a funded project. Do not treat as reliable for near-term bill planning." }
+  { name: "Kearny Mesa (Purple Line, station location TBD)", agency: "San Diego Trolley - proposed Purple Line", status: "Early planning only - mode changed from light rail to commuter rail in 2021, no funding secured",
+    opening: "Proposed 2035 (Sorrento Mesa segment) / 2050 (full line) - highly uncertain", tier: "Uncertain (commuter rail, tier TBD)", lat: 32.8296, lng: -117.1425,
+    note: "Directly relevant to Kearny Mesa VA Clinic if it ever gets built - but this is a 2050-horizon proposal, not a funded project. Do not treat as reliable for near-term bill planning." }
 ];
 
 
@@ -1171,10 +1171,9 @@ const plannedIcon = L.divIcon({
 
 const categoryLayers = {};
 Object.keys(categoryStyle).forEach(cat => { categoryLayers[cat] = L.markerClusterGroup({ maxClusterRadius: 45, spiderfyOnMaxZoom: true, disableClusteringAtZoom: 14 }); });
-const quarterMileLayer = L.layerGroup();
 const halfMileLayer = L.layerGroup();
 
-// Search index — populated as facility and transit markers are created below.
+// Search index - populated as facility and transit markers are created below.
 // Each entry: { name, lat, lng, marker, clusterGroup, checkboxId }
 const searchIndex = [];
 
@@ -1183,15 +1182,11 @@ facilities.forEach(f => {
   const dimmed = !f.sb79County;
   const opacity = dimmed ? 0.4 : 1.0; // dim + dashed border for facilities outside SB 79 urban transit counties
   const marker = L.marker([f.lat, f.lng], { icon: makeIcon(style.color, style.shape, dimmed), opacity: opacity });
-  const sb79Line = f.sb79County
-    ? `<strong>SB 79 status:</strong> ${f.county} County IS an urban transit county — a nearby SB 79 TOD stop is legally possible here.`
-    : `<strong>SB 79 status:</strong> ${f.county} County is NOT an urban transit county — no SB 79 TOD stop can exist near this facility, regardless of local transit.`;
   marker.bindPopup(`
     <div class="popup-title">${f.name}</div>
     <div class="popup-tag">${f.category}</div>
     <div class="popup-row"><strong>Address:</strong> ${f.address}</div>
     <div class="popup-row"><strong>Website:</strong> <a class="popup-link" href="${f.url}" target="_blank" rel="noopener">${f.url}</a></div>
-    <div class="popup-row" style="margin-top:6px; color:${f.sb79County ? '#1a7a2e' : '#a33'};">${sb79Line}</div>
     <div class="popup-row" style="margin-top:4px; color:#444;">${f.note}</div>
   `);
   marker.bindTooltip(f.name, { direction: 'top', offset: [0, -8] });
@@ -1200,15 +1195,14 @@ facilities.forEach(f => {
   const checkboxId = f.category === "VA Medical Center" ? "chk-vamc" : f.category === "CBOC" ? "chk-cboc" : "chk-vetcenter";
   searchIndex.push({ name: f.name, lat: f.lat, lng: f.lng, marker, clusterGroup: categoryLayers[f.category], checkboxId });
 
-  L.circle([f.lat, f.lng], { radius: 0.25 * METERS_PER_MILE, color: style.color, weight: 1.5, dashArray: '4,4', fillOpacity: 0.03, opacity: opacity }).addTo(quarterMileLayer);
   L.circle([f.lat, f.lng], { radius: 0.5 * METERS_PER_MILE, color: style.color, weight: 1, fillOpacity: 0.02, opacity: opacity }).addTo(halfMileLayer);
 });
 
 const allTransitLayer = L.markerClusterGroup({ maxClusterRadius: 50, spiderfyOnMaxZoom: true, disableClusteringAtZoom: 15 });
 const seenTransitCoords = [];
-const allStationRecords = []; // { lat, lng, name, popupHtml } — rendered dynamically by renderTransitMarkers()
+const allStationRecords = []; // { lat, lng, name, popupHtml } - rendered dynamically by renderTransitMarkers()
 function coordAlreadyAdded(lat, lng) {
-  const tol = 0.0005; // ~50m — treat near-identical coords as the same physical stop
+  const tol = 0.0005; // ~50m - treat near-identical coords as the same physical stop
   return seenTransitCoords.some(([a,b]) => Math.abs(a-lat) < tol && Math.abs(b-lng) < tol);
 }
 function addTransitStation(lat, lng, name, popupHtml) {
@@ -1217,7 +1211,7 @@ function addTransitStation(lat, lng, name, popupHtml) {
   allStationRecords.push({ lat, lng, name, popupHtml });
 }
 
-// Manually researched facility-specific checks — added first so their
+// Manually researched facility-specific checks - added first so their
 // curated context wins if a full agency dataset lists the same physical stop
 transitStops.forEach(t => {
   addTransitStation(t.lat, t.lng, t.name, `
@@ -1229,8 +1223,8 @@ transitStops.forEach(t => {
 
 bartStations.forEach(([name, county, qualifies, lat, lng]) => {
   const tierLine = qualifies
-    ? `<strong>SB 79 Tier 1 — Heavy Rail.</strong> ${county} County IS an urban transit county.`
-    : `<strong>Heavy rail, but NOT an SB 79 TOD stop.</strong> ${county} County is NOT an urban transit county — this station can't create SB 79 eligibility nearby, despite being full heavy rail.`;
+    ? `<strong>SB 79 Tier 1 - Heavy Rail.</strong> ${county} County IS an urban transit county.`
+    : `<strong>Heavy rail, but NOT an SB 79 TOD stop.</strong> ${county} County is NOT an urban transit county - this station can't create SB 79 eligibility nearby, despite being full heavy rail.`;
   addTransitStation(lat, lng, name, `
     <div class="popup-title">${name} (BART)</div>
     <div class="popup-row" style="color:${qualifies ? '#003a70' : '#a33'};">${tierLine}</div>
@@ -1241,7 +1235,7 @@ caltrainStations.forEach(([name, lat, lng]) => {
   addTransitStation(lat, lng, name, `
     <div class="popup-title">${name} (Caltrain)</div>
     <div class="popup-row">Commuter rail. County (SF/San Mateo/Santa Clara) always qualifies as an
-    SB 79 urban transit county — but the SPECIFIC tier here (Tier 2 needs ≥48 trains/day, Tier 3
+    SB 79 urban transit county - but the SPECIFIC tier here (Tier 2 needs ≥48 trains/day, Tier 3
     needs ≥24/day) depends on this station's actual daily frequency, which hasn't been checked.
     Busier core stations (Palo Alto, Mountain View, San Jose Diridon) are the best bets.</div>
   `);
@@ -1250,8 +1244,8 @@ caltrainStations.forEach(([name, lat, lng]) => {
 laMetroStations.forEach(([name, line, lat, lng]) => {
   const isHeavyRail = line.startsWith("B (") || line.startsWith("D (");
   const tierLine = isHeavyRail
-    ? `<strong>SB 79 Tier 1 — Heavy Rail.</strong> LA County IS an urban transit county.`
-    : `<strong>SB 79 Tier 2 — Light Rail.</strong> LA County IS an urban transit county.`;
+    ? `<strong>SB 79 Tier 1 - Heavy Rail.</strong> LA County IS an urban transit county.`
+    : `<strong>SB 79 Tier 2 - Light Rail.</strong> LA County IS an urban transit county.`;
   addTransitStation(lat, lng, name, `
     <div class="popup-title">${name} (LA Metro ${line})</div>
     <div class="popup-row" style="color:${isHeavyRail ? '#e4402c' : '#b5780f'};">${tierLine}</div>
@@ -1260,8 +1254,8 @@ laMetroStations.forEach(([name, line, lat, lng]) => {
 
 sdTrolleyStations.forEach(([name, line, lat, lng]) => {
   addTransitStation(lat, lng, name, `
-    <div class="popup-title">${name} (San Diego Trolley — ${line})</div>
-    <div class="popup-row" style="color:#0072ce;"><strong>SB 79 Tier 2 — Light Rail.</strong> San Diego County IS an urban transit county.</div>
+    <div class="popup-title">${name} (San Diego Trolley - ${line})</div>
+    <div class="popup-row" style="color:#0072ce;"><strong>SB 79 Tier 2 - Light Rail.</strong> San Diego County IS an urban transit county.</div>
   `);
 });
 
@@ -1301,13 +1295,13 @@ capitolCorridorStations.forEach(([name, sys, lat, lng]) => {
   addTransitStation(lat, lng, name, `<div class="popup-title">${name} (${sys})</div><div class="popup-row">${realTrackGeometry.brt.tier}</div>`);
 });
 
-// Flat, deduped list of every combined-transit coordinate — used for radius
+// Flat, deduped list of every combined-transit coordinate - used for radius
 // rings when no Accessibility filter is selected.
 const allTransitCoords = allStationRecords.map(r => ({lat: r.lat, lng: r.lng}));
 
 // Renders (or re-renders, filtered) the transit marker layer. Called once at
 // init with every station, and again whenever the Accessibility toggle
-// changes to show ONLY the highlighted subset — even if this layer's own
+// changes to show ONLY the highlighted subset - even if this layer's own
 // checkbox stays checked throughout.
 let transitMarkersByRecord = new Map();
 function renderTransitMarkers(records) {
@@ -1341,21 +1335,20 @@ plannedStations.forEach(p => {
 });
 
 // ============================================================
-// TRANSIT RADIUS LAYERS — 0.25mi and 0.5mi rings around transit stations.
+// TRANSIT RADIUS LAYER - 0.5mi rings around transit stations.
 // Dynamic: when no Accessibility filter is selected, rings surround every
 // combined transit station; when a "within N stops" filter is active, rings
 // surround ONLY the stations highlighted by that filter. Populated by
 // rebuildTransitRadiusRings() further down, after the accessibility layers
 // (which supply the filtered station sets) are built.
 // ============================================================
-const transitQuarterMileLayer = L.layerGroup();
 const transitHalfMileLayer = L.layerGroup();
 
 // ============================================================
 // ONE-SEAT REACHABILITY ENGINE
 // Models each transit line as an ordered, real-world sequence of stops.
 // "One-seat" = walking N stops along a SINGLE line's sequence in either
-// direction — never crossing to a different line, even at a shared/transfer
+// direction - never crossing to a different line, even at a shared/transfer
 // station (that would be a 2-seat trip). This is a simplified model: it
 // does not account for turnback/short-turn patterns, skip-stop express
 // service, or which exact trains actually run end-to-end. Treat results as
@@ -1392,7 +1385,7 @@ const lineSequences = [
       ...seq("planned", ["Beverly Drive","Century City","Westwood/UCLA","Westwood/VA Hospital"])
     ] },
   // LA Metro A and E Lines below are pulled from Metro's own official rail
-  // GTFS feed (https://gitlab.com/LACMTA/gtfs_rail, fetched Oct 2026) — the
+  // GTFS feed (https://gitlab.com/LACMTA/gtfs_rail, fetched Oct 2026) - the
   // prior version of both sequences was missing several real stations
   // (A Line: San Pedro Street, Grand Ave Arts/Bunker Hill, Historic
   // Broadway; E Line: that same downtown segment plus the entire eastward
@@ -1402,7 +1395,7 @@ const lineSequences = [
   { line: "LA Metro E (Expo)", stations: seq("lametro", ["Downtown Santa Monica","17th St/SMC","26th Street/Bergamot","Expo/Bundy","Expo/Sepulveda","Westwood/Rancho Park","Palms","Culver City","La Cienega/Jefferson","Expo/La Brea","Farmdale","Expo/Crenshaw","Expo/Western","Expo/Vermont","Expo Park/USC","Jefferson/USC","LATTC/Ortho Institute","Pico","7th St/Metro Center","Grand Ave Arts/Bunker Hill","Historic Broadway","Little Tokyo/Arts District","Pico/Aliso","Mariachi Plaza/Boyle Heights","Soto","Indiana","Maravilla","East LA Civic Center","Atlantic"]) },
   { line: "LA Metro K (Crenshaw)", stations: seq("lametro", ["Redondo Beach","Douglas","El Segundo","Mariposa","Aviation/Century","LAX/Metro Transit Center","Westchester/Veterans","Downtown Inglewood","Fairview Heights","Hyde Park","Leimert Park","Martin Luther King Jr","Expo/Crenshaw"]) },
   // SD Trolley Blue and Green Lines below are pulled directly from MTS's
-  // official GTFS feed (fetched Oct 2026) — see the note above
+  // official GTFS feed (fetched Oct 2026) - see the note above
   // sdTrolleyStations for what this corrects (wrong Blue Line order,
   // missing Mid-Coast stations, Mission Valley stations wrongly on Blue
   // instead of Green).
@@ -1431,12 +1424,12 @@ function findNearestStation(lat, lng) {
     });
   });
   // BUG FIX: previously returned the closest station in the ENTIRE statewide
-  // network with no distance cap — so facilities with zero real rail access
+  // network with no distance cap - so facilities with zero real rail access
   // (Ventura, Santa Barbara, Fresno, most of rural NorCal, etc.) got matched
   // to a "nearest" station dozens of miles away, and then falsely reported
   // as "N stops" from stations near THAT distant station. A facility with no
   // station within a reasonable distance has no meaningful transit
-  // connection, full stop — return null rather than a misleading match.
+  // connection, full stop - return null rather than a misleading match.
   if (best && best.dist > MAX_MEANINGFUL_ACCESS_MILES) return null;
   return best;
 }
@@ -1463,13 +1456,13 @@ function stationsWithinNStops(nearest, n) {
 }
 
 // ============================================================
-// ACCESSIBILITY LAYERS — network-wide, not per-facility. For EVERY VA
+// ACCESSIBILITY LAYERS - network-wide, not per-facility. For EVERY VA
 // facility, find its nearest station, then compute which OTHER stations
 // are within 3/5/7 stops of that station (one-seat, same line only). Union
 // the results across all facilities into three layers: any station
 // highlighted in "Within 3 stops" is a one-seat ride from AT LEAST ONE
 // veteran facility's nearest station. Marker size scales slightly with how
-// many different facilities that station serves — a bigger dot means
+// many different facilities that station serves - a bigger dot means
 // better-connected, not just closer to one thing. Only one of these three
 // is shown at a time via the Accessibility toggle.
 // ============================================================
@@ -1502,9 +1495,9 @@ function buildAccessibilityLayer(n) {
     });
     const facilityList = st.facilities
       .sort((a,b) => a.stops - b.stops)
-      .map(f => `${f.name} (${f.stops} stop${f.stops === 1 ? '' : 's'})`).join('<br>');
+      .map(f => f.stops === 0 ? `Nearest station to ${f.name}` : `${f.stops} station${f.stops === 1 ? '' : 's'} away from ${f.name}`).join('<br>');
     L.marker([st.lat, st.lng], { icon })
-      .bindPopup(`<div class="popup-title">${st.name}${st.planned ? ' (PLANNED)' : ''}</div><div class="popup-row">One-seat ride (within ${n} stops) of ${count} facilit${count === 1 ? 'y' : 'ies'}:</div><div class="popup-row" style="margin-top:4px;">${facilityList}</div>`)
+      .bindPopup(`<div class="popup-title">${st.name}${st.planned ? ' (PLANNED)' : ''}</div><div class="popup-row">One-seat ride, no transfer needed:</div><div class="popup-row" style="margin-top:4px;">${facilityList}</div>`)
       .addTo(layer);
   });
   return { layer, coords };
@@ -1512,10 +1505,8 @@ function buildAccessibilityLayer(n) {
 
 const accessibility3 = buildAccessibilityLayer(3);
 const accessibility5 = buildAccessibilityLayer(5);
-const accessibility7 = buildAccessibilityLayer(7);
 const accessibility3Layer = accessibility3.layer;
 const accessibility5Layer = accessibility5.layer;
-const accessibility7Layer = accessibility7.layer;
 
 // ============================================================
 // VETERAN SHELTER CAPACITY STANDARD (the actual siting formula, not a
@@ -1527,9 +1518,9 @@ const accessibility7Layer = accessibility7.layer;
 // to federal Judge David O. Carter's homelessness settlements with Orange
 // County cities and the City of Los Angeles (LA Alliance for Human Rights
 // v. City of Los Angeles, 2022 Settlement Agreement; Voice of OC, Sept.
-// 2019) — but those settlements actually benchmarked against the
+// 2019) - but those settlements actually benchmarked against the
 // UNSHELTERED count alone. This project deliberately measures against the
-// TOTAL veteran homeless count instead, a stricter bar — see Map 1's
+// TOTAL veteran homeless count instead, a stricter bar - see Map 1's
 // legend for the full reasoning, the gross-vs-net-bed-capacity caveat,
 // and the multi-county-CoC crosswalk. Beds are the current (2024) HIC
 // figure; the homeless count is a 10-year rolling average (2015-2024).
@@ -1541,19 +1532,19 @@ const accessibility7Layer = accessibility7.layer;
 // 0.5 miles of its nearest open-or-planned major transit stop, a 0.5-mile
 // by-right radius covers that anchor stop PLUS the 3 adjacent stations on
 // that line in each direction (a one-seat ride of up to 4 stops total,
-// anchor included) — matching how a veteran could actually travel from
+// anchor included) - matching how a veteran could actually travel from
 // home station to this facility's doorstep without transferring.
 //
 // Every entry below was individually verified Oct 2026 against each
 // agency's own official GTFS feed (BART, SFMTA/Muni, MTS, LA Metro rail)
 // or, for the one not-yet-open station (Westwood/VA Hospital), that
-// station's own official project coordinates — see the data sections
+// station's own official project coordinates - see the data sections
 // above for each agency's source. This is NOT the output of a generic
 // nearest-station search: it replaces an earlier version of this layer
 // that had gotten several of these wrong, including treating Rio Vista
-// Station as Blue Line (it's Green — MTS moved it in the 2021 Mid-Coast
+// Station as Blue Line (it's Green - MTS moved it in the 2021 Mid-Coast
 // restructuring), anchoring San Diego VA Domiciliary to Old Town Transit
-// Center (1.25 mi away — the real nearest stop, Washington Street
+// Center (1.25 mi away - the real nearest stop, Washington Street
 // Station, is 0.44 mi), anchoring Downtown LA VA Clinic to Union Station
 // (Little Tokyo/Arts District is closer, at 0.18 mi), and placing
 // Westwood/VA Hospital itself far enough off that VA Greater LA looked
@@ -1585,7 +1576,7 @@ fetch('county_data.json').then(r => r.json()).then(countyData => {
   const drawnCoords = new Set();
   VERIFIED_BY_RIGHT_DATA.forEach(entry => {
     const d = countyData[entry.county];
-    if (!d || d.vetMeets60Threshold) return; // county meets the veteran 60% standard — no by-right trigger here
+    if (!d || d.vetMeets60Threshold) return; // county meets the veteran 60% standard - no by-right trigger here
     entry.stations.forEach(st => {
       const key = st.lat.toFixed(5) + ',' + st.lng.toFixed(5);
       if (drawnCoords.has(key)) return;
@@ -1598,12 +1589,12 @@ fetch('county_data.json').then(r => r.json()).then(countyData => {
         fillColor: '#1a7a2e', fillOpacity: st.isAnchor ? 0.14 : 0.08
       }).bindPopup(`
         <div class="popup-title">${st.name}</div>
-        <div class="popup-tag">By-right veteran shelter zone — analysis</div>
+        <div class="popup-tag">By-right veteran shelter zone - analysis</div>
         <div class="popup-row">${st.isAnchor
-          ? `Anchor stop for <strong>${entry.facility}</strong> — ${entry.anchorDist.toFixed(2)} mi away, on the ${entry.line}.`
+          ? `Anchor stop for <strong>${entry.facility}</strong> - ${entry.anchorDist.toFixed(2)} mi away, on the ${entry.line}.`
           : `${st.stops} stop${st.stops === 1 ? '' : 's'} from <strong>${entry.anchor}</strong> on the ${entry.line}, the anchor stop for <strong>${entry.facility}</strong>.`}</div>
-        ${isPlanned ? `<div class="popup-row" style="color:#a66a00;">Not yet open — see the Planned/under-construction layer for status.</div>` : ''}
-        <div class="popup-row" style="margin-top:4px; color:#444;"><strong>${entry.county}</strong> County fails the veteran 60% shelter-capacity standard (${d.vetPctCapacityVsNeed}% — see legend), which is what actually triggers by-right approval here. The transit-stop radius is this site's own argument about where that zone should extend, not settled law. Station location and line adjacency verified against official agency GTFS data (or, for planned stations, the station's own project documentation).</div>
+        ${isPlanned ? `<div class="popup-row" style="color:#a66a00;">Not yet open - see the Planned/under-construction layer for status.</div>` : ''}
+        <div class="popup-row" style="margin-top:4px; color:#444;"><strong>${entry.county}</strong> County fails the veteran 60% shelter-capacity standard (${d.vetPctCapacityVsNeed}% - see legend), which is what actually triggers by-right approval here. The transit-stop radius is this site's own argument about where that zone should extend, not settled law. Station location and line adjacency verified against official agency GTFS data (or, for planned stations, the station's own project documentation).</div>
       `).addTo(byRightHalfMileLayer);
     });
   });
@@ -1625,14 +1616,14 @@ fetch('county_data.json').then(r => r.json()).then(countyData => {
         if (!d) return;
         const status = d.vetMeets60Threshold
           ? '<span style="color:#1a7a2e; font-weight:600;">Meets the 60% standard</span>'
-          : '<span style="color:#a33; font-weight:600;">Below 60% — by-right approval applies</span>';
+          : '<span style="color:#a33; font-weight:600;">Below 60% - by-right approval applies</span>';
         layer.bindPopup(`
-          <div class="popup-title">${feat.properties.CountyName} County — Veteran Homelessness</div>
-          ${d.multiCountyCoC ? `<div class="popup-row" style="color:#a33;">Part of a multi-county CoC (${d.cocNames.join('; ')}) — figures are CoC-wide, shared with: ${d.sharedWithCounties.join(', ') || 'none'}.</div>` : ''}
+          <div class="popup-title">${feat.properties.CountyName} County - Veteran Homelessness</div>
+          ${d.multiCountyCoC ? `<div class="popup-row" style="color:#a33;">Part of a multi-county CoC (${d.cocNames.join('; ')}) - figures are CoC-wide, shared with: ${d.sharedWithCounties.join(', ') || 'none'}.</div>` : ''}
           <div class="popup-row"><strong>Homeless veterans (2024 PIT, total):</strong> ${d.vetHomelessTotal}</div>
           <div class="popup-row"><strong>Unsheltered veterans (2024):</strong> ${d.vetUnsheltered2024}</div>
-          <div class="popup-row"><strong>Average total homeless veterans (10-yr):</strong> ${d.avgVetTotal10yr ?? '—'}${d.avgVetTotalYearsUsed && d.avgVetTotalYearsUsed < 10 ? ` (${d.avgVetTotalYearsUsed} yrs used)` : ''}</div>
-          <div class="popup-row" style="color:#777;">(for reference, average unsheltered veterans alone: ${d.avgVetUnsheltered10yr ?? '—'})</div>
+          <div class="popup-row"><strong>Average total homeless veterans (10-yr):</strong> ${d.avgVetTotal10yr ?? '-'}${d.avgVetTotalYearsUsed && d.avgVetTotalYearsUsed < 10 ? ` (${d.avgVetTotalYearsUsed} yrs used)` : ''}</div>
+          <div class="popup-row" style="color:#777;">(for reference, average unsheltered veterans alone: ${d.avgVetUnsheltered10yr ?? '-'})</div>
           <div class="popup-row"><strong>Dedicated veteran shelter beds (HIC 2024):</strong> ${d.vetDedicatedBeds}</div>
           <div class="popup-row"><strong>Beds ÷ average total homeless veterans:</strong> ${d.vetPctCapacityVsNeed}%</div>
           <div class="popup-row" style="margin-top:4px;">${status}</div>
@@ -1650,22 +1641,19 @@ let accessibilityMode = null;
 function currentRadiusStationCoords() {
   if (accessibilityMode === 3) return accessibility3.coords;
   if (accessibilityMode === 5) return accessibility5.coords;
-  if (accessibilityMode === 7) return accessibility7.coords;
-  return allTransitCoords; // no filter selected — ring every combined station
+  return allTransitCoords; // no filter selected - ring every combined station
 }
 
 function rebuildTransitRadiusRings() {
-  transitQuarterMileLayer.clearLayers();
   transitHalfMileLayer.clearLayers();
   currentRadiusStationCoords().forEach(({lat, lng}) => {
-    L.circle([lat, lng], { radius: 0.25 * METERS_PER_MILE, color: '#1a73e8', weight: 1, dashArray: '3,3', fillOpacity: 0.02 }).addTo(transitQuarterMileLayer);
     L.circle([lat, lng], { radius: 0.5 * METERS_PER_MILE, color: '#1a73e8', weight: 0.75, fillOpacity: 0.015 }).addTo(transitHalfMileLayer);
   });
 }
 rebuildTransitRadiusRings();
 
 // Filters the combined transit-stop markers down to just the Accessibility
-// selection (if any) — so "All SB 79 transit stops" shows ONLY the stations
+// selection (if any) - so "All SB 79 transit stops" shows ONLY the stations
 // within N stops when a filter is active, not the full 586-stop set. Uses
 // the same ~50m tolerance as de-duplication, since two records for the same
 // physical stop (e.g. a manual check vs. an agency dataset) can differ by a
@@ -1719,16 +1707,14 @@ layerPanel.onAdd = function () {
     <div class="lp-group">
       <label class="lp-group-header"><input type="checkbox" id="grp-transit" checked> Transit Stops (SB 79-relevant)</label>
       <div class="lp-sub">
-        <label><input type="checkbox" id="chk-alltransit"> All SB 79 transit stops (13 agencies + facility-specific checks — click any stop for details)</label>
+        <input type="checkbox" id="chk-alltransit" style="display:none">
         <label><input type="checkbox" id="chk-planned"> Planned / under construction</label>
       </div>
     </div>
     <div class="lp-group">
       <label class="lp-group-header">Radius Rings</label>
       <div class="lp-sub">
-        <label><input type="checkbox" id="chk-radius-facility-q"> 0.25mi around veteran's facilities</label>
         <label><input type="checkbox" id="chk-radius-facility-h"> 0.5mi around veteran's facilities</label>
-        <label><input type="checkbox" id="chk-radius-transit-q"> 0.25mi around transit</label>
         <label><input type="checkbox" id="chk-radius-transit-h"> 0.5mi around transit</label>
       </div>
     </div>
@@ -1738,13 +1724,12 @@ layerPanel.onAdd = function () {
         <label><input type="radio" name="access-mode" id="chk-access-none" value="0" checked> None</label>
         <label><input type="radio" name="access-mode" id="chk-access-3" value="3"> Within 3 stops</label>
         <label><input type="radio" name="access-mode" id="chk-access-5" value="5"> Within 5 stops</label>
-        <label><input type="radio" name="access-mode" id="chk-access-7" value="7"> Within 7 stops</label>
       </div>
     </div>
     <div class="lp-group">
       <label class="lp-group-header">By-Right Veteran Shelter Zone (analysis)</label>
       <div class="lp-sub">
-        <label><input type="checkbox" id="chk-byright"> 0.5mi zone — 3 stops past nearest major transit stop</label>
+        <label><input type="checkbox" id="chk-byright"> 0.5mi zone around the nearest major transit stop, plus 3 stops each way</label>
       </div>
     </div>
     <div class="lp-group">
@@ -1764,9 +1749,7 @@ wireCheckbox('chk-cboc', categoryLayers["CBOC"], false);
 wireCheckbox('chk-vetcenter', categoryLayers["Vet Center"], false);
 wireCheckbox('chk-alltransit', allTransitLayer, false);
 wireCheckbox('chk-planned', plannedLayer, false);
-wireCheckbox('chk-radius-facility-q', quarterMileLayer, false);
 wireCheckbox('chk-radius-facility-h', halfMileLayer, false);
-wireCheckbox('chk-radius-transit-q', transitQuarterMileLayer, false);
 wireCheckbox('chk-radius-transit-h', transitHalfMileLayer, false);
 wireCheckbox('chk-byright', byRightHalfMileLayer, false);
 wireCheckbox('chk-vetchoropleth', vetChoroplethLayer, false);
@@ -1790,9 +1773,9 @@ document.getElementById('grp-transit').addEventListener('change', (e) => {
 // Accessibility toggle (single-select: None / 3 / 5 / 7 stops). Selecting an
 // option shows only that layer, re-scopes the transit radius rings (if
 // currently on) to just that option's highlighted stations, AND filters the
-// "All SB 79 transit stops" layer down to only those same stations — even
+// "All SB 79 transit stops" layer down to only those same stations - even
 // if that layer's own checkbox stays checked the whole time.
-const accessLayers = { 3: accessibility3Layer, 5: accessibility5Layer, 7: accessibility7Layer };
+const accessLayers = { 3: accessibility3Layer, 5: accessibility5Layer };
 document.querySelectorAll('input[name="access-mode"]').forEach(radio => {
   radio.addEventListener('change', () => {
     if (!radio.checked) return;
@@ -1806,7 +1789,7 @@ document.querySelectorAll('input[name="access-mode"]').forEach(radio => {
 });
 
 // ============================================================
-// SEARCH — jump to any facility or transit stop by name. Turns on whichever
+// SEARCH - jump to any facility or transit stop by name. Turns on whichever
 // checkbox governs the result (if not already on) so it's actually visible,
 // then zooms/pans to it and opens its popup.
 // ============================================================
@@ -1834,7 +1817,7 @@ function runSearch() {
   // rebuilt by an Accessibility filter change, so look it up fresh via its record.
   const marker = match.record ? transitMarkersByRecord.get(match.record) : match.marker;
   if (!marker) {
-    // Filtered out by an active Accessibility selection — clear the filter so the result is visible.
+    // Filtered out by an active Accessibility selection - clear the filter so the result is visible.
     document.getElementById('chk-access-none').checked = true;
     document.getElementById('chk-access-none').dispatchEvent(new Event('change'));
     const retryMarker = match.record ? transitMarkersByRecord.get(match.record) : match.marker;
@@ -1854,7 +1837,7 @@ document.getElementById('search-go').addEventListener('click', runSearch);
 document.getElementById('search-box').addEventListener('keydown', (e) => { if (e.key === 'Enter') runSearch(); });
 
 // ============================================================
-// RESET VIEW & FILTERS — snap back to the default statewide view and
+// RESET VIEW & FILTERS - snap back to the default statewide view and
 // default layer state (as if the page had just loaded).
 // ============================================================
 document.getElementById('reset-view-btn').addEventListener('click', () => {
@@ -1863,8 +1846,7 @@ document.getElementById('reset-view-btn').addEventListener('click', () => {
   const defaults = {
     'chk-vamc': true, 'chk-cboc': false, 'chk-vetcenter': false,
     'chk-alltransit': false, 'chk-planned': false,
-    'chk-radius-facility-q': false, 'chk-radius-facility-h': false,
-    'chk-radius-transit-q': false, 'chk-radius-transit-h': false,
+    'chk-radius-facility-h': false, 'chk-radius-transit-h': false,
     'chk-byright': false, 'chk-vetchoropleth': false
   };
   Object.entries(defaults).forEach(([id, val]) => {
@@ -1884,99 +1866,98 @@ legend.onAdd = function () {
     <div class="row"><span class="swatch" style="background:#b3282d;"></span> VA Medical Center</div>
     <div class="row"><span class="swatch" style="background:#e07b00;"></span> CBOC (outpatient clinic)</div>
     <div class="row"><span class="swatch" style="background:#7a3ea1;"></span> Vet Center</div>
-    <div class="row"><span class="swatch" style="background:#1a73e8;"></span> Transit stop (all 13 agencies — click for agency, tier, and SB 79 county status)</div>
+    <div class="row"><span class="swatch" style="background:#1a73e8;"></span> Transit stop (click for agency and tier)</div>
     <div class="row"><span class="swatch" style="border-radius:50%; border:2px dashed #444; background:rgba(255,255,255,0.6);"></span> Planned/under-construction stop</div>
-    <div class="row"><span class="swatch" style="border-radius:50%; background:rgba(184,134,11,0.35); border:2px solid #b8860b;"></span> Accessibility highlight (station within N stops of a facility)</div>
-    <div class="row"><span class="ring" style="border-color:#888; border-style:dashed;"></span> 0.25-mile radius</div>
+    <div class="row"><span class="swatch" style="border-radius:50%; background:rgba(184,134,11,0.35); border:2px solid #b8860b;"></span> Accessibility highlight (station within 3 or 5 stops of a facility)</div>
     <div class="row"><span class="ring" style="border-color:#888;"></span> 0.5-mile radius</div>
-    <div class="row"><span class="swatch" style="background:#b3282d; opacity:0.35; border:2px dashed rgba(0,0,0,0.55);"></span> Faded + dashed border = NOT in an SB 79 urban transit county</div>
-    <div class="row"><span class="ring" style="border-color:#1a7a2e; border-width:2px;"></span> By-right veteran shelter zone (0.5mi, 3 stops past nearest major transit stop)</div>
+    <div class="row"><span class="swatch" style="background:#b3282d; opacity:0.35; border:2px dashed rgba(0,0,0,0.55);"></span> Faded with a dashed border means the county is not an SB 79 urban transit county</div>
+    <div class="row"><span class="ring" style="border-color:#1a7a2e; border-width:2px;"></span> By-right veteran shelter zone (0.5mi, anchor stop plus 3 stops each way)</div>
     <div class="row"><span class="swatch" style="border-radius:3px; background:rgb(190,65,85);"></span> County shaded by unsheltered veteran count</div>
     <div class="row" style="margin-top:6px;"><a class="popup-link" href="homelessness-shelter-map.html">&rarr; Map 1: Homelessness &amp; Shelter Capacity by County/District</a></div>
     <span class="legend-toggle" id="legend-toggle">Show methodology &amp; findings ▸</span>
     <div class="note collapsed" id="legend-note">
-      <strong>How this map is organized:</strong> all 13 SB 79-relevant transit agencies
-      (BART, Caltrain, LA Metro, San Diego Trolley/Coaster/Sprinter, Muni Metro, Sacramento
-      RT, VTA, Metrolink, ACE, Capitol Corridor, and BRT candidates) plus every
-      individually-researched facility-specific check now show as one combined layer of
-      plain stops — click any stop for its agency, SB 79 tier, and county-qualification
-      status. The map shows stops only, not route lines, to keep focus on what actually
-      matters for SB 79: proximity, not the shape of the track.
+      <strong>How this map is organized.</strong> All 13 SB 79-relevant transit agencies
+      (BART, Caltrain, LA Metro, San Diego Trolley, Coaster, Sprinter, Muni Metro, Sacramento
+      RT, VTA, Metrolink, ACE, Capitol Corridor, and BRT candidates), plus every
+      individually-researched facility-specific check, show as one combined layer of plain
+      stops. Click any stop for its agency, SB 79 tier, and county-qualification status. The
+      map shows stops only, not route lines, to keep focus on what actually matters for SB
+      79: proximity, not the shape of the track.
       <br><br>
-      <strong>Flagship planned-stop finding:</strong> LA Metro's D (Purple) Line extension
-      terminates at a station literally named <strong>"Westwood/VA Hospital,"</strong>
-      built specifically to serve VA Greater LA (West LA) — currently ~1 mile from the
-      nearest qualifying transit. Section 1 opened May 2026; Section 3 (UCLA + VA Hospital
-      stations) is targeted for fall 2027. If it opens on schedule, this facility gains a
-      Tier 1 heavy-rail TOD stop essentially on campus. Toggle "Planned/under-construction
-      stops" to see this and other in-progress extensions (LA Metro D Line Section 2, BART
-      Silicon Valley Phase II, San Diego's long-horizon proposed Purple Line near Kearny
-      Mesa — that last one is a 2035–2050 proposal with no secured funding, not a near-term
-      bet). The "0.25/0.5-mile radius around transit" toggles let you check any
-      facility against the network visually instead of one-by-one — and if an Accessibility
-      filter (3/5/7 stops) is active, those rings scope down to just the highlighted stops.
+      <strong>Flagship planned-stop finding.</strong> LA Metro's D (Purple) Line extension
+      terminates at a station literally named <strong>"Westwood/VA Hospital,"</strong> built
+      specifically to serve VA Greater LA (West LA), 0.31 miles away (well within 0.5 miles).
+      Section 1 opened May 2026. Section 3 (UCLA and VA Hospital stations) is targeted for
+      fall 2027. If it opens on schedule, this facility gains a Tier 1 heavy-rail TOD stop
+      essentially on campus. Toggle "Planned/under-construction stops" to see this and other
+      in-progress extensions (LA Metro D Line Section 2, BART Silicon Valley Phase II, San
+      Diego's long-horizon proposed Purple Line near Kearny Mesa, which is a 2035-2050
+      proposal with no secured funding, not a near-term bet). The "0.5-mile radius around
+      transit" toggle lets you check any facility against the network visually instead of
+      one-by-one, and if an Accessibility filter (3 or 5 stops) is active, that ring scopes
+      down to just the highlighted stops.
       <br><br>
-      <strong>Biggest finding — SB 79's county gate:</strong> SB 79's tiers only exist inside
-      "urban transit counties" (15+ passenger rail stations): <strong>Alameda, Los Angeles,
-      Sacramento, San Diego, San Francisco, San Mateo, Santa Clara</strong> (Orange Co.
-      pending). Dimmed/faded markers below are OUTSIDE these counties — no SB 79 TOD stop
-      can legally exist near them, full stop, regardless of local transit quality. This
-      excludes VA Loma Linda's entire clinic network (Riverside/San Bernardino), VA Central
-      California (Fresno), most of VA Northern California, and several VA Long Beach clinics
-      in Orange County. Click any marker for its specific county status.
+      <strong>Biggest finding: SB 79's county gate.</strong> SB 79's tiers only exist inside
+      "urban transit counties" (15 or more passenger rail stations): <strong>Alameda, Los
+      Angeles, Sacramento, San Diego, San Francisco, San Mateo, and Santa Clara</strong>
+      (Orange County is pending). Dimmed, dashed markers are outside these counties.
+      No SB 79 TOD stop can legally exist near them, full stop, regardless of local transit
+      quality. This excludes VA Loma Linda's entire clinic network (Riverside and San
+      Bernardino), VA Central California (Fresno), most of VA Northern California, and
+      several VA Long Beach clinics in Orange County. Click any marker for its specific
+      county status.
       <br><br>
       All facility and transit coordinates are cross-referenced against the VA Facilities
       API and each agency's own GIS data, but this is not a substitute for verifying any
       single point before relying on it for a filing.
       <br><br>
-      <strong>The veteran shelter capacity standard — the actual trigger:</strong> by-right
+      <strong>The veteran shelter capacity standard: the actual trigger.</strong> By-right
       emergency shelter approval applies in any city or county whose year-round interim
       shelter beds dedicated to veterans (HUD's annual Housing Inventory Count) can
       accommodate fewer than 60% of its average TOTAL homeless veteran point-in-time count
-      (sheltered + unsheltered) over the most recent 10 years (2015-2024; a CoC's years with
-      no unsheltered count conducted — most of California in January 2021, under a COVID-era
-      HUD waiver — are excluded from that average, since that also makes the year's total
-      figure sheltered-only and equally unusable). The 60% figure traces to federal Judge
-      David O. Carter's homelessness settlements with Orange County cities and the City of
-      Los Angeles (<em>LA Alliance for Human Rights v. City of Los Angeles</em>, 2022
-      Settlement Agreement; Voice of OC, Sept. 2019) — though those settlements actually
-      benchmarked against the unsheltered count alone, not total homelessness; this project
+      (sheltered plus unsheltered) over the most recent 10 years (2015 to 2024). A CoC's
+      years with no unsheltered count conducted, most of California in January 2021 under a
+      COVID-era HUD waiver, are excluded from that average, since that also makes the year's
+      total figure sheltered-only and equally unusable. The 60% figure traces to federal
+      Judge David O. Carter's homelessness settlements with Orange County cities and the City
+      of Los Angeles (<em>LA Alliance for Human Rights v. City of Los Angeles</em>, 2022
+      Settlement Agreement; Voice of OC, Sept. 2019), though those settlements actually
+      benchmarked against the unsheltered count alone, not total homelessness. This project
       deliberately uses the stricter total-population bar instead (see Map 1's legend for the
       full reasoning). Also worth knowing: "beds" is gross HIC inventory, not beds net of
-      current occupancy — most existing beds are already occupied by a county's own sheltered
+      current occupancy. Most existing beds are already occupied by a county's own sheltered
       population, so this likely overstates genuinely free capacity (again, see Map 1). This
-      is the real test driving both the veteran choropleth's green/red status and which
-      facilities get a by-right zone below.
+      is the real test driving both the veteran choropleth's status and which facilities get
+      a by-right zone below.
       <br><br>
-      <strong>By-right veteran shelter zone (transit layer):</strong> the green rings are
-      <em>this site's own siting-geometry argument</em>, layered on top of the standard
-      above, not a separate legal trigger. A facility only gets this layer if (a) its county
-      fails the veteran 60% standard above, (b) the facility sits in an SB 79 urban transit
-      county, and (c) it's within 0.5 miles of a real, open-or-planned major transit stop —
-      in which case the by-right zone covers that anchor stop plus the 3 adjacent stations
-      on that line in each direction (a one-seat ride of up to 4 stops, anchor included).
-      Nine facilities currently qualify: SF Vet Center, VA San Diego, the Downtown LA VA
-      Clinic, SF Downtown VA Clinic, Rio VA Clinic, both Oakland clinics, the San Diego VA
-      Domiciliary, and VA Greater Los Angeles (West LA) — that last one via the
-      Westwood/VA Hospital station on the D Line extension, currently under construction and
-      targeted to open fall 2027.
+      <strong>By-right veteran shelter zone (transit layer).</strong> The green rings are
+      this site's own siting-geometry argument, layered on top of the standard above, not a
+      separate legal trigger. A facility only gets this layer if its county fails the
+      veteran 60% standard above, the facility sits in an SB 79 urban transit county, and
+      it's within 0.5 miles of a real, open-or-planned major transit stop. Where all three
+      hold, the by-right zone covers that anchor stop plus the 3 adjacent stations on that
+      line in each direction (a one-seat ride of up to 4 stops, anchor included). Nine
+      facilities currently qualify: SF Vet Center, VA San Diego, the Downtown LA VA Clinic,
+      SF Downtown VA Clinic, Rio VA Clinic, both Oakland clinics, the San Diego VA
+      Domiciliary, and VA Greater Los Angeles (West LA) via the Westwood/VA Hospital station
+      on the D Line extension, which is under construction and targeted to open fall 2027.
       <br><br>
       Every one of those nine was individually checked against the relevant transit agency's
-      own official GTFS schedule feed (BART, SFMTA/Muni, MTS, LA Metro rail — each fetched
-      directly from the agency, Oct 2026) rather than estimated, and three close calls were
-      checked and confirmed to fall just outside 0.5 miles rather than included on a guess:
-      Fremont VA Clinic (0.55 mi to BART Fremont), San Bruno VA Clinic (0.56 mi to BART San
-      Bruno), and Chula Vista VA Clinic (0.99 mi to the Trolley's H Street Station). This
-      replaced an earlier pass at this layer that had gotten several specifics wrong —
-      including the Rio Vista Trolley stop's line (Green, not Blue — MTS moved it there in a
-      2021 restructuring), San Diego VA Domiciliary's and Downtown LA VA Clinic's actual
-      nearest stations, and the not-yet-open Westwood/VA Hospital station's coordinates,
-      which had been off by enough to make that facility look about a mile from transit
-      instead of its real 0.31 miles.
+      own official GTFS schedule feed (BART, SFMTA/Muni, MTS, and LA Metro rail, each
+      fetched directly from the agency in Oct. 2026) rather than estimated. Three close
+      calls were checked and confirmed to fall just outside 0.5 miles rather than included
+      on a guess: Fremont VA Clinic (0.55 mi to BART Fremont), San Bruno VA Clinic (0.56 mi
+      to BART San Bruno), and Chula Vista VA Clinic (0.99 mi to the Trolley's H Street
+      Station). This replaced an earlier pass at this layer that had gotten several
+      specifics wrong, including the Rio Vista Trolley stop's line (it's Green, not Blue;
+      MTS moved it there in a 2021 restructuring), San Diego VA Domiciliary's and Downtown
+      LA VA Clinic's actual nearest stations, and the not-yet-open Westwood/VA Hospital
+      station's coordinates, which had been off by enough to make that facility look about a
+      mile from transit instead of its real 0.31 miles.
       <br><br>
-      The veteran homelessness/bed-capacity choropleth uses the same HUD PIT (veteran
-      subpopulation, 2015-2024 history) and HIC ("Dedicated Veteran Beds") data as Map 1 —
-      see that map for the full CoC-to-county crosswalk and its caveats.
+      The veteran homelessness and bed-capacity choropleth uses the same HUD PIT (veteran
+      subpopulation, 2015-2024 history) and HIC ("Dedicated Veteran Beds") data as Map 1.
+      See that map for the full CoC-to-county crosswalk and its caveats.
     </div>
   `;
   const toggle = div.querySelector('#legend-toggle');
