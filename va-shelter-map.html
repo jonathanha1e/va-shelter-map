@@ -1295,14 +1295,11 @@ capitolCorridorStations.forEach(([name, sys, lat, lng]) => {
   addTransitStation(lat, lng, name, `<div class="popup-title">${name} (${sys})</div><div class="popup-row">${realTrackGeometry.brt.tier}</div>`);
 });
 
-// Flat, deduped list of every combined-transit coordinate - used for radius
-// rings when no Accessibility filter is selected.
+// Flat, deduped list of every combined-transit coordinate.
 const allTransitCoords = allStationRecords.map(r => ({lat: r.lat, lng: r.lng}));
 
-// Renders (or re-renders, filtered) the transit marker layer. Called once at
-// init with every station, and again whenever the Accessibility toggle
-// changes to show ONLY the highlighted subset - even if this layer's own
-// checkbox stays checked throughout.
+// Renders every transit station as a marker (used for search lookups; the
+// layer itself stays hidden behind the By-Right Veteran Shelter Zone layer).
 let transitMarkersByRecord = new Map();
 function renderTransitMarkers(records) {
   allTransitLayer.clearLayers();
@@ -1335,180 +1332,6 @@ plannedStations.forEach(p => {
 });
 
 // ============================================================
-// TRANSIT RADIUS LAYER - 0.5mi rings around transit stations.
-// Dynamic: when no Accessibility filter is selected, rings surround every
-// combined transit station; when a "within N stops" filter is active, rings
-// surround ONLY the stations highlighted by that filter. Populated by
-// rebuildTransitRadiusRings() further down, after the accessibility layers
-// (which supply the filtered station sets) are built.
-// ============================================================
-const transitHalfMileLayer = L.layerGroup();
-
-// ============================================================
-// ONE-SEAT REACHABILITY ENGINE
-// Models each transit line as an ordered, real-world sequence of stops.
-// "One-seat" = walking N stops along a SINGLE line's sequence in either
-// direction - never crossing to a different line, even at a shared/transfer
-// station (that would be a 2-seat trip). This is a simplified model: it
-// does not account for turnback/short-turn patterns, skip-stop express
-// service, or which exact trains actually run end-to-end. Treat results as
-// a reasonable approximation of one-seat-ride reach, not a routing
-// guarantee. BART is modeled as its 5 official color lines (with real
-// branching); other agencies as their real published lines. LA Metro D
-// Line includes the PLANNED Section 2/3 extension (Century City, UCLA,
-// Westwood/VA Hospital) so you can see future one-seat reach once built.
-// ============================================================
-const bartByName = {}; bartStations.forEach(([name,county,qualifies,lat,lng]) => { bartByName[name] = {lat,lng}; });
-const caltrainByName = {}; caltrainStations.forEach(([name,lat,lng]) => { caltrainByName[name] = {lat,lng}; });
-const laMetroByName = {}; laMetroStations.forEach(([name,line,lat,lng]) => { laMetroByName[name] = {lat,lng}; });
-const sdTrolleyByName = {}; sdTrolleyStations.forEach(([name,line,lat,lng]) => { sdTrolleyByName[name] = {lat,lng}; });
-const plannedByName = {}; plannedStations.forEach(p => { plannedByName[p.name] = {lat:p.lat,lng:p.lng}; });
-
-function resolveCoord(system, name) {
-  const maps = { bart: bartByName, caltrain: caltrainByName, lametro: laMetroByName, sdtrolley: sdTrolleyByName, planned: plannedByName };
-  const m = maps[system];
-  return (m && m[name]) ? m[name] : null;
-}
-
-function seq(system, names) { return names.map(name => ({ system, name })); }
-
-const lineSequences = [
-  { line: "BART Red (Richmond–Millbrae/SFO)", stations: seq("bart", ["Richmond","El Cerrito del Norte","El Cerrito Plaza","North Berkeley","Downtown Berkeley","Ashby","MacArthur","19th St Oakland","12th St Oakland City Center","West Oakland","Embarcadero","Montgomery St","Powell St","Civic Center/UN Plaza","16th St Mission","24th St Mission","Glen Park","Balboa Park","Daly City","Colma","South San Francisco","San Bruno","Millbrae"]) },
-  { line: "BART Orange (Richmond–Berryessa)", stations: seq("bart", ["Richmond","El Cerrito del Norte","El Cerrito Plaza","North Berkeley","Downtown Berkeley","Ashby","MacArthur","Lake Merritt","Fruitvale","Coliseum","San Leandro","Bay Fair","Hayward","South Hayward","Union City","Fremont","Warm Springs/South Fremont","Milpitas","Berryessa/North San Jose"]) },
-  { line: "BART Yellow (Antioch–SFO/Millbrae)", stations: seq("bart", ["Antioch","Pittsburg Center","Pittsburg/Bay Point","North Concord/Martinez","Concord","Pleasant Hill/Contra Costa Centre","Walnut Creek","Lafayette","Orinda","Rockridge","MacArthur","19th St Oakland","12th St Oakland City Center","West Oakland","Embarcadero","Montgomery St","Powell St","Civic Center/UN Plaza","16th St Mission","24th St Mission","Glen Park","Balboa Park","Daly City","Colma","South San Francisco","San Bruno","SFO Airport","Millbrae"]) },
-  { line: "BART Green (Berryessa–Daly City)", stations: seq("bart", ["Berryessa/North San Jose","Milpitas","Warm Springs/South Fremont","Fremont","Union City","South Hayward","Hayward","Bay Fair","San Leandro","Coliseum","Fruitvale","Lake Merritt","12th St Oakland City Center","West Oakland","Embarcadero","Montgomery St","Powell St","Civic Center/UN Plaza","16th St Mission","24th St Mission","Glen Park","Balboa Park","Daly City"]) },
-  { line: "BART Blue (Dublin/Pleasanton–Daly City)", stations: seq("bart", ["Dublin/Pleasanton","West Dublin/Pleasanton","Castro Valley","Bay Fair","San Leandro","Coliseum","Fruitvale","Lake Merritt","12th St Oakland City Center","West Oakland","Embarcadero","Montgomery St","Powell St","Civic Center/UN Plaza","16th St Mission","24th St Mission","Glen Park","Balboa Park","Daly City"]) },
-  { line: "Caltrain", stations: seq("caltrain", ["San Francisco (4th & King)","22nd Street","Bayshore","South San Francisco","San Bruno","Millbrae","Broadway","Burlingame","San Mateo","Hayward Park","Hillsdale","Belmont","San Carlos","Redwood City","Menlo Park","Palo Alto","California Ave","San Antonio","Mountain View","Sunnyvale","Lawrence","Santa Clara","College Park","San Jose Diridon","Tamien","Capitol","Blossom Hill","Morgan Hill","San Martin","Gilroy"]) },
-  { line: "LA Metro B (Red)", stations: seq("lametro", ["Union Station","Civic Center/Grand Park","Pershing Square","7th St/Metro Center","Westlake/MacArthur Park","Wilshire/Vermont","Vermont/Beverly","Vermont/Santa Monica","Vermont/Sunset","Hollywood/Western","Hollywood/Vine","Hollywood/Highland","Universal City/Studio City","North Hollywood"]) },
-  { line: "LA Metro D (Purple, incl. planned extension)", stations: [
-      ...seq("lametro", ["Union Station","Civic Center/Grand Park","Pershing Square","7th St/Metro Center","Westlake/MacArthur Park","Wilshire/Vermont","Wilshire/Normandie","Wilshire/Western","Wilshire/La Brea","Wilshire/Fairfax","Wilshire/La Cienega"]),
-      ...seq("planned", ["Beverly Drive","Century City","Westwood/UCLA","Westwood/VA Hospital"])
-    ] },
-  // LA Metro A and E Lines below are pulled from Metro's own official rail
-  // GTFS feed (https://gitlab.com/LACMTA/gtfs_rail, fetched Oct 2026) - the
-  // prior version of both sequences was missing several real stations
-  // (A Line: San Pedro Street, Grand Ave Arts/Bunker Hill, Historic
-  // Broadway; E Line: that same downtown segment plus the entire eastward
-  // extension to East LA added in the 2022 rail network restructuring).
-  { line: "LA Metro A (Blue+Gold)", stations: seq("lametro", ["Downtown Long Beach","Pacific Ave","Anaheim Street","Pacific Coast Hwy","Willow Street","Wardlow","Del Amo","Artesia","Compton","Willowbrook/Rosa Parks","103rd Street/Watts Towers","Firestone","Florence","Slauson","Vernon","Washington","San Pedro Street","Grand/LATTC","Pico","7th St/Metro Center","Grand Ave Arts/Bunker Hill","Historic Broadway","Little Tokyo/Arts District","Union Station","Chinatown","Lincoln Heights/Cypress Park","Heritage Square/Arroyo","Southwest Museum","Highland Park","South Pasadena","Fillmore","Del Mar","Memorial Park","Lake","Allen","Sierra Madre Villa","Arcadia","Monrovia","Duarte/City of Hope","Irwindale","Azusa Downtown","APU/Citrus College"]) },
-  { line: "LA Metro C (Green)", stations: seq("lametro", ["Norwalk","Lakewood Blvd","Lynwood","Willowbrook/Rosa Parks","Avalon","Harbor Freeway","Vermont/Athens","Crenshaw","Hawthorne/Lennox","Aviation/Imperial","Aviation/Century","LAX/Metro Transit Center"]) },
-  { line: "LA Metro E (Expo)", stations: seq("lametro", ["Downtown Santa Monica","17th St/SMC","26th Street/Bergamot","Expo/Bundy","Expo/Sepulveda","Westwood/Rancho Park","Palms","Culver City","La Cienega/Jefferson","Expo/La Brea","Farmdale","Expo/Crenshaw","Expo/Western","Expo/Vermont","Expo Park/USC","Jefferson/USC","LATTC/Ortho Institute","Pico","7th St/Metro Center","Grand Ave Arts/Bunker Hill","Historic Broadway","Little Tokyo/Arts District","Pico/Aliso","Mariachi Plaza/Boyle Heights","Soto","Indiana","Maravilla","East LA Civic Center","Atlantic"]) },
-  { line: "LA Metro K (Crenshaw)", stations: seq("lametro", ["Redondo Beach","Douglas","El Segundo","Mariposa","Aviation/Century","LAX/Metro Transit Center","Westchester/Veterans","Downtown Inglewood","Fairview Heights","Hyde Park","Leimert Park","Martin Luther King Jr","Expo/Crenshaw"]) },
-  // SD Trolley Blue and Green Lines below are pulled directly from MTS's
-  // official GTFS feed (fetched Oct 2026) - see the note above
-  // sdTrolleyStations for what this corrects (wrong Blue Line order,
-  // missing Mid-Coast stations, Mission Valley stations wrongly on Blue
-  // instead of Green).
-  { line: "SD Trolley Blue", stations: seq("sdtrolley", ["San Ysidro","Beyer Blvd","Iris Avenue","Palm Avenue","Palomar Street","H Street","E Street","24th Street","8th Street","Pacific Fleet","Harborside","Barrio Logan","12th & Imperial","Park & Market","City College","Fifth Avenue","Civic Center","America Plaza","Santa Fe Depot","County Center/Little Italy","Middletown","Washington Street","Old Town","Tecolote Road","Clairemont Drive","Balboa Avenue","Nobel Drive","VA Medical Center","UCSD Central Campus","UCSD Health La Jolla","Executive Drive","UTC"]) },
-  { line: "SD Trolley Orange", stations: seq("sdtrolley", ["12th & Imperial Transit Center","Barrio Logan Orange","Grantville Orange","La Mesa Blvd","El Cajon Transit Center","Santee Town Center"]) },
-  { line: "SD Trolley Green", stations: seq("sdtrolley", ["Gaslamp Quarter","Convention Center","Seaport Village","Santa Fe Depot","County Center/Little Italy","Middletown","Washington Street","Old Town","Morena/Linda Vista","Fashion Valley","Hazard Center","Mission Valley Center","Rio Vista","Fenton Parkway","Stadium","Mission San Diego","Union Grantville","SDSU","UCSD Health East","70th Street","Grossmont","Amaya Drive","El Cajon"]) }
-];
-
-function haversineMiles(lat1,lng1,lat2,lng2) {
-  const R = 3958.8;
-  const dLat = (lat2-lat1)*Math.PI/180, dLng = (lng2-lng1)*Math.PI/180;
-  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-}
-
-const MAX_MEANINGFUL_ACCESS_MILES = 2; // beyond this, "nearest station" is meaningless noise, not a real connection
-
-function findNearestStation(lat, lng) {
-  let best = null, bestDist = Infinity;
-  lineSequences.forEach(ls => {
-    ls.stations.forEach(st => {
-      const c = resolveCoord(st.system, st.name);
-      if (!c) return;
-      const d = haversineMiles(lat, lng, c.lat, c.lng);
-      if (d < bestDist) { bestDist = d; best = { system: st.system, name: st.name, lat: c.lat, lng: c.lng, dist: d }; }
-    });
-  });
-  // BUG FIX: previously returned the closest station in the ENTIRE statewide
-  // network with no distance cap - so facilities with zero real rail access
-  // (Ventura, Santa Barbara, Fresno, most of rural NorCal, etc.) got matched
-  // to a "nearest" station dozens of miles away, and then falsely reported
-  // as "N stops" from stations near THAT distant station. A facility with no
-  // station within a reasonable distance has no meaningful transit
-  // connection, full stop - return null rather than a misleading match.
-  if (best && best.dist > MAX_MEANINGFUL_ACCESS_MILES) return null;
-  return best;
-}
-
-function stationsWithinNStops(nearest, n) {
-  const seen = new Set();
-  const out = [];
-  lineSequences.forEach(ls => {
-    const idx = ls.stations.findIndex(st => st.system === nearest.system && st.name === nearest.name);
-    if (idx === -1) return;
-    for (let offset = -n; offset <= n; offset++) {
-      if (offset === 0) continue;
-      const i = idx + offset;
-      if (i < 0 || i >= ls.stations.length) continue;
-      const st = ls.stations[i];
-      const key = st.system + "|" + st.name;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      const c = resolveCoord(st.system, st.name);
-      if (c) out.push({ name: st.name, lat: c.lat, lng: c.lng, line: ls.line, stops: Math.abs(offset), planned: st.system === "planned" });
-    }
-  });
-  return out;
-}
-
-// ============================================================
-// ACCESSIBILITY LAYERS - network-wide, not per-facility. For EVERY VA
-// facility, find its nearest station, then compute which OTHER stations
-// are within 3/5/7 stops of that station (one-seat, same line only). Union
-// the results across all facilities into three layers: any station
-// highlighted in "Within 3 stops" is a one-seat ride from AT LEAST ONE
-// veteran facility's nearest station. Marker size scales slightly with how
-// many different facilities that station serves - a bigger dot means
-// better-connected, not just closer to one thing. Only one of these three
-// is shown at a time via the Accessibility toggle.
-// ============================================================
-const facilityNearestStation = facilities.map(f => ({ facility: f, nearest: findNearestStation(f.lat, f.lng) }));
-
-function buildAccessibilityLayer(n) {
-  const layer = L.layerGroup();
-  const stationMap = new Map(); // key -> { lat, lng, name, planned, facilities: [{name, stops}] }
-  facilityNearestStation.forEach(({ facility, nearest }) => {
-    if (!nearest) return;
-    const reachable = [
-      { name: nearest.name, lat: nearest.lat, lng: nearest.lng, stops: 0, planned: nearest.system === "planned" },
-      ...stationsWithinNStops(nearest, n)
-    ];
-    reachable.forEach(st => {
-      const key = st.name + "|" + st.lat.toFixed(4) + "|" + st.lng.toFixed(4);
-      if (!stationMap.has(key)) stationMap.set(key, { lat: st.lat, lng: st.lng, name: st.name, planned: st.planned, facilities: [] });
-      stationMap.get(key).facilities.push({ name: facility.name, stops: st.stops });
-    });
-  });
-  const coords = [];
-  stationMap.forEach(st => {
-    coords.push({ lat: st.lat, lng: st.lng });
-    const count = st.facilities.length;
-    const size = Math.min(10 + count * 2, 26);
-    const icon = L.divIcon({
-      className: '',
-      html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:rgba(184,134,11,0.35);border:2px ${st.planned ? 'dashed' : 'solid'} #b8860b;"></div>`,
-      iconSize: [size, size], iconAnchor: [size/2, size/2]
-    });
-    const facilityList = st.facilities
-      .sort((a,b) => a.stops - b.stops)
-      .map(f => f.stops === 0 ? `Nearest station to ${f.name}` : `${f.stops} station${f.stops === 1 ? '' : 's'} away from ${f.name}`).join('<br>');
-    L.marker([st.lat, st.lng], { icon })
-      .bindPopup(`<div class="popup-title">${st.name}${st.planned ? ' (PLANNED)' : ''}</div><div class="popup-row">One-seat ride, no transfer needed:</div><div class="popup-row" style="margin-top:4px;">${facilityList}</div>`)
-      .addTo(layer);
-  });
-  return { layer, coords };
-}
-
-const accessibility3 = buildAccessibilityLayer(3);
-const accessibility5 = buildAccessibilityLayer(5);
-const accessibility3Layer = accessibility3.layer;
-const accessibility5Layer = accessibility5.layer;
-
-// ============================================================
 // VETERAN SHELTER CAPACITY STANDARD (the actual siting formula, not a
 // hypothetical): by-right emergency shelter approval applies in any city
 // or county whose year-round interim shelter beds dedicated to veterans
@@ -1530,10 +1353,10 @@ const accessibility5Layer = accessibility5.layer;
 // trigger): for a facility (a) in a county that FAILS the veteran 60%
 // test above, (b) inside an SB 79 urban transit county, AND (c) within
 // 0.5 miles of its nearest open-or-planned major transit stop, a 0.5-mile
-// by-right radius covers that anchor stop PLUS the 3 adjacent stations on
-// that line in each direction (a one-seat ride of up to 4 stops total,
-// anchor included) - matching how a veteran could actually travel from
-// home station to this facility's doorstep without transferring.
+// by-right radius covers that anchor stop PLUS the 3 or 5 adjacent stations
+// (user's choice) on that line in each direction - matching how a veteran
+// could actually travel from home station to this facility's doorstep
+// without transferring.
 //
 // Every entry below was individually verified Oct 2026 against each
 // agency's own official GTFS feed (BART, SFMTA/Muni, MTS, LA Metro rail)
@@ -1559,25 +1382,34 @@ const byRightHalfMileLayer = L.layerGroup();
 const vetChoroplethLayer = L.layerGroup();
 
 const VERIFIED_BY_RIGHT_DATA = [
-  {"facility":"SF Vet Center","line":"Muni F Line (Market & Wharves streetcar)","anchor":"The Embarcadero & Green St","county":"San Francisco","anchorDist":0.151,"stations":[{"name":"The Embarcadero & Ferry Building","lat":37.79489,"lng":-122.393552,"stops":3,"isAnchor":false},{"name":"The Embarcadero & Washington St","lat":37.797085,"lng":-122.39567,"stops":2,"isAnchor":false},{"name":"The Embarcadero & Broadway","lat":37.799552,"lng":-122.397869,"stops":1,"isAnchor":false},{"name":"The Embarcadero & Green St","lat":37.801264,"lng":-122.399369,"stops":0,"isAnchor":true},{"name":"The Embarcadero & Greenwich St","lat":37.803263,"lng":-122.401113,"stops":1,"isAnchor":false},{"name":"Embarcadero & Sansome St","lat":37.805146,"lng":-122.403233,"stops":2,"isAnchor":false},{"name":"The Embarcadero & Bay St","lat":37.806945,"lng":-122.406278,"stops":3,"isAnchor":false}]},
-  {"facility":"VA San Diego (Jennifer Moreno VAMC)","line":"MTS Blue Line","anchor":"VA Medical Center Station","county":"San Diego","anchorDist":0.168,"stations":[{"name":"Clairemont Drive Station","lat":32.79006453,"lng":-117.20612915,"stops":3,"isAnchor":false},{"name":"Balboa Avenue Station","lat":32.80585769,"lng":-117.21406638,"stops":2,"isAnchor":false},{"name":"Nobel Drive Station","lat":32.86696566,"lng":-117.23038762,"stops":1,"isAnchor":false},{"name":"VA Medical Center Station","lat":32.87425324,"lng":-117.22981838,"stops":0,"isAnchor":true},{"name":"UCSD Central Campus Station","lat":32.87844073,"lng":-117.23177898,"stops":1,"isAnchor":false},{"name":"UCSD Health La Jolla Station","lat":32.88181636,"lng":-117.22349207,"stops":2,"isAnchor":false},{"name":"Executive Drive Station","lat":32.87413569,"lng":-117.21404976,"stops":3,"isAnchor":false}]},
-  {"facility":"Los Angeles VA Clinic (Downtown)","line":"LA Metro A Line","anchor":"Little Tokyo / Arts District Station","county":"Los Angeles","anchorDist":0.184,"stations":[{"name":"Pico Station","lat":34.040735,"lng":-118.266118,"stops":3,"isAnchor":false},{"name":"Grand Ave Arts / Bunker Hill Station","lat":34.05472448,"lng":-118.2515307,"stops":2,"isAnchor":false},{"name":"Historic Broadway Station","lat":34.05215607,"lng":-118.2463211,"stops":1,"isAnchor":false},{"name":"Little Tokyo / Arts District Station","lat":34.04884524,"lng":-118.2387567,"stops":0,"isAnchor":true},{"name":"Union Station - Metro A-Line","lat":34.056061,"lng":-118.234759,"stops":1,"isAnchor":false},{"name":"Chinatown Station","lat":34.063861,"lng":-118.23584,"stops":2,"isAnchor":false}]},
-  {"facility":"Los Angeles VA Clinic (Downtown)","line":"LA Metro E Line","anchor":"Little Tokyo / Arts District Station","county":"Los Angeles","anchorDist":0.184,"stations":[{"name":"7th Street / Metro Center Station - Metro A & E Lines","lat":34.04861,"lng":-118.258822,"stops":3,"isAnchor":false},{"name":"Grand Ave Arts / Bunker Hill Station","lat":34.05472448,"lng":-118.2515307,"stops":2,"isAnchor":false},{"name":"Historic Broadway Station","lat":34.05215607,"lng":-118.2463211,"stops":1,"isAnchor":false},{"name":"Little Tokyo / Arts District Station","lat":34.04884524,"lng":-118.2387567,"stops":0,"isAnchor":true},{"name":"Pico / Aliso Station","lat":34.047634,"lng":-118.22594,"stops":1,"isAnchor":false},{"name":"Mariachi Plaza / Boyle Heights Station","lat":34.047215,"lng":-118.219648,"stops":2,"isAnchor":false},{"name":"Soto Station","lat":34.043747,"lng":-118.210061,"stops":3,"isAnchor":false}]},
-  {"facility":"SF Downtown VA Clinic (CRRC)","line":"Muni T Line (Central Subway)","anchor":"Yerba Buena/Moscone Station Northbound","county":"San Francisco","anchorDist":0.242,"stations":[{"name":"Third Street & Mission Rock St","lat":37.772984,"lng":-122.389683,"stops":3,"isAnchor":false},{"name":"4th St & King St","lat":37.776278,"lng":-122.393864,"stops":2,"isAnchor":false},{"name":"Fourth Street & Brannan Northbound","lat":37.778403,"lng":-122.39659,"stops":1,"isAnchor":false},{"name":"Yerba Buena/Moscone Station Northbound","lat":37.782358,"lng":-122.401551,"stops":0,"isAnchor":true},{"name":"Union Square/Market St Station Northbound","lat":37.787151,"lng":-122.406477,"stops":1,"isAnchor":false},{"name":"Chinatown - Rose Pak Station","lat":37.794807,"lng":-122.408078,"stops":2,"isAnchor":false}]},
-  {"facility":"Rio VA Clinic","line":"MTS Green Line","anchor":"Rio Vista Station","county":"San Diego","anchorDist":0.328,"stations":[{"name":"Fashion Valley Station","lat":32.76545309,"lng":-117.16890515,"stops":3,"isAnchor":false},{"name":"Hazard Center Station","lat":32.77025712,"lng":-117.15815189,"stops":2,"isAnchor":false},{"name":"Mission Valley Center Station","lat":32.77108307,"lng":-117.14985611,"stops":1,"isAnchor":false},{"name":"Rio Vista Station","lat":32.77362089,"lng":-117.14169885,"stops":0,"isAnchor":true},{"name":"Fenton Parkway Station","lat":32.77837004,"lng":-117.12700808,"stops":1,"isAnchor":false},{"name":"Stadium Station","lat":32.78092904,"lng":-117.11949198,"stops":2,"isAnchor":false},{"name":"Mission San Diego Station","lat":32.78081391,"lng":-117.11097904,"stops":3,"isAnchor":false}]},
-  {"facility":"Oakland VA Clinic","line":"BART Yellow Line (East Bay core)","anchor":"19th Street Oakland","county":"Alameda","anchorDist":0.353,"stations":[{"name":"Orinda","lat":37.878481,"lng":-122.183667,"stops":3,"isAnchor":false},{"name":"Rockridge","lat":37.844755,"lng":-122.251235,"stops":2,"isAnchor":false},{"name":"MacArthur","lat":37.828803,"lng":-122.267105,"stops":1,"isAnchor":false},{"name":"19th Street Oakland","lat":37.808078,"lng":-122.268758,"stops":0,"isAnchor":true},{"name":"12th Street / Oakland City Center","lat":37.803482,"lng":-122.27163,"stops":1,"isAnchor":false},{"name":"West Oakland","lat":37.804888,"lng":-122.295151,"stops":2,"isAnchor":false},{"name":"Embarcadero","lat":37.792762,"lng":-122.397037,"stops":3,"isAnchor":false}]},
-  {"facility":"Oakland 21st Street VA Clinic","line":"BART Yellow Line (East Bay core)","anchor":"19th Street Oakland","county":"Alameda","anchorDist":0.353,"stations":[{"name":"Orinda","lat":37.878481,"lng":-122.183667,"stops":3,"isAnchor":false},{"name":"Rockridge","lat":37.844755,"lng":-122.251235,"stops":2,"isAnchor":false},{"name":"MacArthur","lat":37.828803,"lng":-122.267105,"stops":1,"isAnchor":false},{"name":"19th Street Oakland","lat":37.808078,"lng":-122.268758,"stops":0,"isAnchor":true},{"name":"12th Street / Oakland City Center","lat":37.803482,"lng":-122.27163,"stops":1,"isAnchor":false},{"name":"West Oakland","lat":37.804888,"lng":-122.295151,"stops":2,"isAnchor":false},{"name":"Embarcadero","lat":37.792762,"lng":-122.397037,"stops":3,"isAnchor":false}]},
-  {"facility":"San Diego VA Domiciliary (Aspire Center)","line":"MTS Blue Line","anchor":"Washington Street Station","county":"San Diego","anchorDist":0.444,"stations":[{"name":"Santa Fe Depot","lat":32.71732388,"lng":-117.169779,"stops":3,"isAnchor":false},{"name":"County Center/Little Italy Station","lat":32.72149387,"lng":-117.16989795,"stops":2,"isAnchor":false},{"name":"Middletown Station","lat":32.73378587,"lng":-117.17492298,"stops":1,"isAnchor":false},{"name":"Washington Street Station","lat":32.74172394,"lng":-117.18446791,"stops":0,"isAnchor":true},{"name":"Old Town Station","lat":32.754908,"lng":-117.19948716,"stops":1,"isAnchor":false},{"name":"Tecolote Road Station","lat":32.76991399,"lng":-117.20506166,"stops":2,"isAnchor":false},{"name":"Clairemont Drive Station","lat":32.79006453,"lng":-117.20612915,"stops":3,"isAnchor":false}]},
-  {"facility":"San Diego VA Domiciliary (Aspire Center)","line":"MTS Green Line","anchor":"Washington Street Station","county":"San Diego","anchorDist":0.444,"stations":[{"name":"Santa Fe Depot","lat":32.71732388,"lng":-117.169779,"stops":3,"isAnchor":false},{"name":"County Center/Little Italy Station","lat":32.72149387,"lng":-117.16989795,"stops":2,"isAnchor":false},{"name":"Middletown Station","lat":32.73378587,"lng":-117.17492298,"stops":1,"isAnchor":false},{"name":"Washington Street Station","lat":32.74172394,"lng":-117.18446791,"stops":0,"isAnchor":true},{"name":"Old Town Station","lat":32.754908,"lng":-117.19948716,"stops":1,"isAnchor":false},{"name":"Morena/Linda Vista Station","lat":32.76352707,"lng":-117.19655802,"stops":2,"isAnchor":false},{"name":"Fashion Valley Station","lat":32.76545309,"lng":-117.16890515,"stops":3,"isAnchor":false}]},
-  {"facility":"VA Greater Los Angeles (West LA)","line":"LA Metro D Line Extension (Section 2-3, PLANNED, opening 2027)","anchor":"Westwood/VA Hospital (PLANNED, terminus)","county":"Los Angeles","anchorDist":0.311,"stations":[{"name":"Beverly Drive (PLANNED)","lat":34.06694,"lng":-118.39833,"stops":3,"isAnchor":false},{"name":"Century City (PLANNED)","lat":34.05972,"lng":-118.415,"stops":2,"isAnchor":false},{"name":"Westwood/UCLA (PLANNED)","lat":34.05861,"lng":-118.44611,"stops":1,"isAnchor":false},{"name":"Westwood/VA Hospital (PLANNED, terminus)","lat":34.05444,"lng":-118.45361,"stops":0,"isAnchor":true}]}
+  {"facility":"SF Vet Center","line":"Muni F Line (Market & Wharves streetcar)","anchor":"The Embarcadero & Green St","stations":[{"name":"Market St & Main St","lat":37.792984,"lng":-122.396627,"stops":5,"isAnchor":false},{"name":"Don Chee Way/Steuart St","lat":37.793918,"lng":-122.393438,"stops":4,"isAnchor":false},{"name":"The Embarcadero & Ferry Building","lat":37.79489,"lng":-122.393552,"stops":3,"isAnchor":false},{"name":"The Embarcadero & Washington St","lat":37.797085,"lng":-122.39567,"stops":2,"isAnchor":false},{"name":"The Embarcadero & Broadway","lat":37.799552,"lng":-122.397869,"stops":1,"isAnchor":false},{"name":"The Embarcadero & Green St","lat":37.801264,"lng":-122.399369,"stops":0,"isAnchor":true},{"name":"The Embarcadero & Greenwich St","lat":37.803263,"lng":-122.401113,"stops":1,"isAnchor":false},{"name":"Embarcadero & Sansome St","lat":37.805146,"lng":-122.403233,"stops":2,"isAnchor":false},{"name":"The Embarcadero & Bay St","lat":37.806945,"lng":-122.406278,"stops":3,"isAnchor":false},{"name":"The Embarcadero & Stockton St","lat":37.808351,"lng":-122.410287,"stops":4,"isAnchor":false},{"name":"Jefferson St & Powell St","lat":37.808594,"lng":-122.413357,"stops":5,"isAnchor":false}],"county":"San Francisco","anchorDist":0.151},
+  {"facility":"VA San Diego (Jennifer Moreno VAMC)","line":"MTS Blue Line","anchor":"VA Medical Center Station","stations":[{"name":"Old Town Station","lat":32.754908,"lng":-117.19948716,"stops":5,"isAnchor":false},{"name":"Tecolote Road Station","lat":32.76991399,"lng":-117.20506166,"stops":4,"isAnchor":false},{"name":"Clairemont Drive Station","lat":32.79006453,"lng":-117.20612915,"stops":3,"isAnchor":false},{"name":"Balboa Avenue Station","lat":32.80585769,"lng":-117.21406638,"stops":2,"isAnchor":false},{"name":"Nobel Drive Station","lat":32.86696566,"lng":-117.23038762,"stops":1,"isAnchor":false},{"name":"VA Medical Center Station","lat":32.87425324,"lng":-117.22981838,"stops":0,"isAnchor":true},{"name":"UCSD Central Campus Station","lat":32.87844073,"lng":-117.23177898,"stops":1,"isAnchor":false},{"name":"UCSD Health La Jolla Station","lat":32.88181636,"lng":-117.22349207,"stops":2,"isAnchor":false},{"name":"Executive Drive Station","lat":32.87413569,"lng":-117.21404976,"stops":3,"isAnchor":false},{"name":"UTC Station","lat":32.86920431,"lng":-117.21401071,"stops":4,"isAnchor":false}],"county":"San Diego","anchorDist":0.168},
+  {"facility":"Los Angeles VA Clinic (Downtown)","line":"LA Metro A Line","anchor":"Little Tokyo / Arts District Station","stations":[{"name":"Grand / LATTC Station","lat":34.033155,"lng":-118.269333,"stops":5,"isAnchor":false},{"name":"Pico Station","lat":34.040735,"lng":-118.266118,"stops":4,"isAnchor":false},{"name":"7th Street / Metro Center Station - Metro A & E Lines","lat":34.04861,"lng":-118.258822,"stops":3,"isAnchor":false},{"name":"Grand Ave Arts / Bunker Hill Station","lat":34.05472448,"lng":-118.2515307,"stops":2,"isAnchor":false},{"name":"Historic Broadway Station","lat":34.05215607,"lng":-118.2463211,"stops":1,"isAnchor":false},{"name":"Little Tokyo / Arts District Station","lat":34.04884524,"lng":-118.2387567,"stops":0,"isAnchor":true},{"name":"Union Station - Metro A-Line","lat":34.056061,"lng":-118.234759,"stops":1,"isAnchor":false},{"name":"Chinatown Station","lat":34.063861,"lng":-118.23584,"stops":2,"isAnchor":false},{"name":"Lincoln Heights / Cypress Park Station","lat":34.080949,"lng":-118.220429,"stops":3,"isAnchor":false},{"name":"Heritage Square / Arroyo Station","lat":34.087227,"lng":-118.213213,"stops":4,"isAnchor":false},{"name":"Southwest Museum Station","lat":34.098243,"lng":-118.206712,"stops":5,"isAnchor":false}],"county":"Los Angeles","anchorDist":0.184},
+  {"facility":"Los Angeles VA Clinic (Downtown)","line":"LA Metro E Line","anchor":"Little Tokyo / Arts District Station","stations":[{"name":"LATTC / Ortho Institute Station","lat":34.029112,"lng":-118.273603,"stops":5,"isAnchor":false},{"name":"Pico Station","lat":34.040735,"lng":-118.266118,"stops":4,"isAnchor":false},{"name":"7th Street / Metro Center Station - Metro A & E Lines","lat":34.04861,"lng":-118.258822,"stops":3,"isAnchor":false},{"name":"Grand Ave Arts / Bunker Hill Station","lat":34.05472448,"lng":-118.2515307,"stops":2,"isAnchor":false},{"name":"Historic Broadway Station","lat":34.05215607,"lng":-118.2463211,"stops":1,"isAnchor":false},{"name":"Little Tokyo / Arts District Station","lat":34.04884524,"lng":-118.2387567,"stops":0,"isAnchor":true},{"name":"Pico / Aliso Station","lat":34.047634,"lng":-118.22594,"stops":1,"isAnchor":false},{"name":"Mariachi Plaza / Boyle Heights Station","lat":34.047215,"lng":-118.219648,"stops":2,"isAnchor":false},{"name":"Soto Station","lat":34.043747,"lng":-118.210061,"stops":3,"isAnchor":false},{"name":"Indiana Station","lat":34.0343,"lng":-118.192182,"stops":4,"isAnchor":false},{"name":"Maravilla Station","lat":34.033319,"lng":-118.16814,"stops":5,"isAnchor":false}],"county":"Los Angeles","anchorDist":0.184},
+  {"facility":"SF Downtown VA Clinic (CRRC)","line":"Muni T Line (Central Subway)","anchor":"Yerba Buena/Moscone Station Northbound","stations":[{"name":"UCSF Medical Center (Mariposa)","lat":37.764391,"lng":-122.388853,"stops":5,"isAnchor":false},{"name":"UCSF / Chase Center (16th St)","lat":37.768504,"lng":-122.389182,"stops":4,"isAnchor":false},{"name":"Third Street & Mission Rock St","lat":37.772984,"lng":-122.389683,"stops":3,"isAnchor":false},{"name":"4th St & King St","lat":37.776278,"lng":-122.393864,"stops":2,"isAnchor":false},{"name":"Fourth Street & Brannan Northbound","lat":37.778403,"lng":-122.39659,"stops":1,"isAnchor":false},{"name":"Yerba Buena/Moscone Station Northbound","lat":37.782358,"lng":-122.401551,"stops":0,"isAnchor":true},{"name":"Union Square/Market St Station Northbound","lat":37.787151,"lng":-122.406477,"stops":1,"isAnchor":false},{"name":"Chinatown - Rose Pak Station","lat":37.794807,"lng":-122.408078,"stops":2,"isAnchor":false}],"county":"San Francisco","anchorDist":0.242},
+  {"facility":"Rio VA Clinic","line":"MTS Green Line","anchor":"Rio Vista Station","stations":[{"name":"Old Town Station","lat":32.754908,"lng":-117.19948716,"stops":5,"isAnchor":false},{"name":"Morena/Linda Vista Station","lat":32.76352707,"lng":-117.19655802,"stops":4,"isAnchor":false},{"name":"Fashion Valley Station","lat":32.76545309,"lng":-117.16890515,"stops":3,"isAnchor":false},{"name":"Hazard Center Station","lat":32.77025712,"lng":-117.15815189,"stops":2,"isAnchor":false},{"name":"Mission Valley Center Station","lat":32.77108307,"lng":-117.14985611,"stops":1,"isAnchor":false},{"name":"Rio Vista Station","lat":32.77362089,"lng":-117.14169885,"stops":0,"isAnchor":true},{"name":"Fenton Parkway Station","lat":32.77837004,"lng":-117.12700808,"stops":1,"isAnchor":false},{"name":"Stadium Station","lat":32.78092904,"lng":-117.11949198,"stops":2,"isAnchor":false},{"name":"Mission San Diego Station","lat":32.78081391,"lng":-117.11097904,"stops":3,"isAnchor":false},{"name":"Union Grantville Station","lat":32.78039787,"lng":-117.09738402,"stops":4,"isAnchor":false},{"name":"SDSU Station","lat":32.77316493,"lng":-117.07037198,"stops":5,"isAnchor":false}],"county":"San Diego","anchorDist":0.328},
+  {"facility":"Oakland VA Clinic","line":"BART Yellow Line (East Bay core)","anchor":"19th Street Oakland","stations":[{"name":"Walnut Creek","lat":37.905791,"lng":-122.067327,"stops":5,"isAnchor":false},{"name":"Lafayette","lat":37.893183,"lng":-122.12462,"stops":4,"isAnchor":false},{"name":"Orinda","lat":37.878481,"lng":-122.183667,"stops":3,"isAnchor":false},{"name":"Rockridge","lat":37.844755,"lng":-122.251235,"stops":2,"isAnchor":false},{"name":"MacArthur","lat":37.828803,"lng":-122.267105,"stops":1,"isAnchor":false},{"name":"19th Street Oakland","lat":37.808078,"lng":-122.268758,"stops":0,"isAnchor":true},{"name":"12th Street / Oakland City Center","lat":37.803482,"lng":-122.27163,"stops":1,"isAnchor":false},{"name":"West Oakland","lat":37.804888,"lng":-122.295151,"stops":2,"isAnchor":false},{"name":"Embarcadero","lat":37.792762,"lng":-122.397037,"stops":3,"isAnchor":false},{"name":"Montgomery Street","lat":37.789173,"lng":-122.401587,"stops":4,"isAnchor":false},{"name":"Powell Street","lat":37.784606,"lng":-122.407331,"stops":5,"isAnchor":false}],"county":"Alameda","anchorDist":0.353},
+  {"facility":"Oakland 21st Street VA Clinic","line":"BART Yellow Line (East Bay core)","anchor":"19th Street Oakland","stations":[{"name":"Walnut Creek","lat":37.905791,"lng":-122.067327,"stops":5,"isAnchor":false},{"name":"Lafayette","lat":37.893183,"lng":-122.12462,"stops":4,"isAnchor":false},{"name":"Orinda","lat":37.878481,"lng":-122.183667,"stops":3,"isAnchor":false},{"name":"Rockridge","lat":37.844755,"lng":-122.251235,"stops":2,"isAnchor":false},{"name":"MacArthur","lat":37.828803,"lng":-122.267105,"stops":1,"isAnchor":false},{"name":"19th Street Oakland","lat":37.808078,"lng":-122.268758,"stops":0,"isAnchor":true},{"name":"12th Street / Oakland City Center","lat":37.803482,"lng":-122.27163,"stops":1,"isAnchor":false},{"name":"West Oakland","lat":37.804888,"lng":-122.295151,"stops":2,"isAnchor":false},{"name":"Embarcadero","lat":37.792762,"lng":-122.397037,"stops":3,"isAnchor":false},{"name":"Montgomery Street","lat":37.789173,"lng":-122.401587,"stops":4,"isAnchor":false},{"name":"Powell Street","lat":37.784606,"lng":-122.407331,"stops":5,"isAnchor":false}],"county":"Alameda","anchorDist":0.353},
+  {"facility":"San Diego VA Domiciliary (Aspire Center)","line":"MTS Blue Line","anchor":"Washington Street Station","stations":[{"name":"Civic Center Station","lat":32.71677298,"lng":-117.16242896,"stops":5,"isAnchor":false},{"name":"America Plaza Station","lat":32.7166269,"lng":-117.1688139,"stops":4,"isAnchor":false},{"name":"Santa Fe Depot","lat":32.71732388,"lng":-117.169779,"stops":3,"isAnchor":false},{"name":"County Center/Little Italy Station","lat":32.72149387,"lng":-117.16989795,"stops":2,"isAnchor":false},{"name":"Middletown Station","lat":32.73378587,"lng":-117.17492298,"stops":1,"isAnchor":false},{"name":"Washington Street Station","lat":32.74172394,"lng":-117.18446791,"stops":0,"isAnchor":true},{"name":"Old Town Station","lat":32.754908,"lng":-117.19948716,"stops":1,"isAnchor":false},{"name":"Tecolote Road Station","lat":32.76991399,"lng":-117.20506166,"stops":2,"isAnchor":false},{"name":"Clairemont Drive Station","lat":32.79006453,"lng":-117.20612915,"stops":3,"isAnchor":false},{"name":"Balboa Avenue Station","lat":32.80585769,"lng":-117.21406638,"stops":4,"isAnchor":false},{"name":"Nobel Drive Station","lat":32.86696566,"lng":-117.23038762,"stops":5,"isAnchor":false}],"county":"San Diego","anchorDist":0.444},
+  {"facility":"San Diego VA Domiciliary (Aspire Center)","line":"MTS Green Line","anchor":"Washington Street Station","stations":[{"name":"Convention Center Station","lat":32.70898098,"lng":-117.16346306,"stops":5,"isAnchor":false},{"name":"Seaport Village Station","lat":32.71200095,"lng":-117.16862004,"stops":4,"isAnchor":false},{"name":"Santa Fe Depot","lat":32.71732388,"lng":-117.169779,"stops":3,"isAnchor":false},{"name":"County Center/Little Italy Station","lat":32.72149387,"lng":-117.16989795,"stops":2,"isAnchor":false},{"name":"Middletown Station","lat":32.73378587,"lng":-117.17492298,"stops":1,"isAnchor":false},{"name":"Washington Street Station","lat":32.74172394,"lng":-117.18446791,"stops":0,"isAnchor":true},{"name":"Old Town Station","lat":32.754908,"lng":-117.19948716,"stops":1,"isAnchor":false},{"name":"Morena/Linda Vista Station","lat":32.76352707,"lng":-117.19655802,"stops":2,"isAnchor":false},{"name":"Fashion Valley Station","lat":32.76545309,"lng":-117.16890515,"stops":3,"isAnchor":false},{"name":"Hazard Center Station","lat":32.77025712,"lng":-117.15815189,"stops":4,"isAnchor":false},{"name":"Mission Valley Center Station","lat":32.77108307,"lng":-117.14985611,"stops":5,"isAnchor":false}],"county":"San Diego","anchorDist":0.444},
+  {"facility":"VA Greater Los Angeles (West LA)","line":"LA Metro D Line Extension (Section 2-3, PLANNED, opening 2027)","anchor":"Westwood/VA Hospital (PLANNED, terminus)","stations":[{"name":"Wilshire / La Cienega Station","lat":34.06483444,"lng":-118.3747009,"stops":4,"isAnchor":false},{"name":"Beverly Drive (PLANNED)","lat":34.06694,"lng":-118.39833,"stops":3,"isAnchor":false},{"name":"Century City (PLANNED)","lat":34.05972,"lng":-118.415,"stops":2,"isAnchor":false},{"name":"Westwood/UCLA (PLANNED)","lat":34.05861,"lng":-118.44611,"stops":1,"isAnchor":false},{"name":"Westwood/VA Hospital (PLANNED, terminus)","lat":34.05444,"lng":-118.45361,"stops":0,"isAnchor":true}],"county":"Los Angeles","anchorDist":0.311}
 ];
 
-fetch('county_data.json').then(r => r.json()).then(countyData => {
+let currentByRightStopCount = 3;
+let cachedCountyData = null;
+
+// Draws the by-right layer for the currently selected stop count (3 or 5).
+// Callable repeatedly - clears and redraws from the same verified dataset
+// each time the radio changes, so it never needs a second data fetch.
+function rebuildByRightLayer() {
+  if (!cachedCountyData) return;
+  byRightHalfMileLayer.clearLayers();
   const drawnCoords = new Set();
   VERIFIED_BY_RIGHT_DATA.forEach(entry => {
-    const d = countyData[entry.county];
+    const d = cachedCountyData[entry.county];
     if (!d || d.vetMeets60Threshold) return; // county meets the veteran 60% standard - no by-right trigger here
     entry.stations.forEach(st => {
+      if (st.stops > currentByRightStopCount) return;
       const key = st.lat.toFixed(5) + ',' + st.lng.toFixed(5);
       if (drawnCoords.has(key)) return;
       drawnCoords.add(key);
@@ -1598,6 +1430,11 @@ fetch('county_data.json').then(r => r.json()).then(countyData => {
       `).addTo(byRightHalfMileLayer);
     });
   });
+}
+
+fetch('county_data.json').then(r => r.json()).then(countyData => {
+  cachedCountyData = countyData;
+  rebuildByRightLayer();
 
   fetch('ca_counties.geojson').then(r => r.json()).then(counties => {
     const maxTotal = Math.max(...Object.values(countyData).map(c => c.avgVetTotal10yr || 0));
@@ -1632,40 +1469,6 @@ fetch('county_data.json').then(r => r.json()).then(countyData => {
     }).addTo(vetChoroplethLayer);
   });
 });
-
-// Current Accessibility toggle state: null (none selected) or 3/5/7.
-// Drives which accessibility layer is shown AND which station set the
-// transit radius rings use (see rebuildTransitRadiusRings below).
-let accessibilityMode = null;
-
-function currentRadiusStationCoords() {
-  if (accessibilityMode === 3) return accessibility3.coords;
-  if (accessibilityMode === 5) return accessibility5.coords;
-  return allTransitCoords; // no filter selected - ring every combined station
-}
-
-function rebuildTransitRadiusRings() {
-  transitHalfMileLayer.clearLayers();
-  currentRadiusStationCoords().forEach(({lat, lng}) => {
-    L.circle([lat, lng], { radius: 0.5 * METERS_PER_MILE, color: '#1a73e8', weight: 0.75, fillOpacity: 0.015 }).addTo(transitHalfMileLayer);
-  });
-}
-rebuildTransitRadiusRings();
-
-// Filters the combined transit-stop markers down to just the Accessibility
-// selection (if any) - so "All SB 79 transit stops" shows ONLY the stations
-// within N stops when a filter is active, not the full 586-stop set. Uses
-// the same ~50m tolerance as de-duplication, since two records for the same
-// physical stop (e.g. a manual check vs. an agency dataset) can differ by a
-// few meters and a strict coordinate-string match would wrongly drop them.
-function coordsClose(lat1, lng1, lat2, lng2) {
-  return Math.abs(lat1 - lat2) < 0.0005 && Math.abs(lng1 - lng2) < 0.0005;
-}
-function currentFilteredStationRecords() {
-  if (!accessibilityMode) return allStationRecords;
-  const targets = currentRadiusStationCoords();
-  return allStationRecords.filter(r => targets.some(t => coordsClose(r.lat, r.lng, t.lat, t.lng)));
-}
 
 // ============================================================
 // CUSTOM GROUPED LAYER PANEL (replaces flat L.control.layers so facility
@@ -1704,32 +1507,20 @@ layerPanel.onAdd = function () {
         <label><input type="checkbox" id="chk-vetcenter"> Vet Centers</label>
       </div>
     </div>
-    <div class="lp-group">
-      <label class="lp-group-header"><input type="checkbox" id="grp-transit" checked> Transit Stops (SB 79-relevant)</label>
-      <div class="lp-sub">
-        <input type="checkbox" id="chk-alltransit" style="display:none">
-        <label><input type="checkbox" id="chk-planned"> Planned / under construction</label>
-      </div>
-    </div>
+    <input type="checkbox" id="chk-alltransit" style="display:none">
+    <input type="checkbox" id="chk-planned" style="display:none">
     <div class="lp-group">
       <label class="lp-group-header">Radius Rings</label>
       <div class="lp-sub">
         <label><input type="checkbox" id="chk-radius-facility-h"> 0.5mi around veteran's facilities</label>
-        <label><input type="checkbox" id="chk-radius-transit-h"> 0.5mi around transit</label>
       </div>
     </div>
     <div class="lp-group">
-      <label class="lp-group-header">Accessibility (one-seat ride from any facility)</label>
+      <label class="lp-group-header"><input type="checkbox" id="chk-byright"> By-Right Veteran Shelter Zone</label>
       <div class="lp-sub">
-        <label><input type="radio" name="access-mode" id="chk-access-none" value="0" checked> None</label>
-        <label><input type="radio" name="access-mode" id="chk-access-3" value="3"> Within 3 stops</label>
-        <label><input type="radio" name="access-mode" id="chk-access-5" value="5"> Within 5 stops</label>
-      </div>
-    </div>
-    <div class="lp-group">
-      <label class="lp-group-header">By-Right Veteran Shelter Zone (analysis)</label>
-      <div class="lp-sub">
-        <label><input type="checkbox" id="chk-byright"> 0.5mi zone around the nearest major transit stop, plus 3 stops each way</label>
+        Shows only transit stops within 0.5mi of a facility, plus the adjacent stations on a one-seat ride.
+        <label><input type="radio" name="byright-stops" value="3" checked> 3 stops</label>
+        <label><input type="radio" name="byright-stops" value="5"> 5 stops</label>
       </div>
     </div>
     <div class="lp-group">
@@ -1750,7 +1541,6 @@ wireCheckbox('chk-vetcenter', categoryLayers["Vet Center"], false);
 wireCheckbox('chk-alltransit', allTransitLayer, false);
 wireCheckbox('chk-planned', plannedLayer, false);
 wireCheckbox('chk-radius-facility-h', halfMileLayer, false);
-wireCheckbox('chk-radius-transit-h', transitHalfMileLayer, false);
 wireCheckbox('chk-byright', byRightHalfMileLayer, false);
 wireCheckbox('chk-vetchoropleth', vetChoroplethLayer, false);
 
@@ -1762,29 +1552,13 @@ document.getElementById('grp-facilities').addEventListener('change', (e) => {
     el.dispatchEvent(new Event('change'));
   });
 });
-document.getElementById('grp-transit').addEventListener('change', (e) => {
-  ['chk-alltransit','chk-planned'].forEach(id => {
-    const el = document.getElementById(id);
-    el.checked = e.target.checked;
-    el.dispatchEvent(new Event('change'));
-  });
-});
 
-// Accessibility toggle (single-select: None / 3 / 5 / 7 stops). Selecting an
-// option shows only that layer, re-scopes the transit radius rings (if
-// currently on) to just that option's highlighted stations, AND filters the
-// "All SB 79 transit stops" layer down to only those same stations - even
-// if that layer's own checkbox stays checked the whole time.
-const accessLayers = { 3: accessibility3Layer, 5: accessibility5Layer };
-document.querySelectorAll('input[name="access-mode"]').forEach(radio => {
+// How many stops out from the anchor to show, on the by-right layer only.
+document.querySelectorAll('input[name="byright-stops"]').forEach(radio => {
   radio.addEventListener('change', () => {
     if (!radio.checked) return;
-    Object.values(accessLayers).forEach(l => map.removeLayer(l));
-    const val = parseInt(radio.value, 10);
-    accessibilityMode = val === 0 ? null : val;
-    if (accessibilityMode) accessLayers[accessibilityMode].addTo(map);
-    rebuildTransitRadiusRings();
-    renderTransitMarkers(currentFilteredStationRecords());
+    currentByRightStopCount = parseInt(radio.value, 10);
+    rebuildByRightLayer();
   });
 });
 
@@ -1813,19 +1587,8 @@ function runSearch() {
     checkbox.dispatchEvent(new Event('change'));
   }
 
-  // Transit stops: the actual marker only exists post-render and can be
-  // rebuilt by an Accessibility filter change, so look it up fresh via its record.
   const marker = match.record ? transitMarkersByRecord.get(match.record) : match.marker;
-  if (!marker) {
-    // Filtered out by an active Accessibility selection - clear the filter so the result is visible.
-    document.getElementById('chk-access-none').checked = true;
-    document.getElementById('chk-access-none').dispatchEvent(new Event('change'));
-    const retryMarker = match.record ? transitMarkersByRecord.get(match.record) : match.marker;
-    if (!retryMarker) return;
-    map.setView([match.lat, match.lng], 15);
-    retryMarker.openPopup();
-    return;
-  }
+  if (!marker) return;
   if (match.clusterGroup && typeof match.clusterGroup.zoomToShowLayer === 'function') {
     match.clusterGroup.zoomToShowLayer(marker, () => marker.openPopup());
   } else {
@@ -1846,15 +1609,15 @@ document.getElementById('reset-view-btn').addEventListener('click', () => {
   const defaults = {
     'chk-vamc': true, 'chk-cboc': false, 'chk-vetcenter': false,
     'chk-alltransit': false, 'chk-planned': false,
-    'chk-radius-facility-h': false, 'chk-radius-transit-h': false,
+    'chk-radius-facility-h': false,
     'chk-byright': false, 'chk-vetchoropleth': false
   };
   Object.entries(defaults).forEach(([id, val]) => {
     const el = document.getElementById(id);
     if (el.checked !== val) { el.checked = val; el.dispatchEvent(new Event('change')); }
   });
-  const noneRadio = document.getElementById('chk-access-none');
-  if (!noneRadio.checked) { noneRadio.checked = true; noneRadio.dispatchEvent(new Event('change')); }
+  const threeStopsRadio = document.querySelector('input[name="byright-stops"][value="3"]');
+  if (!threeStopsRadio.checked) { threeStopsRadio.checked = true; threeStopsRadio.dispatchEvent(new Event('change')); }
 });
 
 
@@ -1868,34 +1631,27 @@ legend.onAdd = function () {
     <div class="row"><span class="swatch" style="background:#7a3ea1;"></span> Vet Center</div>
     <div class="row"><span class="swatch" style="background:#1a73e8;"></span> Transit stop (click for agency and tier)</div>
     <div class="row"><span class="swatch" style="border-radius:50%; border:2px dashed #444; background:rgba(255,255,255,0.6);"></span> Planned/under-construction stop</div>
-    <div class="row"><span class="swatch" style="border-radius:50%; background:rgba(184,134,11,0.35); border:2px solid #b8860b;"></span> Accessibility highlight (station within 3 or 5 stops of a facility)</div>
     <div class="row"><span class="ring" style="border-color:#888;"></span> 0.5-mile radius</div>
     <div class="row"><span class="swatch" style="background:#b3282d; opacity:0.35; border:2px dashed rgba(0,0,0,0.55);"></span> Faded with a dashed border means the county is not an SB 79 urban transit county</div>
-    <div class="row"><span class="ring" style="border-color:#1a7a2e; border-width:2px;"></span> By-right veteran shelter zone (0.5mi, anchor stop plus 3 stops each way)</div>
+    <div class="row"><span class="ring" style="border-color:#1a7a2e; border-width:2px;"></span> By-right veteran shelter zone (0.5mi, anchor stop plus 3 or 5 stops each way)</div>
     <div class="row"><span class="swatch" style="border-radius:3px; background:rgb(190,65,85);"></span> County shaded by unsheltered veteran count</div>
     <div class="row" style="margin-top:6px;"><a class="popup-link" href="homelessness-shelter-map.html">&rarr; Map 1: Homelessness &amp; Shelter Capacity by County/District</a></div>
     <span class="legend-toggle" id="legend-toggle">Show methodology &amp; findings ▸</span>
     <div class="note collapsed" id="legend-note">
-      <strong>How this map is organized.</strong> All 13 SB 79-relevant transit agencies
-      (BART, Caltrain, LA Metro, San Diego Trolley, Coaster, Sprinter, Muni Metro, Sacramento
-      RT, VTA, Metrolink, ACE, Capitol Corridor, and BRT candidates), plus every
-      individually-researched facility-specific check, show as one combined layer of plain
-      stops. Click any stop for its agency, SB 79 tier, and county-qualification status. The
-      map shows stops only, not route lines, to keep focus on what actually matters for SB
-      79: proximity, not the shape of the track.
+      <strong>How this map is organized.</strong> Rather than show every stop of all 13
+      SB 79-relevant transit agencies (BART, Caltrain, LA Metro, San Diego Trolley, Coaster,
+      Sprinter, Muni Metro, Sacramento RT, VTA, Metrolink, ACE, Capitol Corridor, and BRT
+      candidates), this map only draws the stops that actually matter: those within 0.5 miles
+      of a veteran facility whose county fails the 60% standard below. Use the search box to
+      look up any facility or station by name directly.
       <br><br>
       <strong>Flagship planned-stop finding.</strong> LA Metro's D (Purple) Line extension
       terminates at a station literally named <strong>"Westwood/VA Hospital,"</strong> built
       specifically to serve VA Greater LA (West LA), 0.31 miles away (well within 0.5 miles).
       Section 1 opened May 2026. Section 3 (UCLA and VA Hospital stations) is targeted for
       fall 2027. If it opens on schedule, this facility gains a Tier 1 heavy-rail TOD stop
-      essentially on campus. Toggle "Planned/under-construction stops" to see this and other
-      in-progress extensions (LA Metro D Line Section 2, BART Silicon Valley Phase II, San
-      Diego's long-horizon proposed Purple Line near Kearny Mesa, which is a 2035-2050
-      proposal with no secured funding, not a near-term bet). The "0.5-mile radius around
-      transit" toggle lets you check any facility against the network visually instead of
-      one-by-one, and if an Accessibility filter (3 or 5 stops) is active, that ring scopes
-      down to just the highlighted stops.
+      essentially on campus. This planned station already shows in the By-Right Veteran
+      Shelter Zone layer below, marked with a dashed ring.
       <br><br>
       <strong>Biggest finding: SB 79's county gate.</strong> SB 79's tiers only exist inside
       "urban transit counties" (15 or more passenger rail stations): <strong>Alameda, Los
@@ -1935,12 +1691,13 @@ legend.onAdd = function () {
       separate legal trigger. A facility only gets this layer if its county fails the
       veteran 60% standard above, the facility sits in an SB 79 urban transit county, and
       it's within 0.5 miles of a real, open-or-planned major transit stop. Where all three
-      hold, the by-right zone covers that anchor stop plus the 3 adjacent stations on that
-      line in each direction (a one-seat ride of up to 4 stops, anchor included). Nine
-      facilities currently qualify: SF Vet Center, VA San Diego, the Downtown LA VA Clinic,
-      SF Downtown VA Clinic, Rio VA Clinic, both Oakland clinics, the San Diego VA
-      Domiciliary, and VA Greater Los Angeles (West LA) via the Westwood/VA Hospital station
-      on the D Line extension, which is under construction and targeted to open fall 2027.
+      hold, the by-right zone covers that anchor stop plus the adjacent stations on that line
+      in each direction, a one-seat ride with no transfer. Use the 3 stops or 5 stops choice
+      above the map to pick how far out that zone reaches. Nine facilities currently qualify:
+      SF Vet Center, VA San Diego, the Downtown LA VA Clinic, SF Downtown VA Clinic, Rio VA
+      Clinic, both Oakland clinics, the San Diego VA Domiciliary, and VA Greater Los Angeles
+      (West LA) via the Westwood/VA Hospital station on the D Line extension, which is under
+      construction and targeted to open fall 2027.
       <br><br>
       Every one of those nine was individually checked against the relevant transit agency's
       own official GTFS schedule feed (BART, SFMTA/Muni, MTS, and LA Metro rail, each
