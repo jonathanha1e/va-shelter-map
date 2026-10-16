@@ -6,38 +6,38 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
 <style>
-  html, body { margin: 0; padding: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  html, body { margin: 0; padding: 0; height: 100%; font-family: Verdana, Arial, Helvetica, sans-serif; }
   #map { height: 100vh; width: 100vw; }
   .legend {
-    background: white; padding: 12px 14px; border-radius: 8px;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.3); font-size: 13px; line-height: 1.5;
+    background: #fdfdfd; padding: 10px 12px; border: 1px solid #999;
+    font-size: 12px; line-height: 1.5;
     max-width: 280px; max-height: 80vh; overflow-y: auto;
   }
-  .legend h4 { margin: 0 0 6px 0; font-size: 14px; }
+  .legend h4 { margin: 0 0 6px 0; font-size: 13px; border-bottom: 1px solid #999; padding-bottom: 4px; }
   .legend .row { display: flex; align-items: center; margin: 3px 0; }
-  .swatch { width: 14px; height: 14px; border-radius: 3px; margin-right: 8px; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.3); }
+  .swatch { width: 12px; height: 12px; border-radius: 2px; margin-right: 8px; flex-shrink: 0; border: 1px solid #333; }
   .line { width: 16px; height: 0; margin-right: 8px; flex-shrink: 0; border-top: 3px solid; }
-  .note { font-size: 11px; color: #555; margin-top: 8px; border-top: 1px solid #ddd; padding-top: 6px; }
-  .popup-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
-  .popup-tag { display: inline-block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.03em; background: #eee; padding: 1px 6px; border-radius: 3px; margin-bottom: 6px; }
+  .note { font-size: 11px; color: #333; margin-top: 8px; border-top: 1px solid #ccc; padding-top: 6px; }
+  .popup-title { font-weight: bold; font-size: 13px; margin-bottom: 4px; }
+  .popup-tag { display: inline-block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.03em; background: #eee; border: 1px solid #ccc; padding: 1px 6px; margin-bottom: 6px; }
   .popup-row { font-size: 12px; margin: 2px 0; }
-  a.popup-link { color: #0056b3; }
+  a.popup-link { color: #0000ee; }
   .layer-panel {
-    background: white; padding: 10px 12px; border-radius: 8px;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.3); font-size: 12.5px; line-height: 1.5;
+    background: #fdfdfd; padding: 8px 10px; border: 1px solid #999;
+    font-size: 12px; line-height: 1.5;
     max-width: 270px; max-height: 85vh; overflow-y: auto;
   }
-  .lp-group { margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 6px; }
+  .lp-group { margin-bottom: 8px; border-bottom: 1px solid #ccc; padding-bottom: 6px; }
   .lp-group:last-child { border-bottom: none; }
-  .lp-group-header { display: block; font-weight: 600; cursor: pointer; margin-bottom: 3px; }
-  .lp-sub { margin-left: 18px; }
-  .lp-sub label { display: block; font-weight: 400; cursor: pointer; margin: 2px 0; }
-  .legend-toggle { cursor: pointer; color: #0056b3; font-size: 11px; margin-top: 4px; display: inline-block; }
+  .lp-group-header { display: block; font-weight: bold; cursor: pointer; margin-bottom: 3px; }
+  .lp-sub { margin-left: 16px; }
+  .lp-sub label { display: block; font-weight: normal; cursor: pointer; margin: 2px 0; }
+  .legend-toggle { cursor: pointer; color: #0000ee; font-size: 11px; margin-top: 4px; display: inline-block; }
   .note.collapsed { display: none; }
-  .exempt-likely { color: #1a7a2e; font-weight: 600; }
-  .exempt-rural { color: #0a7a8a; font-weight: 600; }
-  .exempt-no { color: #a33; font-weight: 600; }
-  .exempt-mixed { color: #a66a00; font-weight: 600; }
+  .exempt-likely { color: #1a7a2e; font-weight: bold; }
+  .exempt-rural { color: #0a7a8a; font-weight: bold; }
+  .exempt-no { color: #a33; font-weight: bold; }
+  .exempt-mixed { color: #a66a00; font-weight: bold; }
 </style>
 </head>
 <body>
@@ -49,32 +49,32 @@
 
 // ============================================================
 // DATA SOURCES (all loaded at runtime from local files alongside this page):
-//   county_data.json          — HUD 2024 PIT (homeless count) + HIC (shelter
+//   county_data.json          - HUD 2024 PIT (homeless count) + HIC (shelter
 //                                bed inventory) by California county, built
 //                                from the official CoC-level reports at
 //                                huduser.gov (2024 AHAR Part 1), apportioned
 //                                to counties via a CoC-to-county crosswalk.
 //                                Multi-county CoCs (e.g. the 7-county Redding/
 //                                Shasta... CoC) share identical figures across
-//                                all member counties — that is a real
+//                                all member counties - that is a real
 //                                reporting limit, not a data error.
-//   ca_counties.geojson        — CA county boundaries (CA State Geoportal,
+//   ca_counties.geojson        - CA county boundaries (CA State Geoportal,
 //                                reprojected to WGS84, simplified).
-//   ca_senate.geojson          — CA State Senate districts, Oct 2024 cycle
+//   ca_senate.geojson          - CA State Senate districts, Oct 2024 cycle
 //                                (2021 Citizens Redistricting Commission).
-//   ca_assembly.geojson        — CA State Assembly districts, 2024-26 cycle.
-//   senate_county_overlap.json / assembly_county_overlap.json — precomputed
+//   ca_assembly.geojson        - CA State Assembly districts, 2024-26 cycle.
+//   senate_county_overlap.json / assembly_county_overlap.json - precomputed
 //                                polygon-intersection of each district against
 //                                every county it overlaps (by area fraction).
 //
-// THE 60% THRESHOLD — IMPORTANT METHODOLOGY NOTE: this map applies a 60%
+// THE 60% THRESHOLD - IMPORTANT METHODOLOGY NOTE: this map applies a 60%
 // shelter-capacity-vs-homeless-count threshold as its own policy-analysis
 // framework, referencing the benchmark used by Judge David Carter in his
 // orders in LA Alliance for Human Rights v. City/County of Los Angeles. It is
 // layered on top of EXISTING California shelter zoning law (SB 2 of 2007,
 // expanded by SB 340 of 2025-26), which requires a jurisdiction to allow
 // emergency shelters by right (no discretionary permit) in a designated zone
-// sized to its most recent point-in-time homeless count — UNLESS the
+// sized to its most recent point-in-time homeless count - UNLESS the
 // jurisdiction can show existing/planned shelter capacity already meets that
 // need. This map's 60% cutoff is NOT text from any adopted bill; it is this
 // site's own argument for where that existing by-right trigger should bite.
@@ -102,11 +102,11 @@ const cocGroupLayer = L.layerGroup();
 const ruralCarveoutLayer = L.layerGroup();
 let thresholdGeoJsonLayer = null; // set once counties load; restyled live when the % changes
 
-// Adjustable comparison threshold — 60% is this site's default/recommended
+// Adjustable comparison threshold - 60% is this site's default/recommended
 // reading of the siting formula, but 50% and 70% are offered side-by-side
 // so you can see how sensitive the "likely exempt / likely subject"
 // picture is to exactly where that line gets drawn. Changing this never
-// touches the underlying data (pctCapacityVsNeed, isRuralOMB, etc.) —
+// touches the underlying data (pctCapacityVsNeed, isRuralOMB, etc.) -
 // it only changes where the pass/fail line falls.
 let currentThresholdPct = 60;
 
@@ -121,7 +121,7 @@ function computeStatus(d, thresholdPct) {
   return { meets, rural, exempt, reason };
 }
 
-function fmt(n) { return n == null ? '—' : n.toLocaleString(); }
+function fmt(n) { return n == null ? '-' : n.toLocaleString(); }
 
 function countColor(v, max) {
   const t = Math.sqrt(v / max);
@@ -135,29 +135,29 @@ function countyPopup(name, d) {
   const status = computeStatus(d, pct);
   let thresholdLine;
   if (status.reason === 'rural_carveout') {
-    thresholdLine = `<span class="exempt-rural">Below the ${pct}% threshold, but exempt via the rural carveout — ${name} County is non-metropolitan per OMB (not part of any Metropolitan Statistical Area), so the by-right mandate does not apply regardless of capacity score</span>`;
+    thresholdLine = `<span class="exempt-rural">Below the ${pct}% threshold, but exempt via the rural carveout. ${name} County is non-metropolitan per OMB (not part of any Metropolitan Statistical Area), so the by-right mandate does not apply regardless of capacity score.</span>`;
   } else if (status.reason === 'rural_and_meets_threshold') {
-    thresholdLine = `<span class="exempt-likely">Meets the ${pct}% threshold (and is also exempt via the rural carveout, redundantly) — by-right approval is not automatically triggered here</span>`;
+    thresholdLine = `<span class="exempt-likely">Meets the ${pct}% threshold, and is also exempt via the rural carveout. By-right approval is not automatically triggered here.</span>`;
   } else if (status.meets) {
-    thresholdLine = `<span class="exempt-likely">Meets the ${pct}% threshold — shelter beds can accommodate at least ${pct}% of the average total homeless count, so by-right approval is not automatically triggered here</span>`;
+    thresholdLine = `<span class="exempt-likely">Meets the ${pct}% threshold. Shelter beds can accommodate at least ${pct}% of the average total homeless count, so by-right approval is not automatically triggered here.</span>`;
   } else {
-    thresholdLine = `<span class="exempt-no">Below the ${pct}% threshold — beds cover under ${pct}% of the average total homeless count, so by-right emergency shelter approval is argued to apply here</span>`;
+    thresholdLine = `<span class="exempt-no">Below the ${pct}% threshold. Beds cover under ${pct}% of the average total homeless count, so by-right emergency shelter approval is argued to apply here.</span>`;
   }
   const yearsNote = d.avgTotalYearsUsed < 10
-    ? ` (averaged over ${d.avgTotalYearsUsed} of the last 10 years — some years were excluded, see methodology)`
-    : ' (2015–2024)';
+    ? ` (averaged over ${d.avgTotalYearsUsed} of the last 10 years; some years were excluded, see methodology)`
+    : ' (2015 to 2024)';
   return `
     <div class="popup-title">${name} County</div>
-    ${d.multiCountyCoC ? `<div class="popup-row" style="color:#a66a00;">Part of a multi-county Continuum of Care (${d.cocNames.join('; ')}) — figures below are CoC-wide, shared identically with: ${d.sharedWithCounties.join(', ') || 'none'}.</div>` : `<div class="popup-row" style="color:#555;">${d.cocNames.join('; ')}</div>`}
+    ${d.multiCountyCoC ? `<div class="popup-row" style="color:#a66a00;">Part of a multi-county Continuum of Care (${d.cocNames.join('; ')}). Figures below are CoC-wide, shared identically with: ${d.sharedWithCounties.join(', ') || 'none'}.</div>` : `<div class="popup-row" style="color:#555;">${d.cocNames.join('; ')}</div>`}
     <div class="popup-row"><strong>Homeless count (2024 PIT, total):</strong> ${fmt(d.homelessTotal)}</div>
     <div class="popup-row">&nbsp;&nbsp;Sheltered: ${fmt(d.homelessSheltered)} &nbsp;|&nbsp; Unsheltered (2024): ${fmt(d.homelessUnsheltered2024)}</div>
     <div class="popup-row"><strong>Average total homeless count${yearsNote}:</strong> ${fmt(d.avgTotal10yr)}</div>
     <div class="popup-row" style="color:#777;">(for reference, average unsheltered alone: ${fmt(d.avgUnsheltered10yr)})</div>
     <div class="popup-row"><strong>Year-round interim shelter beds (2024 HIC):</strong> ${fmt(d.emergencyInterimBeds)}</div>
     <div class="popup-row">&nbsp;&nbsp;Emergency shelter: ${fmt(d.shelterBedsES)} &nbsp;|&nbsp; Transitional housing: ${fmt(d.shelterBedsTH)} &nbsp;|&nbsp; Safe haven: ${fmt(d.shelterBedsSH)}</div>
-    <div class="popup-row"><strong>Beds ÷ average total homeless count:</strong> ${d.pctCapacityVsNeed}%</div>
+    <div class="popup-row"><strong>Beds divided by average total homeless count:</strong> ${d.pctCapacityVsNeed}%</div>
     <div class="popup-row" style="margin-top:4px;">${thresholdLine}</div>
-    <div class="popup-row" style="margin-top:6px; color:#444;"><strong>Veterans:</strong> ${fmt(d.vetHomelessTotal)} homeless (${fmt(d.vetUnsheltered2024)} unsheltered in 2024, ${fmt(d.avgVetTotal10yr)} avg. total), ${fmt(d.vetDedicatedBeds)} dedicated beds, ${d.vetPctCapacityVsNeed}% — see Map 2 for the VA-facility-level view.</div>
+    <div class="popup-row" style="margin-top:6px; color:#444;"><strong>Veterans:</strong> ${fmt(d.vetHomelessTotal)} homeless (${fmt(d.vetUnsheltered2024)} unsheltered in 2024, ${fmt(d.avgVetTotal10yr)} avg. total), ${fmt(d.vetDedicatedBeds)} dedicated beds, ${d.vetPctCapacityVsNeed}%. See Map 2 for the VA-facility-level view.</div>
   `;
 }
 
@@ -169,9 +169,9 @@ function districtAssessment(overlapList) {
   const allExempt = withStatus.every(o => o.status.exempt);
   const noneExempt = withStatus.every(o => !o.status.exempt);
   const anyRural = withStatus.some(o => o.status.rural);
-  if (allExempt) return { cls: 'exempt-likely', text: `Likely exempt — every overlapping jurisdiction meets the ${pct}% threshold${anyRural ? ' or qualifies for the rural carveout' : ''}.` };
-  if (noneExempt) return { cls: 'exempt-no', text: `Likely subject to the by-right mandate — no overlapping jurisdiction meets the ${pct}% threshold or the rural carveout.` };
-  return { cls: 'exempt-mixed', text: 'Mixed — depends which jurisdiction a given site falls in (see breakdown below).' };
+  if (allExempt) return { cls: 'exempt-likely', text: `Likely exempt. Every overlapping jurisdiction meets the ${pct}% threshold${anyRural ? ' or qualifies for the rural carveout' : ''}.` };
+  if (noneExempt) return { cls: 'exempt-no', text: `Likely subject to the by-right mandate. No overlapping jurisdiction meets the ${pct}% threshold or the rural carveout.` };
+  return { cls: 'exempt-mixed', text: 'Mixed. This depends on which jurisdiction a given site falls in (see breakdown below).' };
 }
 
 function legislatorBlock(kind, num) {
@@ -197,12 +197,12 @@ function districtPopup(kind, num, overlapList) {
   const rows = (overlapList || []).map(o => {
     const d = countyData[o.county];
     const areaPct = Math.round(o.frac * 1000) / 10;
-    if (!d) return `<div class="popup-row">${o.county} County (${areaPct}% of district area) — no data</div>`;
+    if (!d) return `<div class="popup-row">${o.county} County (${areaPct}% of district area), no data</div>`;
     const st = computeStatus(d, threshPct);
     const status = st.reason === 'rural_carveout' ? '<span class="exempt-rural">rural carveout</span>'
       : st.meets ? `<span class="exempt-likely">meets ${threshPct}%</span>`
       : `<span class="exempt-no">below ${threshPct}%</span>`;
-    return `<div class="popup-row">${o.county} County (${areaPct}% of district area) — ${d.pctCapacityVsNeed}% capacity, ${status}</div>`;
+    return `<div class="popup-row">${o.county} County (${areaPct}% of district area): ${d.pctCapacityVsNeed}% capacity, ${status}</div>`;
   }).join('');
   return `
     <div class="popup-title">${kind} District ${num}</div>
@@ -237,7 +237,7 @@ Promise.all([
       layer.bindPopup(`
         <div class="popup-title">Shared multi-county CoC</div>
         <div class="popup-row">${feat.properties.cocName}</div>
-        <div class="popup-row" style="margin-top:4px; color:#444;">HUD reports one combined homeless count and shelter-bed figure for all of: <strong>${feat.properties.counties.join(', ')}</strong>. Every county inside this dashed boundary shows the identical number — that's a real reporting limit, not a map error.</div>
+        <div class="popup-row" style="margin-top:4px; color:#444;">HUD reports one combined homeless count and shelter-bed figure for all of: <strong>${feat.properties.counties.join(', ')}</strong>. Every county inside this dashed boundary shows the identical number. That's a real reporting limit, not a map error.</div>
       `);
     }
   }).addTo(cocGroupLayer);
@@ -248,7 +248,7 @@ Promise.all([
     style: { fillOpacity: 0, color: '#0a7a8a', weight: 3, dashArray: '1,5' },
     onEachFeature: (feat, layer) => {
       layer.bindPopup(`
-        <div class="popup-title">${feat.properties.CountyName} County — Rural Carveout</div>
+        <div class="popup-title">${feat.properties.CountyName} County: Rural Carveout</div>
         <div class="popup-row">Non-metropolitan per the federal Office of Management and Budget's July 2023 Core Based Statistical Area delineation (not part of any Metropolitan Statistical Area).</div>
         <div class="popup-row" style="margin-top:4px; color:#444;">Under this map's rural carveout, this county is fully exempt from the by-right shelter mandate regardless of its 60% capacity score.</div>
       `);
@@ -412,83 +412,84 @@ legend.onAdd = function () {
     <div class="row"><span class="line" style="border-color:#0a7a8a; border-top-style:dotted; border-top-width:3px;"></span> Rural carveout county (OMB non-metro)</div>
     <span class="legend-toggle" id="legend-toggle">Show methodology &amp; findings ▸</span>
     <div class="note collapsed" id="legend-note">
-      <strong>Data:</strong> homeless counts and shelter bed inventory are HUD's official 2024
-      Point-in-Time (PIT) count and Housing Inventory Count (HIC), reported by California's 44
-      Continuums of Care (CoCs) and published at huduser.gov (2024 AHAR Part 1, Dec. 2024), plus
-      HUD's historical PIT-by-CoC series back to 2015. "Year-round interim shelter beds" =
-      Emergency Shelter + Transitional Housing + Safe Haven beds; it excludes Rapid Re-Housing
-      and Permanent Supportive Housing, which are not shelter. Several rural counties share one
-      multi-county CoC (e.g. Shasta, Siskiyou, Lassen, Plumas, Del Norte, Modoc, and Sierra
-      counties are all one CoC, outlined with a dotted purple boundary on the map) — HUD does
-      not report sub-CoC county breakdowns, so those counties show identical figures. That's a
-      real reporting limit, not a map error; click any such county, or its dotted boundary, for
-      the full list of counties it shares data with.
+      <strong>Data.</strong> Homeless counts and shelter bed inventory come from HUD's official
+      2024 Point-in-Time (PIT) count and Housing Inventory Count (HIC), reported by California's
+      44 Continuums of Care (CoCs) and published at huduser.gov (2024 AHAR Part 1, Dec. 2024),
+      plus HUD's historical PIT-by-CoC series back to 2015. "Year-round interim shelter beds"
+      means Emergency Shelter, Transitional Housing, and Safe Haven beds combined. It excludes
+      Rapid Re-Housing and Permanent Supportive Housing, which are not shelter. Several rural
+      counties share one multi-county CoC (for example, Shasta, Siskiyou, Lassen, Plumas, Del
+      Norte, Modoc, and Sierra counties are all one CoC, outlined with a dotted purple boundary
+      on the map). HUD does not report sub-CoC county breakdowns, so those counties show
+      identical figures. That's a real reporting limit, not a map error. Click any such county,
+      or its dotted boundary, for the full list of counties it shares data with.
       <br><br>
-      <strong>The siting formula — this map's exact standard:</strong> a jurisdiction (city or
+      <strong>The siting formula: this map's exact standard.</strong> A jurisdiction (city or
       county) is subject to a by-right emergency-shelter-approval mandate when its year-round
       interim shelter beds, as reported in HUD's annual HIC, can accommodate <strong>fewer than
-      60% of its average TOTAL homeless point-in-time count (sheltered + unsheltered) over the
-      most recent 10 years</strong> (2015–2024 here; years a CoC didn't exist yet, or didn't
-      conduct an unsheltered count — most of California skipped it in January 2021 under a
-      COVID-era HUD waiver, which makes that year's total figure equally unusable — are
-      excluded from the average rather than counted as zero or as a true total).
+      60% of its average TOTAL homeless point-in-time count (sheltered plus unsheltered) over
+      the most recent 10 years</strong> (2015 to 2024 here). Years a CoC didn't exist yet, or
+      didn't conduct an unsheltered count, are excluded from the average rather than counted as
+      zero or as a true total. That matters because most of California skipped the unsheltered
+      count in January 2021 under a COVID-era HUD waiver, which makes that year's total figure
+      equally unusable.
       <br><br>
-      <strong>The 60% line is adjustable — use the "Threshold %" control</strong> in the panel
-      to compare 50%, 60% (this site's default), and 70% side by side. Every county's
-      underlying numbers (beds, average homeless count, the resulting %) never change — only
-      where the pass/fail cutoff falls changes, both on the map's colors and in every popup.
-      Rural-carveout counties stay exempt at any threshold, since that exemption isn't based
-      on the capacity percentage at all.
+      <strong>The 60% line is adjustable.</strong> Use the "Threshold %" control in the panel to
+      compare 50%, 60% (this site's default), and 70% side by side. Every county's underlying
+      numbers (beds, average homeless count, the resulting percentage) never change. Only where
+      the pass/fail cutoff falls changes, both on the map's colors and in every popup.
+      Rural-carveout counties stay exempt at any threshold, since that exemption isn't based on
+      the capacity percentage at all.
       <br><br>
-      <strong>Why total, not unsheltered — a deliberate departure from the source litigation:</strong>
-      the 60% figure itself comes from federal Judge David O. Carter's homelessness settlements
-      with Orange County cities and the City of Los Angeles (<em>LA Alliance for Human Rights v.
-      City of Los Angeles</em>, 2022 Settlement Agreement; Voice of OC, Sept. 2019) — but those
-      settlements actually benchmarked bed capacity against the <em>unsheltered</em> count alone,
-      not total homelessness. Unsheltered-only is a lower bar: it only asks whether a
-      jurisdiction has capacity for people who don't already have a shelter placement, ignoring
+      <strong>Why total, not unsheltered.</strong> This is a deliberate departure from the source
+      litigation. The 60% figure itself comes from federal Judge David O. Carter's homelessness
+      settlements with Orange County cities and the City of Los Angeles (<em>LA Alliance for
+      Human Rights v. City of Los Angeles</em>, 2022 Settlement Agreement; Voice of OC, Sept.
+      2019). Those settlements actually benchmarked bed capacity against the <em>unsheltered</em>
+      count alone, not total homelessness. Unsheltered-only is a lower bar: it only asks whether
+      a jurisdiction has capacity for people who don't already have a shelter placement, ignoring
       everyone already inside the shelter system. This map instead deliberately measures against
-      the TOTAL homeless population, sheltered and unsheltered combined — a higher, stricter bar
-      that a jurisdiction can't clear just by having enough beds for today's visible unsheltered
-      population while leaving its existing shelter residents out of the count. The underlying
-      by-right-zoning requirement itself comes from existing California shelter law (SB 2 of
-      2007, expanded by SB 340 of 2025-26); this map's own contribution is applying the
+      the TOTAL homeless population, sheltered and unsheltered combined. That's a higher,
+      stricter bar that a jurisdiction can't clear just by having enough beds for today's visible
+      unsheltered population while leaving its existing shelter residents out of the count. The
+      underlying by-right-zoning requirement itself comes from existing California shelter law
+      (SB 2 of 2007, expanded by SB 340 of 2025-26). This map's own contribution is applying the
       60%-of-average-total test as the specific pass/fail line.
       <br><br>
       One more limitation worth naming: "beds" here is gross HIC bed inventory, not beds net of
       current occupancy. Most of a county's existing shelter beds are already occupied by its
-      own sheltered population (in most CA counties, sheltered count ÷ total beds runs
-      80-95%) — so gross bed counts overstate how much of that capacity is actually free for
+      own sheltered population. In most CA counties, sheltered count divided by total beds runs
+      80 to 95%, so gross bed counts overstate how much of that capacity is actually free for
       anyone not already inside it. A county that "meets 60%" on this map is not a county with
-      spare capacity for 60% of its homeless population; it's a county whose total shelter
+      spare capacity for 60% of its homeless population. It's a county whose total shelter
       system, fully built out, is sized to roughly that share.
       <br><br>
-      <strong>Rural carveout:</strong> 21 of California's 58 counties are fully exempt from the
+      <strong>Rural carveout.</strong> 21 of California's 58 counties are fully exempt from the
       by-right mandate regardless of their capacity score, because they're non-metropolitan per
       the federal Office of Management and Budget's July 2023 Core Based Statistical Area
-      delineation (<a class="popup-link" href="https://www2.census.gov/programs-surveys/metro-micro/geographies/reference-files/2023/delineation-files/list1_2023.xlsx" target="_blank" rel="noopener">OMB Bulletin 23-01 / Census delineation file</a>) — meaning no part of the
-      county falls inside a federally designated Metropolitan Statistical Area. That's Alpine,
-      Amador, Calaveras, Colusa, Del Norte, Glenn, Humboldt, Inyo, Lake, Lassen, Mariposa,
-      Mendocino, Modoc, Mono, Nevada, Plumas, Sierra, Siskiyou, Tehama, Trinity, and Tuolumne —
-      outlined with a dotted teal boundary and toggleable under "Reference." Note this is a
-      different cut than the multi-county-CoC grouping above: Shasta County, for example, is
-      part of that 7-county shared CoC but is itself metropolitan (Redding) and so is NOT
-      rural-carveout-exempt — its neighbors in that CoC mostly are. A county exempted this way
-      shows teal on the threshold map even though its raw score is below 60%; its popup always
-      shows both the real number and the carveout reason.
+      delineation (<a class="popup-link" href="https://www2.census.gov/programs-surveys/metro-micro/geographies/reference-files/2023/delineation-files/list1_2023.xlsx" target="_blank" rel="noopener">OMB Bulletin 23-01, Census delineation file</a>). That means no part of
+      the county falls inside a federally designated Metropolitan Statistical Area. The 21
+      counties are Alpine, Amador, Calaveras, Colusa, Del Norte, Glenn, Humboldt, Inyo, Lake,
+      Lassen, Mariposa, Mendocino, Modoc, Mono, Nevada, Plumas, Sierra, Siskiyou, Tehama,
+      Trinity, and Tuolumne, outlined with a dotted teal boundary and toggleable under
+      "Reference." Note this is a different cut than the multi-county-CoC grouping above.
+      Shasta County, for example, is part of that 7-county shared CoC but is itself metropolitan
+      (Redding), so it is not rural-carveout-exempt, even though its neighbors in that CoC mostly
+      are. A county exempted this way shows teal on the threshold map even though its raw score
+      is below 60%. Its popup always shows both the real number and the carveout reason.
       <br><br>
-      <strong>District overlays:</strong> California's State Senate (40 districts) and Assembly
-      (80 districts) boundaries are the current 2021 Citizens Redistricting Commission cycle
-      (in effect through the 2030 Census), from the CA State Geoportal (Oct. 2024 / Feb. 2025
+      <strong>District overlays.</strong> California's State Senate (40 districts) and Assembly
+      (80 districts) boundaries are the current 2021 Citizens Redistricting Commission cycle, in
+      effect through the 2030 Census, from the CA State Geoportal (Oct. 2024 and Feb. 2025
       downloads). Since districts rarely align with county lines, each district's popup lists
-      every county it overlaps (by share of district area) and that county's threshold status —
+      every county it overlaps (by share of district area) and that county's threshold status:
       "likely exempt," "likely subject to the by-right mandate," or "mixed" when a district
       spans jurisdictions on both sides of the line. Each popup also names the current
       officeholder (2025-26 session: Senate seats from the Oct. 2024 CA State Geoportal
       membership dataset, Assembly seats from the 2024-26 dataset), with party and a link to
       their official district website.
       <br><br>
-      <a class="popup-link" href="va-shelter-map.html">&rarr; Map 2: VA Facilities &amp; Veteran Shelter By-Right Siting</a>
+      <a class="popup-link" href="va-shelter-map.html">See Map 2: VA Facilities and Veteran Shelter By-Right Siting</a>
     </div>
   `;
   const toggle = div.querySelector('#legend-toggle');
